@@ -1,51 +1,73 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Qu0x!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Qu0x Beta - Daily Dice Game</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Qu0x!</h1>
-  <p>Use all 5 dice <strong>exactly once</strong> with math operations to match the target number. A perfect match is a "Qu0x!".</p>
+  <div id="container">
+    <h1>Qu0x Beta</h1>
 
-  <div id="game-header">
-    <span id="date-display"></span>
-    <span id="game-number"></span>
-    <span id="total-qu0x"></span>
-  </div>
+    <div id="instructions">
+      Welcome to Qu0x!<br />
+      - Use the colored dice buttons to build your expression.<br />
+      - You cannot concatenate dice values (e.g., no "45" from dice 4 and 5).<br />
+      - Use math operations +, -, *, /, ^ (exponent), and ! (factorial).<br />
+      - Expressions like (2+1)! are allowed.<br />
+      - Fractional exponents are not allowed.<br />
+      - Submit your expression to get close to the target number.<br />
+      - In Daily Mode, use all dice exactly once. Perfect score locks the day.<br />
+      - In Blitz Mode, infinite random games, no locking.<br />
+      - Expression input is click-only.<br />
+    </div>
 
-  <div id="target-box"></div>
+    <div id="mode-buttons">
+      <button id="daily-btn" class="mode-btn">Daily Mode</button>
+      <button id="blitz-btn" class="mode-btn">Blitz Mode</button>
+    </div>
 
-  <div id="dice-buttons" class="button-row"></div>
+    <div id="game-info">
+      <button id="prev-btn" class="nav-btn">&lt; Previous</button>
+      <span id="game-number">Game #1</span>
+      <button id="next-btn" class="nav-btn">Next &gt;</button>
+      <span id="date-display"></span>
+    </div>
 
-  <div id="op-buttons" class="button-row">
-    <button class="btn">+</button>
-    <button class="btn">−</button>
-    <button class="btn">*</button>
-    <button class="btn">/</button>
-    <button class="btn">^</button>
-    <button class="btn">!</button>
-    <button class="btn">(</button>
-    <button class="btn">)</button>
-  </div>
+    <div id="target-box">Target: <span id="target-number">--</span></div>
 
-  <input id="expression-box" type="text" readonly />
+    <div id="dice-buttons"></div>
 
-  <div id="expression-output-box">
+    <input type="text" id="expression-box" readonly placeholder="Build expression here" />
+
+    <div id="op-buttons">
+      <button class="op-btn" data-val="+">+</button>
+      <button class="op-btn" data-val="-">−</button>
+      <button class="op-btn" data-val="*">×</button>
+      <button class="op-btn" data-val="/">÷</button>
+      <button class="op-btn" data-val="^">^</button>
+      <button class="op-btn" data-val="!">!</button>
+      <button id="clear-btn" class="control-btn">Clear</button>
+      <button id="backspace-btn" class="control-btn">Backspace</button>
+      <button id="submit-btn" class="control-btn submit-btn">Submit</button>
+    </div>
+
     <div id="expression-output"></div>
+
+    <div id="score-info">
+      <div>Total Qu0x Count: <span id="total-qu0x">0</span></div>
+      <div>Qu0x Master Score: <span id="qu0x-master-score">N/A</span></div>
+      <div id="best-score-display"></div>
+    </div>
   </div>
 
-  <div id="controls">
-    <button id="submit">Submit</button>
-    <button id="clear">Clear</button>
-    <button id="backspace">Backspace</button>
-    <button id="prev">Previous</button>
-    <button id="next">Next</button>
-  </div>
+  <audio id="qu0x-sound" src="qu0x-sound.mp3" preload="auto"></audio>
 
-  <script src="script.js"></script>
+  <script>
+    // === Qu0x Beta Game JavaScript ===
+    // Utility and game code here. 
+    // (You can paste your updated game JS here or ask me for the JS file separately)
+  </script>
 </body>
 </html>
