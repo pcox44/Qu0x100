@@ -1,1 +1,120 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f4f4f4;
+  margin: 20px;
+  text-align: center;
+}
 
+#logo {
+  font-size: 2em;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.highlight {
+  color: crimson;
+  font-family: 'Comic Sans MS', cursive;
+}
+
+#instructions {
+  margin-bottom: 15px;
+  font-size: 0.95em;
+  padding: 10px;
+  background: #fffbe6;
+  border-radius: 10px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.nav {
+  margin-top: 10px;
+}
+
+#dateDisplay {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+#targetBox {
+  font-size: 1.5em;
+  padding: 10px;
+  background: #e0ffe0;
+  border: 3px solid #66cc66;
+  display: inline-block;
+  margin: 10px 0;
+  border-radius: 10px;
+}
+
+#diceContainer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.die {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  border: 3px solid black;
+  cursor: pointer;
+}
+
+.used {
+  opacity: 0.4;
+}
+
+.die-1 { background: red; color: white; }
+.die-2 { background: white; color: black; }
+.die-3 { background: blue; color: white; }
+.die-4 { background: yellow; color: black; }
+.die-5 { background: green; color: white; }
+.die-6 { background: black; color: yellow; }
+
+#expressionContainer input {
+  font-size: 1.5em;
+  width: 300px;
+  padding: 10px;
+  border: 3px solid black;
+  border-radius: 8px;
+  text-align: center;
+}
+
+#expressionResult {
+  font-size: 1.2em;
+  margin: 10px;
+  color: #444;
+}
+
+#buttons {
+  margin: 20px 0;
+}
+
+#buttons button {
+  font-size: 1.1em;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 6px;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+}
+
+#feedback {
+  font-size: 1.2em;
+  margin-top: 10px;
+}
+
+#scoreSummary {
+  margin-top: 15px;
+  font-size: 1.1em;
+}
+
+#blitzContainer {
+  margin-top: 20px;
+}
