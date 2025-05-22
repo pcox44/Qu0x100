@@ -1,231 +1,140 @@
-/* style.css */
-
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #222;
-  color: #eee;
+  font-family: sans-serif;
+  text-align: center;
+  background: #f9f9f9;
   margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
+  padding: 0 10px 40px 10px;
 }
 
-#container {
-  max-width: 480px;
-  width: 95vw;
-  background: #121212;
-  border-radius: 12px;
-  padding: 20px;
-  box-sizing: border-box;
-  box-shadow: 0 0 20px #000;
+#game-header {
+  margin: 10px 0;
+  font-weight: bold;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 12px;
-  color: #ffd700;
-  text-shadow: 0 0 10px #ffd700;
-}
-
-#instructions {
-  background: #333;
-  padding: 10px;
-  font-size: 14px;
-  line-height: 1.4;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  user-select: none;
-}
-
-#mode-buttons {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.mode-btn {
-  background: #444;
-  border: none;
-  color: #eee;
-  font-weight: 600;
-  padding: 8px 18px;
-  margin: 0 5px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.25s ease;
-  user-select: none;
-}
-
-.mode-btn:hover,
-.mode-btn.active {
-  background: #ffd700;
-  color: #222;
-  text-shadow: none;
-}
-
-#game-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+#rules {
+  font-size: 0.9rem;
   margin-bottom: 10px;
-  color: #bbb;
-  user-select: none;
-  font-weight: 600;
-}
-
-.nav-btn {
-  background: #444;
-  border: none;
-  color: #eee;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.nav-btn:hover {
-  background: #ffd700;
-  color: #222;
-}
-
-#date-display {
-  font-size: 14px;
-  font-style: italic;
-  margin-left: 10px;
+  color: #333;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #target-box {
-  background: #333;
-  font-size: 28px;
-  font-weight: 700;
-  padding: 15px 10px;
-  text-align: center;
-  border-radius: 10px;
-  margin-bottom: 15px;
+  font-size: 2rem;
+  margin: 10px auto;
+  padding: 10px;
+  border: 2px solid black;
+  width: fit-content;
+  background: #fff;
   user-select: none;
 }
 
-#target-number {
-  color: #ffd700;
-  text-shadow: 0 0 5px #ffd700;
-}
-
-#dice-buttons {
+.button-row {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 15px;
   flex-wrap: wrap;
+  margin: 10px 0;
 }
 
-.dice-btn {
-  width: 45px;
-  height: 45px;
-  border-radius: 6px;
-  border: none;
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
+.die, .btn {
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: 2px solid black;
+  margin: 3px;
+  padding: 10px 15px;
+  min-width: 50px;
+  min-height: 50px;
   cursor: pointer;
   user-select: none;
+  background: white;
+  box-sizing: border-box;
+  border-radius: 5px;
+}
+
+.die {
   display: flex;
-  align-items: center;
   justify-content: center;
-  box-shadow: 0 0 6px #000;
-  transition: transform 0.1s ease;
+  align-items: center;
 }
-
-.dice-btn:active {
-  transform: scale(0.9);
-}
-
-/* Dice colors by value */
-.dice-1 { background: #cc2222; } /* red */
-.dice-2 { background: #eeeeee; color: #000; } /* white */
-.dice-3 { background: #3344cc; } /* blue */
-.dice-4 { background: #cccc22; color: #000; } /* yellow */
-.dice-5 { background: #22cc22; } /* green */
-.dice-6 { background: #000000; } /* black */
 
 #expression-box {
-  width: 100%;
-  font-size: 20px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: none;
-  margin-bottom: 12px;
-  background: #111;
-  color: #ffd700;
-  font-weight: 700;
+  margin: 10px auto;
+  padding: 10px;
+  font-size: 1.5rem;
+  width: 80%;
+  background: white;
+  border: 2px solid black;
+  min-height: 50px;
   user-select: none;
-  caret-color: transparent;
-  text-align: center;
-  letter-spacing: 1.5px;
+  white-space: nowrap;
+  overflow-x: auto;
+  cursor: default;
 }
 
-#op-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-.op-btn, .control-btn {
-  background: #444;
-  border: none;
-  border-radius: 6px;
-  color: #eee;
-  font-size: 20px;
-  font-weight: 700;
-  cursor: pointer;
-  width: 50px;
-  height: 50px;
+#expression-output-box {
+  font-size: 1.75rem;
+  margin: 10px auto;
+  padding: 10px;
+  border: 2px solid black;
+  background: #eee;
+  width: 220px;
+  font-weight: bold;
   user-select: none;
-  transition: background 0.2s ease;
 }
 
-.op-btn:hover, .control-btn:hover {
-  background: #ffd700;
-  color: #222;
+#controls {
+  margin: 15px 0;
 }
 
 .submit-btn {
-  background: #ffcc00;
-  width: 110px;
-  font-weight: 900;
-  font-size: 20px;
-  color: #222;
-  box-shadow: 0 0 10px #ffcc00;
-}
-
-.submit-btn:hover {
-  background: #ffaa00;
-  box-shadow: 0 0 15px #ffaa00;
-}
-
-#expression-output {
-  min-height: 24px;
-  font-size: 18px;
-  color: #eee;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 10px;
-  user-select: none;
+  font-size: 1.5rem;
+  background-color: #007bff;
+  color: white;
+  border-color: #0056b3;
 }
 
 #score-info {
-  text-align: center;
-  font-weight: 700;
-  color: #ccc;
-  font-size: 16px;
+  margin-top: 5px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  min-height: 28px;
+}
+
+#footer-scores {
+  position: fixed;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+  background: #ddd;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  font-weight: bold;
+  font-size: 1.1rem;
   user-select: none;
 }
 
-#best-score-display {
-  margin-top: 8px;
-  color: #ffd700;
-  font-size: 18px;
-  font-weight: 800;
+#qu0x-popup {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: limegreen;
+  color: white;
+  font-size: 6rem;
+  padding: 40px 80px;
+  border: 7px solid green;
+  border-radius: 15px;
+  animation: fadeOut 3s forwards;
+  z-index: 1000;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
 }
