@@ -1,75 +1,99 @@
-const allowedOperators = ['+', '-', '*', '/', '^', '!', '(', ')'];
-let currentExpression = '';
-let diceUsed = [];
-let currentDate = new Date();
-let blitzMode = false;
-const startDate = new Date('2025-05-15');
+const startDate = new Date("2025-05-15");
 const today = new Date();
 today.setHours(0, 0, 0, 0);
-let currentGameIndex = Math.floor((currentDate - startDate) / (1000 * 60 * 60 * 24));
-const maxGameIndex = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+const totalGames = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+let currentGame = totalGames;
+let gameMode = 'daily'; // or 'blitz'
+let usedDice = [];
+let expression = '';
+let target = 0;
+let dice = [];
+let bestScores = JSON.parse(localStorage.getItem('bestScores') || '{}');
+let qu0xCount = parseInt(localStorage.getItem('qu0xCount') || 0);
 
 function getSeededRandom(seed) {
   let x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
 }
 
-function getDailyDice(date) {
-  const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
-  const dice = [];
-  for (let i = 0; i < 5; i++) {
-    const rand = getSeededRandom(seed + i);
-    dice.push(Math.floor(rand * 6) + 1);
-  }
-  return dice;
+function getDiceForGame(n) {
+  let seed = n + 12345;
+  return Array.from({ length: 5 }, (_, i) => 1 + Math.floor(getSeededRandom(seed + i) * 6));
 }
 
-function getDailyTarget(date) {
-  const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
-  return Math.floor(getSeededRandom(seed + 100) * 100) + 1;
+function getTargetForGame(n) {
+  let seed = n * 23 + 999;
+  return 10 + Math.floor(getSeededRandom(seed) * 90);
 }
 
-function formatDate(date) {
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-function updateDateDisplay() {
-  const gameDate = new Date(startDate);
-  gameDate.setDate(startDate.getDate() + currentGameIndex);
-  document.getElementById('game-title').textContent = blitzMode ? 'Blitz Mode' : `Game #${currentGameIndex + 1}`;
-  document.getElementById('target-number').textContent = getDailyTarget(gameDate);
-  document.getElementById('score-box').textContent = '';
+function updateGame(n) {
+  currentGame = n;
+  gameMode = 'daily';
+  expression = '';
+  dice = getDiceForGame(n);
+  target = getTargetForGame(n);
+  usedDice = [];
+  document.getElementById('target-number').textContent = target;
+  document.getElementById('expression-box').textContent = '';
   document.getElementById('expression-output-box').textContent = '';
   renderDice();
-  currentExpression = '';
-  updateExpressionDisplay();
+  renderGameHeader();
+  renderScore();
+  renderGameSelector();
+}
+
+function renderGameHeader() {
+  const date = new Date(startDate);
+  date.setDate(date.getDate() + currentGame - 1);
+  const dateStr = date.toISOString().split('T')[0];
+  document.getElementById('game-number').textContent = currentGame;
+  document.getElementById('game-date').textContent = dateStr;
+}
+
+function renderGameSelector() {
+  const sel = document.getElementById('game-selector');
+  sel.innerHTML = '';
+  for (let i = 1; i <= totalGames; i++) {
+    const option = document.createElement('option');
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i - 1);
+    const dateStr = d.toISOString().split('T')[0];
+    const score = bestScores[i];
+    option.value = i;
+    option.textContent = `#${i} - ${dateStr}${score === 0 ? ' ✅' : score ? '' : ' 🔒'}`;
+    if (i === currentGame) option.selected = true;
+    sel.appendChild(option);
+  }
 }
 
 function renderDice() {
   const diceRow = document.getElementById('dice-row');
   diceRow.innerHTML = '';
-  const gameDate = new Date(startDate);
-  gameDate.setDate(startDate.getDate() + currentGameIndex);
-  const dice = blitzMode ? Array.from({ length: 5 }, () => Math.floor(Math.random() * 6) + 1) : getDailyDice(gameDate);
-  dice.forEach(value => {
-    const die = document.createElement('div');
-    die.className = 'die';
-    die.dataset.value = value;
-    die.textContent = value;
-    die.onclick = () => {
-      currentExpression += value;
-      updateExpressionDisplay();
+  dice.forEach((val, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'die';
+    btn.dataset.value = val;
+    btn.textContent = val;
+    btn.onclick = () => {
+      if (!usedDice.includes(i)) {
+        usedDice.push(i);
+        expression += val;
+        updateExpression();
+      }
     };
-    diceRow.appendChild(die);
+    diceRow.appendChild(btn);
   });
 }
 
-function updateExpressionDisplay() {
-  document.getElementById('expression-box').textContent = currentExpression;
+function updateExpression() {
+  document.getElementById('expression-box').textContent = expression;
   try {
-    const value = evaluateExpression(currentExpression);
-    if (!isNaN(value)) {
-      document.getElementById('expression-output-box').textContent = value;
+    const evaluated = evaluateExpression(expression);
+    if (!isNaN(evaluated)) {
+      document.getElementById('expression-output-box').textContent = evaluated;
+    } else {
+      document.getElementById('expression-output-box').textContent = '';
     }
   } catch {
     document.getElementById('expression-output-box').textContent = '';
@@ -77,115 +101,126 @@ function updateExpressionDisplay() {
 }
 
 function evaluateExpression(expr) {
-  if (expr.includes('.')) throw new Error("Fractional values not allowed");
-  expr = expr.replace(/(\d+)!/g, (_, num) => factorial(parseInt(num)));
-  const val = Function('"use strict"; return (' + expr + ')')();
-  if (!Number.isFinite(val)) throw new Error("Invalid expression");
-  return val;
-}
-
-function factorial(n) {
-  if (n < 0 || !Number.isInteger(n)) throw new Error("Invalid factorial");
-  let res = 1;
-  for (let i = 2; i <= n; i++) res *= i;
-  return res;
+  const factorial = n => {
+    if (n < 0 || n % 1 !== 0) throw new Error();
+    return n === 0 ? 1 : n * factorial(n - 1);
+  };
+  return Function('"use strict"; return (' + expr.replace(/(\d+)!/g, 'factorial($1)').replace(/\^/g, '**') + ')')();
 }
 
 function submitExpression() {
+  const usedVals = expression.match(/\d+/g) || [];
+  const usedSet = new Set(usedVals.map(Number));
+  const diceSet = new Set(dice);
+  const sortedDice = [...dice].sort().join(',');
+  const sortedUsed = usedVals.map(Number).sort().join(',');
+  if (sortedDice !== sortedUsed) {
+    alert('You must use each die exactly once.');
+    return;
+  }
+
+  let result;
   try {
-    const gameDate = new Date(startDate);
-    gameDate.setDate(startDate.getDate() + currentGameIndex);
-    const target = getDailyTarget(gameDate);
-    const value = evaluateExpression(currentExpression);
-    const dice = blitzMode ? [] : getDailyDice(gameDate);
-    const used = currentExpression.match(/\d+/g)?.map(Number) || [];
-
-    if (!blitzMode && (used.length !== 5 || used.sort().join() !== dice.sort().join())) {
-      alert('Use all 5 dice values exactly once!');
-      return;
-    }
-
-    const score = Math.abs(value - target);
-    document.getElementById('score-box').textContent = `Score: ${score}`;
-
-    if (!blitzMode) {
-      const gameKey = `game-${currentGameIndex}`;
-      const prev = localStorage.getItem(gameKey);
-      if (prev === null || score < parseInt(prev)) {
-        localStorage.setItem(gameKey, score);
-      }
-      updateMasterScores();
-      if (score === 0) {
-        document.getElementById('qu0x-popup').style.display = 'block';
-        setTimeout(() => {
-          document.getElementById('qu0x-popup').style.display = 'none';
-        }, 3000);
-      }
-    }
-
-  } catch (err) {
+    result = evaluateExpression(expression);
+  } catch {
     alert('Invalid expression');
+    return;
   }
-}
 
-function updateMasterScores() {
-  let count = 0;
-  let total = 0;
-  for (let i = 0; i <= maxGameIndex; i++) {
-    const val = localStorage.getItem(`game-${i}`);
-    if (val !== null) {
-      total += parseInt(val);
-      if (parseInt(val) === 0) count++;
+  if (typeof result !== 'number' || isNaN(result)) {
+    alert('Invalid expression');
+    return;
+  }
+
+  const score = Math.abs(result - target);
+  if (gameMode === 'daily') {
+    if (!(currentGame in bestScores) || score < bestScores[currentGame]) {
+      bestScores[currentGame] = score;
+      localStorage.setItem('bestScores', JSON.stringify(bestScores));
     }
+    if (score === 0 && !(currentGame in bestScores && bestScores[currentGame] === 0)) {
+      qu0xCount += 1;
+      localStorage.setItem('qu0xCount', qu0xCount);
+      showQu0xPopup();
+    }
+    renderScore();
+    renderGameSelector();
   }
-  document.getElementById('qu0x-count').textContent = count;
-  document.getElementById('master-score').textContent = total;
+
+  updateExpression();
 }
 
-document.getElementById('submit-btn').onclick = submitExpression;
-document.getElementById('blitz-btn').onclick = () => {
-  blitzMode = true;
-  document.getElementById('score-box').textContent = '';
-  updateDateDisplay();
-};
-document.getElementById('prev-btn').onclick = () => {
-  if (!blitzMode && currentGameIndex > 0) {
-    currentGameIndex--;
-    updateDateDisplay();
-  }
-};
-document.getElementById('next-btn').onclick = () => {
-  if (!blitzMode && currentGameIndex < maxGameIndex) {
-    currentGameIndex++;
-    updateDateDisplay();
-  }
-};
-document.getElementById('select-btn').onclick = () => {
-  const choice = prompt(`Select game number (1 to ${maxGameIndex + 1}):`);
-  const num = parseInt(choice);
-  if (!isNaN(num) && num >= 1 && num <= maxGameIndex + 1) {
-    blitzMode = false;
-    currentGameIndex = num - 1;
-    updateDateDisplay();
+function renderScore() {
+  document.getElementById('best-score').textContent =
+    bestScores[currentGame] !== undefined ? bestScores[currentGame] : 'N/A';
+  document.getElementById('qu0x-count').textContent = qu0xCount;
+  const masterScore = Object.values(bestScores).reduce((sum, x) => sum + (x || 0), 0);
+  document.getElementById('master-score').textContent = masterScore;
+}
+
+function showQu0xPopup() {
+  const popup = document.getElementById('qu0x-popup');
+  popup.style.display = 'block';
+  popup.style.opacity = '1';
+  setTimeout(() => {
+    popup.style.display = 'none';
+  }, 3000);
+}
+
+function clearExpression() {
+  expression = '';
+  usedDice = [];
+  updateExpression();
+}
+
+document.getElementById('submit-button').onclick = submitExpression;
+document.getElementById('clear').onclick = clearExpression;
+document.getElementById('backspace').onclick = () => {
+  if (expression.length > 0) {
+    expression = expression.slice(0, -1);
+    updateExpression();
   }
 };
 
-document.querySelectorAll('.btn[data-value]').forEach(btn => {
+document.querySelectorAll('.btn.op').forEach(btn => {
   btn.onclick = () => {
-    currentExpression += btn.dataset.value;
-    updateExpressionDisplay();
+    expression += btn.textContent;
+    updateExpression();
   };
 });
 
-document.getElementById('clear-btn').onclick = () => {
-  currentExpression = '';
-  updateExpressionDisplay();
+document.getElementById('mode-toggle').onclick = () => {
+  if (gameMode === 'daily') {
+    gameMode = 'blitz';
+    document.getElementById('mode-toggle').textContent = 'Daily Mode';
+    expression = '';
+    dice = Array.from({ length: 5 }, () => 1 + Math.floor(Math.random() * 6));
+    target = 10 + Math.floor(Math.random() * 90);
+    usedDice = [];
+    document.getElementById('expression-box').textContent = '';
+    document.getElementById('expression-output-box').textContent = '';
+    document.getElementById('target-number').textContent = target;
+    renderDice();
+    document.getElementById('game-number').textContent = 'Blitz';
+    document.getElementById('game-date').textContent = '';
+    document.getElementById('best-score').textContent = 'N/A';
+  } else {
+    document.getElementById('mode-toggle').textContent = 'Blitz Mode';
+    updateGame(currentGame);
+  }
 };
 
-document.getElementById('backspace-btn').onclick = () => {
-  currentExpression = currentExpression.slice(0, -1);
-  updateExpressionDisplay();
+document.getElementById('prev-button').onclick = () => {
+  if (currentGame > 1) updateGame(currentGame - 1);
 };
 
-updateDateDisplay();
-updateMasterScores();
+document.getElementById('next-button').onclick = () => {
+  if (currentGame < totalGames) updateGame(currentGame + 1);
+};
+
+document.getElementById('game-selector').onchange = e => {
+  updateGame(parseInt(e.target.value));
+};
+
+// Initialize
+updateGame(currentGame);
