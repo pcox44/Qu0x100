@@ -7,21 +7,17 @@ body {
 }
 
 #game-header {
-  margin: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #ddd;
   font-weight: bold;
-  position: relative;
 }
 
-#nav-buttons {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-.nav-btn {
-  font-size: 1rem;
-  margin: 0 5px;
-  padding: 5px 10px;
+#rules {
+  margin: 10px;
+  font-size: 0.95rem;
+  padding: 5px 15px;
 }
 
 #target-box {
@@ -51,28 +47,32 @@ body {
   align-items: center;
   border: 2px solid black;
   cursor: pointer;
+  border-radius: 8px;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
+
+/* Dice Colors */
+.die[data-value="1"] { background: red; color: white; }
+.die[data-value="2"] { background: white; color: black; }
+.die[data-value="3"] { background: blue; color: white; }
+.die[data-value="4"] { background: yellow; color: black; }
+.die[data-value="5"] { background: green; color: white; }
+.die[data-value="6"] { background: black; color: yellow; }
 
 .btn {
   font-size: 1.25rem;
   margin: 3px;
   padding: 5px 10px;
-}
-
-.submit-btn {
-  font-size: 1.5rem;
-  background-color: #4CAF50;
-  color: white;
+  cursor: pointer;
 }
 
 #expression-box {
-  margin: 10px;
-  padding: 10px;
-  font-size: 1.5rem;
-  width: 80%;
+  margin: 10px auto;
+  padding: 5px;
+  font-size: 1.25rem;
+  width: 60%;
   background: white;
   border: 2px solid black;
-  min-height: 50px;
 }
 
 #expression-output-box {
@@ -85,8 +85,20 @@ body {
   font-weight: bold;
 }
 
-#controls {
+#submit-btn {
+  font-size: 1.5rem;
+  background: darkorange;
+  color: white;
+  padding: 10px 20px;
   margin: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#footer-scores {
+  margin: 20px;
+  font-weight: bold;
 }
 
 .qu0x-popup {
@@ -95,20 +107,16 @@ body {
   left: 30%;
   background: limegreen;
   color: white;
-  font-size: 4rem;
+  font-size: 3rem;
   padding: 40px;
   border: 5px solid green;
-  border-radius: 10px;
-  animation: fadeOut 3s forwards;
+  border-radius: 20px;
   z-index: 1000;
+  animation: fadeOut 3s forwards;
 }
 
 @keyframes fadeOut {
   0% { opacity: 1; }
   90% { opacity: 1; }
   100% { opacity: 0; }
-}
-
-#scoreboard {
-  margin-top: 20px;
 }
