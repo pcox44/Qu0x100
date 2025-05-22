@@ -2,43 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Qu0x</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daily Dice Game - Qu0x</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="game-header">
-    <div id="nav-buttons">
-      <button id="prev-btn" class="nav-btn">Prev</button>
-      <button id="next-btn" class="nav-btn">Next</button>
-    </div>
-    <h1>Qu0x</h1>
-    <div id="current-date"></div>
+    <button id="blitz-btn">Blitz Mode</button>
+    <span id="game-title">Game #1</span>
+    <button id="prev-btn">Prev</button>
+    <button id="next-btn">Next</button>
+    <button id="select-btn">Select Game</button>
+  </div>
+
+  <div id="rules">
+    <strong>How to play Qu0x:</strong> Use the dice values exactly once each (no concatenation like "45"). Build an expression using the dice and operations by clicking buttons or typing. Allowed operations: +, -, *, /, ^ (exponent), and factorial (!). Submit to see your score (difference from target). Achieve a perfect score to Qu0x and lock the day! Use Prev/Next to navigate days. Blitz Mode allows unlimited practice.
   </div>
 
   <div id="target-box">Target: <span id="target-number"></span></div>
-
   <div class="button-row" id="dice-row"></div>
-  <div class="button-row" id="operator-row"></div>
 
-  <div id="expression-box" contenteditable="true"></div>
+  <div id="expression-box"></div>
   <div id="expression-output-box"></div>
 
+  <div class="button-row" id="operator-row">
+    <button class="btn" data-value="+">+</button>
+    <button class="btn" data-value="-">-</button>
+    <button class="btn" data-value="*">*</button>
+    <button class="btn" data-value="/">/</button>
+    <button class="btn" data-value="^">^</button>
+    <button class="btn" data-value="!">!</button>
+    <button class="btn" id="backspace-btn">←</button>
+    <button class="btn" id="clear-btn">Clear</button>
+  </div>
+
   <div id="controls">
-    <button id="submit-btn" class="btn submit-btn">Submit</button>
-    <button id="clear-btn" class="btn">Clear</button>
-    <button id="backspace-btn" class="btn">Backspace</button>
-    <button id="blitz-mode-btn" class="btn">Enter Blitz Mode</button>
+    <button id="submit-btn">Submit</button>
   </div>
 
-  <div id="rules"></div>
+  <div id="score-box"></div>
 
-  <div id="qu0x-popup" class="qu0x-popup" style="display: none;">Qu0x!</div>
-
-  <div id="scoreboard">
-    <div id="daily-best-score"></div>
-    <div id="qu0x-master-score"></div>
-    <div id="total-qu0x-count"></div>
+  <div id="footer-scores">
+    <div>Total Qu0x Count: <span id="qu0x-count">0</span></div>
+    <div>Qu0x-Master Score: <span id="master-score">0</span></div>
   </div>
+
+  <div id="qu0x-popup" class="qu0x-popup" style="display:none;">🎉 Qu0x! 🎉</div>
 
   <script src="script.js"></script>
 </body>
