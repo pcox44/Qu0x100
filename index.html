@@ -2,60 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Qu0x Daily Dice Game</title>
+  <title>Qu0x</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1 id="game-header">Qu0x Daily Dice Game</h1>
-  <div id="rules">
-    Use dice values <strong>exactly once</strong> by clicking buttons to build an expression.<br />
-    No concatenation of dice values allowed (e.g., 4 and 5 cannot form 45).<br />
+  <div id="game-header">
+    <div id="nav-buttons">
+      <button id="prev-btn" class="nav-btn">Prev</button>
+      <button id="next-btn" class="nav-btn">Next</button>
+    </div>
+    <h1>Qu0x</h1>
+    <div id="current-date"></div>
   </div>
 
-  <div id="target-box">Target: <span id="target-number">--</span></div>
+  <div id="target-box">Target: <span id="target-number"></span></div>
 
-  <div class="button-row" id="dice-row">
-    <!-- Dice buttons inserted by JS -->
-  </div>
+  <div class="button-row" id="dice-row"></div>
+  <div class="button-row" id="operator-row"></div>
 
-  <div class="button-row" id="operator-row">
-    <button class="btn" data-val="+">+</button>
-    <button class="btn" data-val="-">-</button>
-    <button class="btn" data-val="*">&times;</button>
-    <button class="btn" data-val="/">&#247;</button>
-    <button class="btn" data-val="(">(</button>
-    <button class="btn" data-val=")">)</button>
-    <button class="btn" data-val="^">^</button>
-    <button class="btn" data-val="!">!</button>
-  </div>
-
-  <div id="expression-box" aria-label="Expression input"></div>
-
-  <div id="expression-output-box">Result: --</div>
+  <div id="expression-box" contenteditable="true"></div>
+  <div id="expression-output-box"></div>
 
   <div id="controls">
     <button id="submit-btn" class="btn submit-btn">Submit</button>
     <button id="clear-btn" class="btn">Clear</button>
     <button id="backspace-btn" class="btn">Backspace</button>
-    <button id="prev-btn" class="btn">Previous</button>
-    <button id="next-btn" class="btn">Next</button>
+    <button id="blitz-mode-btn" class="btn">Enter Blitz Mode</button>
   </div>
 
-  <div class="button-row" id="mode-buttons">
-    <button id="blitz-mode-btn" class="btn">Blitz Mode</button>
-  </div>
+  <div id="rules"></div>
 
-  <div id="score-info">
-    <div id="best-score-display">Best Score: --</div>
-  </div>
+  <div id="qu0x-popup" class="qu0x-popup" style="display: none;">Qu0x!</div>
 
-  <div id="footer-scores">
-    <div id="total-qu0x-count">Total Qu0x Count: 0</div>
-    <div id="qu0x-master-score">Qu0x-Master Score: --</div>
+  <div id="scoreboard">
+    <div id="daily-best-score"></div>
+    <div id="qu0x-master-score"></div>
+    <div id="total-qu0x-count"></div>
   </div>
-
-  <div id="qu0x-popup" class="qu0x-popup" style="display:none;">Qu0x!</div>
 
   <script src="script.js"></script>
 </body>
