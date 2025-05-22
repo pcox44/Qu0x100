@@ -1,1 +1,88 @@
 
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #f9f9f9;
+}
+
+#game-header {
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+#target-box {
+  font-size: 2rem;
+  margin: 10px auto;
+  padding: 10px;
+  border: 2px solid black;
+  width: fit-content;
+  background: #fff;
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 10px;
+}
+
+.die {
+  width: 50px;
+  height: 50px;
+  margin: 3px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid black;
+  cursor: pointer;
+}
+
+.btn {
+  font-size: 1.25rem;
+  margin: 3px;
+  padding: 5px 10px;
+}
+
+#expression-box {
+  margin: 10px;
+  padding: 10px;
+  font-size: 1.5rem;
+  width: 80%;
+  background: white;
+  border: 2px solid black;
+}
+
+#expression-output-box {
+  font-size: 1.75rem;
+  margin: 10px auto;
+  padding: 10px;
+  border: 2px solid black;
+  background: #eee;
+  width: 200px;
+  font-weight: bold;
+}
+
+#controls {
+  margin: 15px;
+}
+
+.qu0x-popup {
+  position: fixed;
+  top: 40%;
+  left: 40%;
+  background: limegreen;
+  color: white;
+  font-size: 2rem;
+  padding: 20px;
+  border: 5px solid green;
+  border-radius: 10px;
+  animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
