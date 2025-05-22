@@ -3,21 +3,25 @@ body {
   text-align: center;
   background: #f9f9f9;
   margin: 0;
-  padding: 0 10px 40px 10px;
+  padding: 0;
 }
 
 #game-header {
   margin: 10px 0;
   font-weight: bold;
+  position: relative;
 }
 
-#rules {
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-  color: #333;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
+#nav-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.nav-btn {
+  font-size: 1rem;
+  margin: 0 5px;
+  padding: 5px 10px;
 }
 
 #target-box {
@@ -27,49 +31,48 @@ body {
   border: 2px solid black;
   width: fit-content;
   background: #fff;
-  user-select: none;
 }
 
 .button-row {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  margin: 10px 0;
-}
-
-.die, .btn {
-  font-size: 1.5rem;
-  font-weight: bold;
-  border: 2px solid black;
-  margin: 3px;
-  padding: 10px 15px;
-  min-width: 50px;
-  min-height: 50px;
-  cursor: pointer;
-  user-select: none;
-  background: white;
-  box-sizing: border-box;
-  border-radius: 5px;
+  margin: 10px;
 }
 
 .die {
+  width: 50px;
+  height: 50px;
+  margin: 3px;
+  font-size: 1.5rem;
+  font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 2px solid black;
+  cursor: pointer;
+}
+
+.btn {
+  font-size: 1.25rem;
+  margin: 3px;
+  padding: 5px 10px;
+}
+
+.submit-btn {
+  font-size: 1.5rem;
+  background-color: #4CAF50;
+  color: white;
 }
 
 #expression-box {
-  margin: 10px auto;
+  margin: 10px;
   padding: 10px;
   font-size: 1.5rem;
   width: 80%;
   background: white;
   border: 2px solid black;
   min-height: 50px;
-  user-select: none;
-  white-space: nowrap;
-  overflow-x: auto;
-  cursor: default;
 }
 
 #expression-output-box {
@@ -78,63 +81,34 @@ body {
   padding: 10px;
   border: 2px solid black;
   background: #eee;
-  width: 220px;
+  width: 200px;
   font-weight: bold;
-  user-select: none;
 }
 
 #controls {
-  margin: 15px 0;
+  margin: 15px;
 }
 
-.submit-btn {
-  font-size: 1.5rem;
-  background-color: #007bff;
-  color: white;
-  border-color: #0056b3;
-}
-
-#score-info {
-  margin-top: 5px;
-  font-size: 1.25rem;
-  font-weight: bold;
-  min-height: 28px;
-}
-
-#footer-scores {
+.qu0x-popup {
   position: fixed;
-  bottom: 5px;
-  left: 0;
-  right: 0;
-  background: #ddd;
-  padding: 5px;
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  font-weight: bold;
-  font-size: 1.1rem;
-  user-select: none;
-}
-
-#qu0x-popup {
-  position: fixed;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 30%;
+  left: 30%;
   background: limegreen;
   color: white;
-  font-size: 6rem;
-  padding: 40px 80px;
-  border: 7px solid green;
-  border-radius: 15px;
+  font-size: 4rem;
+  padding: 40px;
+  border: 5px solid green;
+  border-radius: 10px;
   animation: fadeOut 3s forwards;
   z-index: 1000;
-  pointer-events: none;
-  user-select: none;
 }
 
 @keyframes fadeOut {
   0% { opacity: 1; }
   90% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+#scoreboard {
+  margin-top: 20px;
 }
