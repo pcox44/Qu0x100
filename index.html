@@ -3,51 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Daily Dice Game - Qu0x</title>
+  <title>Qu0x Daily Dice Game</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="game-header">
-    <button id="blitz-btn">Blitz Mode</button>
-    <span id="game-title">Game #1</span>
-    <button id="prev-btn">Prev</button>
-    <button id="next-btn">Next</button>
-    <button id="select-btn">Select Game</button>
+  <div id="top-bar">
+    <button id="mode-toggle">Blitz Mode</button>
+    <div id="header-center">
+      <div id="game-header">Game #<span id="game-number"></span> - <span id="game-date"></span></div>
+    </div>
+    <div id="top-right">
+      <button id="prev-button">Prev</button>
+      <button id="next-button">Next</button>
+      <select id="game-selector"></select>
+    </div>
   </div>
 
-  <div id="rules">
-    <strong>How to play Qu0x:</strong> Use the dice values exactly once each (no concatenation like "45"). Build an expression using the dice and operations by clicking buttons or typing. Allowed operations: +, -, *, /, ^ (exponent), and factorial (!). Submit to see your score (difference from target). Achieve a perfect score to Qu0x and lock the day! Use Prev/Next to navigate days. Blitz Mode allows unlimited practice.
+  <div id="rules-box">
+    <strong>How to play Qu0x:</strong> Use the dice values exactly once each (no concatenation like "45"). Build an expression using the dice and operations by clicking buttons. Allowed operations: +, -, *, /, ^ (exponent), and factorial (!). Submit to see your score (difference from target). Achieve a perfect score to Qu0x and lock the day! Use Prev/Next to navigate days. Blitz Mode allows unlimited practice.
   </div>
 
   <div id="target-box">Target: <span id="target-number"></span></div>
+
   <div class="button-row" id="dice-row"></div>
 
-  <div id="expression-box"></div>
+  <div class="button-row" id="expression-box-container">
+    <div id="expression-box"></div>
+  </div>
+
+  <div class="button-row" id="buttons-row">
+    <button class="btn op">(</button>
+    <button class="btn op">)</button>
+    <button class="btn op">+</button>
+    <button class="btn op">-</button>
+    <button class="btn op">*</button>
+    <button class="btn op">/</button>
+    <button class="btn op">^</button>
+    <button class="btn op">!</button>
+    <button class="btn op" id="backspace">←</button>
+    <button class="btn op" id="clear">C</button>
+  </div>
+
+  <div class="button-row">
+    <button id="submit-button">Submit</button>
+  </div>
+
   <div id="expression-output-box"></div>
 
-  <div class="button-row" id="operator-row">
-    <button class="btn" data-value="+">+</button>
-    <button class="btn" data-value="-">-</button>
-    <button class="btn" data-value="*">*</button>
-    <button class="btn" data-value="/">/</button>
-    <button class="btn" data-value="^">^</button>
-    <button class="btn" data-value="!">!</button>
-    <button class="btn" id="backspace-btn">←</button>
-    <button class="btn" id="clear-btn">Clear</button>
-  </div>
-
   <div id="controls">
-    <button id="submit-btn">Submit</button>
+    <div id="score-box">Today's Best Score: <span id="best-score"></span></div>
   </div>
 
-  <div id="score-box"></div>
-
-  <div id="footer-scores">
-    <div>Total Qu0x Count: <span id="qu0x-count">0</span></div>
-    <div>Qu0x-Master Score: <span id="master-score">0</span></div>
+  <div id="qu0x-master-info">
+    <div>Total Qu0x Count: <span id="qu0x-count"></span></div>
+    <div>Qu0x-Master Score: <span id="master-score"></span></div>
   </div>
 
-  <div id="qu0x-popup" class="qu0x-popup" style="display:none;">🎉 Qu0x! 🎉</div>
+  <div id="qu0x-popup" class="qu0x-popup" style="display: none;">🎉 Qu0x! 🎉</div>
 
   <script src="script.js"></script>
 </body>
