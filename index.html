@@ -1,58 +1,51 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Qu0x Beta</title>
+  <title>Qu0x! Beta</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="logo">🎲 <span class="highlight">Qu0x!</span> Daily Game 🎲</div>
+  <div id="logo">🎲 Qu0x! Beta 🎯</div>
 
   <div id="instructions">
-    Use each of the five dice exactly once to build a math expression that gets as close as possible to the target number. No concatenation allowed (e.g., 4 and 5 cannot become 45).  
-    You can click the buttons or type directly into the expression box. Parentheses and factorials are allowed.  
-    A <strong>Qu0x</strong> is a perfect match! Blitz mode allows unlimited practice.
+    <strong>How to Play:</strong> Use <em>all 5 dice exactly once</em> and any math operations to get as close as possible to the target number (1–100). A perfect match is a <strong>Qu0x!</strong><br>
+    Click buttons or type into the box. No concatenation allowed (e.g., 4 and 5 ≠ 45).
   </div>
 
-  <div class="nav">
-    <button onclick="changeDay(-1)">⬅️ Previous</button>
-    <span id="gameNumber">Game #1</span>
-    <button onclick="changeDay(1)">Next ➡️</button>
+  <div id="game-header">
+    <button id="prev-btn">⬅ Previous</button>
+    <span id="game-number">Game #1</span>
+    <button id="next-btn">Next ➡</button>
   </div>
 
-  <div id="dateDisplay"></div>
+  <div id="date-display"></div>
+  <div id="target-box">🎯 Target: <span id="target-number">--</span></div>
 
-  <div id="targetBox">
-    🎯 Target: <span id="targetNumber">??</span>
+  <div id="dice-box"></div>
+
+  <div id="expression-box">
+    <input id="expression-input" type="text" placeholder="Enter expression..." />
   </div>
 
-  <div id="diceContainer"></div>
+  <div id="live-result-box">Result: <span id="live-result">--</span></div>
 
-  <div id="expressionContainer">
-    <input type="text" id="expression" placeholder="Enter expression..." />
+  <div id="buttons-container"></div>
+
+  <button id="submit-btn">Submit</button>
+
+  <div id="message-box"></div>
+
+  <div id="qu0x-animation">Qu0x!</div>
+
+  <div id="totals">
+    <div id="total-qu0x">Total Qu0x: 0</div>
+    <div id="master-score">Qu0x-Master Score: —</div>
   </div>
 
-  <div id="expressionResult"></div>
-
-  <div id="buttons">
-    ( ) + − × ÷ ^ ! C ⌫ Submit
-  </div>
-
-  <div id="feedback"></div>
-
-  <div id="scoreSummary">
-    <div id="bestScore">Best Score: N/A</div>
-    <div id="totalQu0x">Total Qu0x: 0</div>
-    <div id="qu0xMasterScore" style="display: none;">Qu0x-Master Score: 0</div>
-  </div>
-
-  <div id="blitzContainer">
-    <button onclick="startBlitz()">🔥 Qu0x Blitz Mode 🔥</button>
-  </div>
-
-  <audio id="qu0xSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <button id="blitz-mode-btn">🎮 Qu0x-Blitz Mode</button>
+  <button id="daily-mode-btn" style="display:none;">🗓️ Return to Daily Game</button>
 
   <script src="script.js"></script>
 </body>
