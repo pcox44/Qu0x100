@@ -3,32 +3,37 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Qu0x</title>
+<title>Qu0x!</title>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Qu0x</h1>
-  
-  <div id="instructions" class="instructions">
-    Use the five dice exactly once to build a math expression by clicking the dice and operation buttons.<br />
-    Allowed operations: +, −, ×, ÷, ^ (exponent), and ! (factorial).<br />
-    Your goal is to match the 🎯 target number. Click "Submit" to see your score (lower is better).<br />
-    A perfect score earns a ⭐ Qu0x and locks that day. Use Prev/Next or the dropdown to view other puzzles.
+  <h1>Qu0x!</h1>
+  <div id="rules">
+    <strong>Rules:</strong>
+    <ul>
+      <li>Use each of the 5 dice values exactly once.</li>
+      <li>Build an expression using the buttons below.</li>
+      <li>Allowed operations: +, -, *, /, ^ (exponent), ! (factorial), and parentheses ( ).</li>
+      <li>Factorial (!) only works for whole non-negative integers.</li>
+      <li>Submit to see how close you get to the target number.</li>
+      <li>Get a perfect match (score 0) to Qu0x and lock the day’s puzzle.</li>
+      <li>Clear and Backspace are disabled after Qu0x for that day.</li>
+    </ul>
   </div>
 
   <div id="top-right-controls">
-    <select id="day-dropdown"></select>
     <button id="prev-btn">Prev</button>
     <button id="next-btn">Next</button>
+    <select id="day-dropdown"></select>
   </div>
 
   <div id="date-display"></div>
-  <div id="target-container">
-    <div id="target-label">🎯 Target:</div>
-    <div id="target-number"></div>
+
+  <div id="dice-target-container">
+    <div id="dice-container"></div>
+    <div id="target-box">Target: <span id="target-number"></span></div>
   </div>
 
-  <div id="dice-container"></div>
   <div id="operator-row"></div>
 
   <div id="expression-container">
@@ -39,16 +44,18 @@
 
   <div id="controls">
     <button id="submit-btn">Submit</button>
+    <button id="clear-btn">Clear</button>
+    <button id="backspace-btn">Backspace</button>
   </div>
 
   <div id="daily-best-score"></div>
   <div id="qu0x-master"></div>
   <div id="qu0x-completion">
-    Qu0x Completion: <span id="qu0x-fraction"></span>
+    Qu0x Completion: <span id="qu0x-fraction">0/0</span>
   </div>
 
   <div id="qu0x-popup" style="display:none;"></div>
-  
-<script src="script.js"></script>
+
+  <script src="script.js"></script>
 </body>
 </html>
