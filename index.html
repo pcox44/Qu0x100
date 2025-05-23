@@ -4,62 +4,58 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Qu0x!</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="header">
     <h1>Qu0x!</h1>
-    <div class="nav-buttons">
-      <button id="prevBtn">Prev</button>
-      <button id="nextBtn">Next</button>
-      <select id="gameSelect"></select>
+    <div class="top-right">
+      <button id="prevDay">◀️</button>
+      <select id="daySelect"></select>
+      <button id="nextDay">▶️</button>
     </div>
   </div>
 
-  <div class="instructions">
-    <ul>
-      <li>🎯 Use the five dice <strong>exactly once</strong> to create an expression using operations.</li>
-      <li>🧮 Click the buttons to build your expression. Allowed operations: <code>+, −, ×, ÷, ^, !</code></li>
-      <li>📌 Parentheses are allowed.</li>
-      <li>🚫 You can’t reuse dice.</li>
-      <li>✅ Submit to see your score (difference from target).</li>
-      <li>🌟 A perfect score earns you a <strong>Qu0x!</strong> and locks that day!</li>
-    </ul>
+  <ul class="instructions">
+    <li>Use all five dice values exactly once to reach the target.</li>
+    <li>Click buttons to build your expression.</li>
+    <li>Allowed operations: +, -, ×, ÷, ^, !, ( )</li>
+    <li>Submit to see your score. Match the target exactly to Qu0x!</li>
+    <li>Once a Qu0x is achieved, that day's puzzle is locked.</li>
+  </ul>
+
+  <div class="target-box" id="targetBox">Target: 25</div>
+
+  <div class="dice-container" id="diceContainer"></div>
+
+  <div class="expression-area">
+    <div class="expression-box" id="expressionBox"></div>
+    <div class="evaluation" id="evaluationBox">=</div>
   </div>
 
-  <div id="targetBox" class="target-box">Target: 25</div>
-
-  <div id="diceContainer" class="dice-row"></div>
-
-  <div class="expression-box">
-    <div id="expressionDisplay" class="expression-display"> </div>
-    <div id="evalResult" class="eval-result">= ?</div>
+  <div class="button-grid">
+    <button class="btn op" data-value="+">+</button>
+    <button class="btn op" data-value="-">-</button>
+    <button class="btn op" data-value="*">×</button>
+    <button class="btn op" data-value="/">÷</button>
+    <button class="btn op" data-value="^">^</button>
+    <button class="btn op" data-value="!">!</button>
+    <button class="btn op" data-value="(">(</button>
+    <button class="btn op" data-value=")">)</button>
+    <button class="btn op" data-value="Back">Backspace</button>
+    <button class="btn op" data-value="Clear">Clear</button>
   </div>
 
-  <div class="buttons">
-    <button class="op" data-value="+">+</button>
-    <button class="op" data-value="-">−</button>
-    <button class="op" data-value="*">×</button>
-    <button class="op" data-value="/">÷</button>
-    <button class="op" data-value="^">^</button>
-    <button class="op" data-value="!">!</button>
-    <button class="op" data-value="(">(</button>
-    <button class="op" data-value=")">)</button>
-    <button class="op" data-value="Clear">Clear</button>
-    <button class="op" data-value="Back">Backspace</button>
-  </div>
+  <button id="submitBtn">Submit</button>
 
-  <div class="submit-container">
-    <button id="submitBtn" class="submit-btn">Submit</button>
-  </div>
-
-  <div class="score-section">
-    <div id="dailyBest">Daily Best Score: –</div>
+  <div class="scoreboard">
+    <div id="dailyBestDisplay">Daily Best Score: N/A</div>
     <div id="quoxCompletion">Qu0x Completion: 0/0</div>
-    <div id="quoxMaster">Qu0x Master Score: N/A</div>
+    <div id="quoxMasterScore">Qu0x Master Score: N/A</div>
   </div>
 
-  <div id="quoxPopup" class="quox-popup hidden">🎉 Qu0x! 🎉<br/>🥳🥳🥳</div>
+  <div class="quox-popup" id="quoxPopup">🎉🎉 Qu0x! 🎉🎉</div>
+  <audio id="quoxSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_2631a1c1db.mp3"></audio>
 
   <script src="script.js"></script>
 </body>
