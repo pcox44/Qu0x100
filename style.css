@@ -1,10 +1,9 @@
 body {
   font-family: Arial, sans-serif;
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 1em;
-  background: #f0f0f0;
+  margin: 20px;
+  background: #f7f7f7;
   color: #222;
+  user-select: none;
 }
 
 h1 {
@@ -12,206 +11,232 @@ h1 {
   margin-bottom: 0.2em;
 }
 
-.instructions {
-  text-align: center;
-  margin: 0.5em auto 1em auto;
+#rules {
   max-width: 600px;
-  font-size: 1em;
-  color: #333;
+  margin: 0 auto 15px auto;
+  font-size: 14px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px 15px;
+  border-radius: 8px;
 }
 
 #top-right-controls {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
   display: flex;
-  gap: 0.5em;
+  gap: 10px;
   align-items: center;
+  z-index: 10;
 }
 
-#day-dropdown {
-  font-size: 1em;
-  padding: 0.2em 0.4em;
-}
-
-#prev-btn, #next-btn {
-  font-size: 1em;
-  padding: 0.3em 0.7em;
+#top-right-controls button, #top-right-controls select {
+  font-size: 14px;
+  padding: 6px 10px;
   cursor: pointer;
 }
 
 #date-display {
   text-align: center;
+  margin: 60px 0 10px 0;
   font-weight: bold;
-  margin: 1em 0 0.5em 0;
-  font-size: 1.2em;
+  font-size: 18px;
 }
 
-#target-container {
+#dice-target-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.5em;
-  margin-bottom: 1em;
-}
-
-#target-label {
-  font-size: 1.3em;
-  font-weight: bold;
-}
-
-#target-number {
-  font-size: 1.5em;
-  font-weight: bold;
-  background: #222;
-  color: #fff;
-  padding: 0.3em 0.6em;
-  border-radius: 5px;
-  min-width: 3em;
-  text-align: center;
+  gap: 20px;
+  margin-bottom: 15px;
 }
 
 #dice-container {
   display: flex;
-  justify-content: center;
-  gap: 0.7em;
-  margin-bottom: 1em;
+  gap: 10px;
 }
 
 .die {
   width: 50px;
   height: 50px;
-  line-height: 50px;
+  border-radius: 8px;
+  border: 2px solid black;
   font-size: 24px;
   font-weight: bold;
+  line-height: 50px;
   text-align: center;
-  border: 2px solid black;
-  border-radius: 8px;
   cursor: pointer;
   user-select: none;
   transition: opacity 0.3s ease;
+  box-sizing: border-box;
 }
 
 .die.fade-out {
   opacity: 0.3;
+  pointer-events: none;
 }
 
 .die-1 {
   background-color: red;
   color: white;
+  border-color: black;
 }
 
 .die-2 {
   background-color: white;
   color: black;
+  border-color: black;
 }
 
 .die-3 {
   background-color: blue;
   color: white;
+  border-color: black;
 }
 
 .die-4 {
   background-color: yellow;
   color: black;
+  border-color: black;
 }
 
 .die-5 {
   background-color: green;
   color: white;
+  border-color: black;
 }
 
 .die-6 {
   background-color: black;
   color: yellow;
+  border-color: black;
+}
+
+#target-box {
+  width: 110px;
+  height: 50px;
+  border: 2px solid black;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 50px;
+  text-align: center;
+  user-select: none;
+  background: black;
+  color: white;
+  box-sizing: border-box;
 }
 
 #operator-row {
   display: flex;
   justify-content: center;
-  gap: 0.7em;
-  margin-bottom: 1em;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.operator-btn {
+.operator-button {
+  width: 45px;
+  height: 45px;
   font-size: 24px;
-  padding: 0.3em 0.6em;
   cursor: pointer;
   user-select: none;
-  border: 2px solid #555;
   border-radius: 6px;
-  background-color: #ddd;
+  border: 2px solid #444;
+  background-color: #eee;
+  font-weight: bold;
   transition: background-color 0.2s ease;
 }
 
-.operator-btn:hover {
-  background-color: #bbb;
+.operator-button:hover {
+  background-color: #ddd;
 }
 
 #expression-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.3em;
-  margin-bottom: 1em;
-}
-
-#expression-box {
-  min-width: 220px;
-  min-height: 32px;
-  background: white;
-  border: 2px solid #444;
-  border-radius: 5px;
-  padding: 0.3em 0.5em;
-  font-size: 1.3em;
-  user-select: none;
-  white-space: nowrap;
-  overflow-x: auto;
-}
-
-#equals {
-  font-size: 1.3em;
+  gap: 8px;
+  max-width: 600px;
+  margin: 0 auto 15px auto;
+  font-size: 24px;
   font-weight: bold;
 }
 
-#output-box {
-  min-width: 60px;
-  min-height: 32px;
+#expression-box {
+  min-width: 250px;
+  min-height: 40px;
+  border: 2px solid black;
+  border-radius: 6px;
+  padding: 6px 10px;
   background: white;
-  border: 2px solid #444;
-  border-radius: 5px;
-  padding: 0.3em 0.5em;
-  font-size: 1.3em;
+  user-select: none;
+  word-break: break-all;
+}
+
+#equals {
+  user-select: none;
+}
+
+#output-box {
+  min-width: 80px;
+  height: 40px;
+  border: 2px solid black;
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: white;
   text-align: center;
   user-select: none;
 }
 
 #controls {
-  text-align: center;
-  margin-bottom: 1em;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 #submit-btn {
-  font-size: 1.3em;
-  padding: 0.5em 1.5em;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px 25px;
   cursor: pointer;
-  border-radius: 6px;
-  border: 2px solid #444;
+  border-radius: 8px;
   background-color: #4CAF50;
+  border: none;
   color: white;
-  user-select: none;
+  transition: background-color 0.3s ease;
 }
 
 #submit-btn:hover {
   background-color: #45a049;
 }
 
+#clear-btn, #backspace-btn {
+  font-size: 16px;
+  padding: 8px 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  background-color: #e74c3c;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+#clear-btn:hover, #backspace-btn:hover {
+  background-color: #c0392b;
+}
+
 #daily-best-score, #qu0x-master, #qu0x-completion {
   text-align: center;
+  font-size: 18px;
+  margin-bottom: 10px;
   font-weight: bold;
-  margin-top: 0.3em;
-  font-size: 1.1em;
-  color: #333;
+  user-select: none;
 }
 
 #qu0x-popup {
@@ -219,11 +244,31 @@ h1 {
   top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 3.5em;
-  color: gold;
-  background: rgba(0,0,0,0.7);
-  padding: 0.3em 0.6em;
-  border-radius: 10px;
-  z-index: 9999;
+  background: white;
+  border-radius: 16px;
+  padding: 40px 60px;
+  font-size: 48px;
+  font-weight: bold;
+  color: #e67e22;
+  text-align: center;
+  box-shadow: 0 0 20px 6px #e67e22aa;
+  z-index: 1000;
   user-select: none;
+}
+
+.confetti {
+  font-size: 48px;
+  display: inline-block;
+  animation: confetti-fall 2s ease forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(150px) rotate(360deg);
+    opacity: 0;
+  }
 }
