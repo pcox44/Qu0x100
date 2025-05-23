@@ -1,60 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Qu0x!</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Qu0x!</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Qu0x!</h1>
-  <div id="rules">
-    <strong>Rules:</strong>
+  <div class="top-bar">
+    <h1>Qu0x! - Game <span id="game-number"></span> (<span id="game-date"></span>)</h1>
+    <div class="top-right-controls">
+      <button onclick="prevGame()">◀️ Prev</button>
+      <select id="gameDropdown" onchange="selectGame()"></select>
+      <button onclick="nextGame()">Next ▶️</button>
+    </div>
+  </div>
+
+  <div class="instructions">
     <ul>
-      <li>Use each of the 5 dice values exactly once.</li>
-      <li>Build an expression using the buttons below.</li>
-      <li>Allowed operations: +, -, *, /, ^ (exponent), ! (factorial), and parentheses ( ).</li>
-      <li>Factorial (!) only works for whole non-negative integers.</li>
-      <li>Submit to see how close you get to the target number.</li>
-      <li>Get a perfect match (score 0) to Qu0x and lock the day’s puzzle.</li>
-      <li>Clear and Backspace are disabled after Qu0x for that day.</li>
+      <li>🎯 Use the 5 dice exactly once to build a math expression.</li>
+      <li>➕ Allowed operations: +, -, ×, ÷, ^, !, (, )</li>
+      <li>✅ Goal: Match the Target number.</li>
+      <li>🏆 Perfect score (0 difference) earns a Qu0x! and locks that day.</li>
+      <li>🔁 Blitz Mode is for practice — unlimited attempts.</li>
     </ul>
   </div>
 
-  <div id="top-right-controls">
-    <button id="prev-btn">Prev</button>
-    <button id="next-btn">Next</button>
-    <select id="day-dropdown"></select>
+  <div id="target-container">
+    <div id="target-box">Target: <span id="target-number">?</span></div>
   </div>
 
-  <div id="date-display"></div>
-
-  <div id="dice-target-container">
-    <div id="dice-container"></div>
-    <div id="target-box">Target: <span id="target-number"></span></div>
-  </div>
-
-  <div id="operator-row"></div>
+  <div id="dice-container"></div>
 
   <div id="expression-container">
-    <div id="expression-box"></div>
-    <div id="equals">=</div>
-    <div id="output-box">?</div>
+    <div id="expression-box">
+      <span id="expression"></span> = <span id="evaluated-result">?</span>
+    </div>
   </div>
 
-  <div id="controls">
-    <button id="submit-btn">Submit</button>
-    <button id="clear-btn">Clear</button>
-    <button id="backspace-btn">Backspace</button>
+  <div class="button-grid">
+    <button onclick="addToExpression('+')">+</button>
+    <button onclick="addToExpression('-')">-</button>
+    <button onclick="addToExpression('*')">×</button>
+    <button onclick="addToExpression('/')">÷</button>
+    <button onclick="addToExpression('^')">^</button>
+    <button onclick="addToExpression('!')">!</button>
+    <button onclick="addToExpression('(')">(</button>
+    <button onclick="addToExpression(')')">)</button>
+    <button onclick="backspace()">Backspace</button>
+    <button onclick="clearExpression()">Clear</button>
   </div>
 
-  <div id="daily-best-score"></div>
-  <div id="qu0x-master"></div>
-  <div id="qu0x-completion">
-    Qu0x Completion: <span id="qu0x-fraction">0/0</span>
+  <div class="submit-section">
+    <button id="submit-button" onclick="submitExpression()">✅ Submit</button>
   </div>
 
-  <div id="qu0x-popup" style="display:none;"></div>
+  <div id="feedback"></div>
+
+  <div class="scoreboard">
+    <p><strong>Daily Best Score:</strong> <span id="best-score">?</span></p>
+    <p><strong>Qu0x! Completion:</strong> <span id="quox-completion">0/0</span></p>
+    <p><strong>Qu0x! Master Score:</strong> <span id="master-score">N/A</span></p>
+  </div>
+
+  <div id="quox-animation">🎉 Qu0x! 🎉</div>
 
   <script src="script.js"></script>
 </body>
