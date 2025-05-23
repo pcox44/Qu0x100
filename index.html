@@ -1,39 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Qu0x</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Qu0x</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Qu0x</h1>
-    <div class="top-right-controls">
-      <select id="day-select"></select>
-      <button id="prev-btn">Prev</button>
-      <button id="next-btn">Next</button>
-    </div>
-  </header>
+  <h1>Qu0x</h1>
+  
+  <div id="instructions" class="instructions">
+    Use the five dice exactly once to build a math expression by clicking the dice and operation buttons.<br />
+    Allowed operations: +, −, ×, ÷, ^ (exponent), and ! (factorial).<br />
+    Your goal is to match the 🎯 target number. Click "Submit" to see your score (lower is better).<br />
+    A perfect score earns a ⭐ Qu0x and locks that day. Use Prev/Next or the dropdown to view other puzzles.
+  </div>
+
+  <div id="top-right-controls">
+    <select id="day-dropdown"></select>
+    <button id="prev-btn">Prev</button>
+    <button id="next-btn">Next</button>
+  </div>
 
   <div id="date-display"></div>
-
-  <div id="target-box"></div>
+  <div id="target-container">
+    <div id="target-label">🎯 Target:</div>
+    <div id="target-number"></div>
+  </div>
 
   <div id="dice-container"></div>
-
-  <div id="operator-row">
-    <button class="op-btn">(</button>
-    <button class="op-btn">)</button>
-    <button class="op-btn">+</button>
-    <button class="op-btn">−</button>
-    <button class="op-btn">×</button>
-    <button class="op-btn">÷</button>
-    <button class="op-btn">^</button>
-    <button class="op-btn">!</button>
-    <button id="backspace-btn">⌫</button>
-    <button id="clear-btn">Clear</button>
-  </div>
+  <div id="operator-row"></div>
 
   <div id="expression-container">
     <div id="expression-box"></div>
@@ -45,15 +41,14 @@
     <button id="submit-btn">Submit</button>
   </div>
 
-  <div id="daily-best"></div>
-  <div id="qu0x-master">Qu0x-Master Score: <span id="master-score">N/A</span></div>
-
+  <div id="daily-best-score"></div>
+  <div id="qu0x-master"></div>
   <div id="qu0x-completion">
     Qu0x Completion: <span id="qu0x-fraction"></span>
   </div>
 
-  <div id="qu0x-popup">Qu0x!</div>
-
-  <script src="script.js"></script>
+  <div id="qu0x-popup" style="display:none;"></div>
+  
+<script src="script.js"></script>
 </body>
 </html>
