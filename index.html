@@ -8,18 +8,31 @@
 </head>
 <body>
   <h1>Qu0x!</h1>
+  <div id="rules">
+    <strong>Rules:</strong>
+    <ul>
+      <li>Use each of the 5 dice values exactly once.</li>
+      <li>Build an expression using the buttons below.</li>
+      <li>Allowed operations: +, -, *, /, ^ (exponent), ! (factorial), and parentheses ( ).</li>
+      <li>Factorial (!) only works for whole non-negative integers.</li>
+      <li>Submit to see how close you get to the target number.</li>
+      <li>Get a perfect match (score 0) to Qu0x and lock the day’s puzzle.</li>
+      <li>Clear and Backspace are disabled after Qu0x for that day.</li>
+    </ul>
+  </div>
 
   <div id="top-right-controls">
-    <select id="day-select" title="Select Day"></select>
-    <button id="prev-btn" title="Previous Day">Prev</button>
-    <button id="next-btn" title="Next Day">Next</button>
+    <button id="prev-btn">Prev</button>
+    <button id="next-btn">Next</button>
+    <select id="day-dropdown"></select>
   </div>
 
-  <div id="target-container">
-    <div id="target-box">Target: 25</div>
-  </div>
+  <div id="date-display"></div>
 
-  <div id="dice-container"></div>
+  <div id="dice-target-container">
+    <div id="dice-container"></div>
+    <div id="target-box">Target: <span id="target-number"></span></div>
+  </div>
 
   <div id="operator-row"></div>
 
@@ -31,31 +44,18 @@
 
   <div id="controls">
     <button id="submit-btn">Submit</button>
+    <button id="clear-btn">Clear</button>
+    <button id="backspace-btn">Backspace</button>
   </div>
 
   <div id="daily-best-score"></div>
-
+  <div id="qu0x-master"></div>
   <div id="qu0x-completion">
     Qu0x Completion: <span id="qu0x-fraction">0/0</span>
   </div>
 
-  <div id="qu0x-master"></div>
-
   <div id="qu0x-popup" style="display:none;"></div>
 
-  <div id="rules">
-    <h2>How to Play</h2>
-    <ul>
-      <li>Use all five dice exactly once each to build an expression.</li>
-      <li>Allowed operations: +, -, *, /, ^, (, ), and ! (factorial).</li>
-      <li>Click dice and operators to build your expression.</li>
-      <li>Expression evaluates in real time.</li>
-      <li>Submit to see your score: difference from target number.</li>
-      <li>Get a perfect score (0 difference) to Qu0x and lock that day!</li>
-      <li>Once locked, you cannot modify that day's expression.</li>
-    </ul>
-  </div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
