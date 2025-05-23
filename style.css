@@ -1,137 +1,193 @@
+/* style.css */
 body {
   font-family: Arial, sans-serif;
-  text-align: center;
-  margin: 0;
+  margin: 10px;
   background: #f7f7f7;
+  color: #222;
 }
 
-.top-bar {
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #333;
-  color: white;
-  padding: 0.5em 1em;
+  margin-bottom: 10px;
 }
 
-.nav-controls select,
-.nav-controls button {
+#game-title {
+  margin: 0 auto;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+#top-right-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#day-select {
   font-size: 1rem;
-  margin-left: 0.25em;
+  padding: 3px 6px;
 }
 
-.instructions ul {
-  list-style: none;
-  padding: 0;
-  margin: 1em auto;
-  width: fit-content;
-  text-align: left;
+#prev-day, #next-day {
+  font-size: 1rem;
+  padding: 5px 12px;
+  cursor: pointer;
 }
 
-.target-box {
-  background-color: pink;
+main {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+#instructions {
+  background: #eef4fc;
+  border: 1px solid #a2c0e8;
+  padding: 12px 20px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+#target-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+#target-box {
+  background: pink;
   color: black;
   font-weight: bold;
-  padding: 0.5em 1em;
-  display: inline-block;
-  margin: 1em auto;
-  border-radius: 5px;
-  border: 2px solid black;
+  font-size: 1.8rem;
+  padding: 15px 25px;
+  border-radius: 8px;
+  min-width: 180px;
+  text-align: center;
+  user-select: none;
 }
 
-.dice-container {
+#dice-container {
   display: flex;
   justify-content: center;
-  margin: 1em 0;
+  gap: 15px;
+  margin-bottom: 12px;
 }
 
-.die {
+.dice {
   width: 50px;
   height: 50px;
-  font-size: 1.5em;
+  border: 2px solid black;
+  border-radius: 6px;
+  font-size: 1.8rem;
   font-weight: bold;
-  border: 3px solid black;
-  border-radius: 8px;
-  margin: 0 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
+  line-height: 50px;
+  user-select: none;
   cursor: pointer;
   transition: opacity 0.3s ease;
 }
 
-.die.faded {
-  opacity: 0.2;
-  pointer-events: none;
+.dice.faded {
+  opacity: 0.3;
+  cursor: default;
 }
 
-.expression-section {
+#expression-row {
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin-bottom: 1em;
-  font-size: 1.5em;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-#expressionBox,
-#evaluationBox {
-  padding: 0.3em 0.6em;
+#expression-input, #evaluation-box {
+  font-size: 1.3rem;
+  padding: 10px;
+  border: 2px solid #888;
+  border-radius: 6px;
+  width: 280px;
+  height: 50px;
+  box-sizing: border-box;
+  user-select: none;
   background: white;
-  border: 2px solid #000;
-  min-width: 200px;
 }
 
-#equalsSign {
-  padding: 0 0.5em;
-  font-weight: bold;
+#evaluation-box {
+  width: 120px;
+  text-align: center;
 }
 
-#buttonGrid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 0.5em;
-  margin: 1em auto;
-  max-width: 500px;
+#equals-sign {
+  font-size: 2rem;
+  user-select: none;
 }
 
-#buttonGrid button {
-  padding: 0.6em;
-  font-size: 1.2em;
-  border-radius: 5px;
+#operations-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.op-btn, #backspace-btn, #clear-btn {
+  font-size: 1.3rem;
+  padding: 10px 15px;
   cursor: pointer;
+  border: 1.5px solid #555;
+  border-radius: 6px;
+  background: white;
+  user-select: none;
+  transition: background-color 0.2s ease;
 }
 
-#submitArea {
-  margin: 1em;
+.op-btn:hover:not(:disabled), #backspace-btn:hover:not(:disabled), #clear-btn:hover:not(:disabled) {
+  background: #d3d3d3;
 }
 
-.submit {
-  font-size: 1.3em;
-  padding: 0.5em 1em;
-  background-color: green;
+#submit-btn {
+  background: #2ecc40;
+  border: 2px solid black;
   color: white;
-  border: none;
+  font-size: 1.4rem;
+  padding: 12px 30px;
   border-radius: 8px;
   cursor: pointer;
+  user-select: none;
+  display: block;
+  margin: 0 auto 15px auto;
+  transition: background-color 0.2s ease;
 }
 
-.scoreboard p {
-  margin: 0.5em;
+#submit-btn:hover:not(:disabled) {
+  background: #27ae37;
 }
 
-#qu0xAnimation {
-  font-size: 3em;
-  color: #ff00ff;
-  animation: pop 3s ease-in-out;
+#submit-btn:disabled {
+  background: #7ed67a;
+  cursor: not-allowed;
 }
 
-.hidden {
+#stats {
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  margin-bottom: 30px;
+  user-select: none;
+}
+
+#animation-container {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+  font-size: 5rem;
+  color: #ff6600;
+  text-align: center;
+  pointer-events: none;
+  z-index: 9999;
   display: none;
-}
-
-@keyframes pop {
-  0% { transform: scale(0); opacity: 0; }
-  25% { transform: scale(1.2); opacity: 1; }
-  50% { transform: scale(1); }
-  100% { opacity: 0; }
 }
