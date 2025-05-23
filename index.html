@@ -1,37 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Qu0x - Daily Dice Game</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Qu0x Daily Dice Game</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="game-container">
-    <h1>🎲 Qu0x - Daily Dice Game 🎲</h1>
-    <p>Use the dice values exactly once each to build an expression using operations by clicking buttons to achieve the target.<br/>
-    Allowed operations: +, -, *, /, ^ (exponent), and ! (factorial). Submit to see your score (difference from target).<br/>
-    Achieve a perfect score to Qu0x and lock the day! Use Prev/Next to navigate days. Blitz Mode allows unlimited practice.</p>
-
-    <div id="date-display"></div>
-    <div id="dice-container"></div>
-    <div id="operator-row"></div>
-    <div id="expression-container">
-      <div id="expression-box"></div>
-      <div id="output-box"></div>
-    </div>
-    <button id="submit-btn">Submit</button>
-    <div id="qu0x-popup"></div>
-    <div id="best-score"></div>
-    <div id="qu0x-master"></div>
-    <div id="total-qu0x"></div>
-
-    <div id="nav-buttons">
-      <button id="prev-btn">← Prev</button>
-      <button id="next-btn">Next →</button>
-    </div>
+  <h1>Qu0x - Daily Dice Game</h1>
+  <div id="date-display"></div>
+  <div id="dice-container"></div>
+  <div id="operator-row"></div>
+  <div id="expression-container">
+    <div id="expression-box"></div>
+    <div id="equals">=</div>
+    <div id="output-box"></div>
   </div>
-
-  <script src="script.js"></script>
+  <div id="controls">
+    <button id="submit-btn">Submit</button>
+    <button id="prev-btn">Prev</button>
+    <button id="next-btn">Next</button>
+  </div>
+  <div id="best-score"></div>
+  <div id="qu0x-master"></div>
+  <div id="qu0x-completion">
+    Qu0x Completion: <span id="qu0x-fraction"></span>
+  </div>
+  <div id="qu0x-popup" style="display:none;"></div>
+<script src="script.js"></script>
 </body>
 </html>
