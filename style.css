@@ -1,105 +1,134 @@
 body {
-  font-family: Arial, sans-serif;
-  max-width: 600px;
-  margin: 20px auto;
+  font-family: sans-serif;
   text-align: center;
+  background: #f2f2f2;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  margin-top: 0.5em;
+}
+
+.top-right-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+#date-display,
+#target-box {
+  font-size: 1.5em;
+  margin: 0.5em;
+}
+
+#target-box {
+  font-weight: bold;
+  border: 2px solid #333;
+  background: white;
+  display: inline-block;
+  padding: 0.5em 1em;
+  border-radius: 10px;
 }
 
 #dice-container {
-  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 1em auto;
+  gap: 0.5em;
 }
 
 .die {
-  display: inline-block;
   width: 50px;
   height: 50px;
-  line-height: 50px;
-  margin: 5px;
-  font-size: 24px;
+  font-size: 1.5em;
   font-weight: bold;
-  border-radius: 5px;
-  background-color: #4CAF50;
-  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid black;
+  border-radius: 8px;
   cursor: pointer;
-  user-select: none;
   transition: opacity 0.3s ease;
 }
 
 .die.used {
-  opacity: 0.3;
-  cursor: default;
+  opacity: 0;
 }
 
-.die.six {
-  background-color: #FFEB3B; /* yellow background */
-  color: black;
-}
+.die-1 { background: red; color: white; }
+.die-2 { background: white; color: black; }
+.die-3 { background: blue; color: white; }
+.die-4 { background: yellow; color: black; }
+.die-5 { background: green; color: white; }
+.die-6 { background: black; color: yellow; }
 
 #operator-row {
-  margin: 15px 0;
+  margin: 1em 0;
 }
 
-.btn {
-  font-size: 20px;
-  padding: 5px 10px;
-  margin: 3px;
+.op-btn {
+  font-size: 1.2em;
+  padding: 0.4em 0.6em;
+  margin: 0.2em;
+  border-radius: 8px;
+  border: 1px solid #ccc;
   cursor: pointer;
-  user-select: none;
 }
 
 #expression-container {
-  margin: 10px 0;
-  font-size: 22px;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 1em;
+  font-size: 1.5em;
 }
 
-#expression-box {
+#expression-box,
+#output-box {
   min-width: 150px;
-  min-height: 30px;
-  border: 1px solid #ccc;
-  margin-right: 10px;
-  padding: 5px;
-  text-align: left;
-  background-color: #f9f9f9;
-  user-select: none;
+  padding: 0.5em;
+  background: white;
+  border: 2px solid #333;
+  border-radius: 8px;
 }
 
 #equals {
-  font-weight: bold;
-  margin-right: 10px;
+  margin: 0 1em;
 }
 
-#output-box {
-  min-width: 80px;
-  min-height: 30px;
-  border: 1px solid #ccc;
-  padding: 5px;
-  background-color: #f9f9f9;
+#controls {
+  margin: 1em;
 }
 
-#controls button {
-  margin: 5px;
-  padding: 8px 16px;
-  font-size: 18px;
+#submit-btn {
+  font-size: 1.2em;
+  padding: 0.5em 1em;
+  background: darkgreen;
+  color: white;
+  border: none;
+  border-radius: 10px;
   cursor: pointer;
 }
 
-#best-score, #qu0x-master, #qu0x-completion {
-  margin: 10px 0;
-  font-weight: bold;
+#daily-best,
+#qu0x-master,
+#qu0x-completion {
+  margin: 0.5em;
+  font-size: 1.2em;
 }
 
 #qu0x-popup {
+  display: none;
   position: fixed;
   top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 48px;
-  color: gold;
-  font-weight: bold;
-  text-shadow: 0 0 10px #ff0;
-  pointer-events: none;
-  user-select: none;
+  font-size: 3em;
+  background: gold;
+  padding: 1em 2em;
+  border: 3px solid black;
+  border-radius: 15px;
+  z-index: 999;
 }
