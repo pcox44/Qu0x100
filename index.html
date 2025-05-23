@@ -7,52 +7,54 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Qu0x!</h1>
-    <div id="game-number-date"></div>
-    <div id="top-right-controls">
-      <select id="day-select" aria-label="Select day"></select>
-      <button id="prev-btn" aria-label="Previous day">Prev</button>
-      <button id="next-btn" aria-label="Next day">Next</button>
-    </div>
-  </header>
+  <h1>Qu0x!</h1>
 
-  <section id="instructions">
-    <h2>Instructions</h2>
+  <div id="top-right-controls">
+    <select id="day-select" title="Select Day"></select>
+    <button id="prev-btn" title="Previous Day">Prev</button>
+    <button id="next-btn" title="Next Day">Next</button>
+  </div>
+
+  <div id="target-container">
+    <div id="target-box">Target: 25</div>
+  </div>
+
+  <div id="dice-container"></div>
+
+  <div id="operator-row"></div>
+
+  <div id="expression-container">
+    <div id="expression-box"></div>
+    <div id="equals">=</div>
+    <div id="output-box">?</div>
+  </div>
+
+  <div id="controls">
+    <button id="submit-btn">Submit</button>
+  </div>
+
+  <div id="daily-best-score"></div>
+
+  <div id="qu0x-completion">
+    Qu0x Completion: <span id="qu0x-fraction">0/0</span>
+  </div>
+
+  <div id="qu0x-master"></div>
+
+  <div id="qu0x-popup" style="display:none;"></div>
+
+  <div id="rules">
+    <h2>How to Play</h2>
     <ul>
-      <li>Use each of the five dice exactly once by clicking them to add numbers to your expression.</li>
-      <li>Use operation buttons (+, -, *, /, ^, !, (, ), Clear, Backspace) to build your expression.</li>
-      <li>The target number is shown in the pink box above the dice.</li>
-      <li>Submit your expression to see your score. Perfect matches are called Qu0x!</li>
-      <li>Qu0x Completion and Master Score update as you solve daily puzzles.</li>
+      <li>Use all five dice exactly once each to build an expression.</li>
+      <li>Allowed operations: +, -, *, /, ^, (, ), and ! (factorial).</li>
+      <li>Click dice and operators to build your expression.</li>
+      <li>Expression evaluates in real time.</li>
+      <li>Submit to see your score: difference from target number.</li>
+      <li>Get a perfect score (0 difference) to Qu0x and lock that day!</li>
+      <li>Once locked, you cannot modify that day's expression.</li>
     </ul>
-  </section>
-
-  <main>
-    <div id="target-box" aria-live="polite">Target: 25</div>
-
-    <div id="dice-container" aria-label="Dice container"></div>
-
-    <div id="expression-container">
-      <div id="expression-box" aria-label="Expression input" tabindex="0"></div>
-      <div id="equals">=</div>
-      <div id="output-box" aria-live="polite"></div>
-    </div>
-
-    <div id="operator-row" aria-label="Operation buttons"></div>
-
-    <div id="controls">
-      <button id="submit-btn" aria-label="Submit expression">Submit</button>
-    </div>
-
-    <div id="score-info">
-      <div id="daily-best-score">Daily Best Score:</div>
-      <div id="qu0x-completion">Qu0x Completion: 0/0</div>
-      <div id="qu0x-master">Qu0x Master Score: N/A</div>
-    </div>
-
-    <div id="qu0x-popup" style="display:none;"></div>
-  </main>
+  </div>
 
 <script src="script.js"></script>
 </body>
