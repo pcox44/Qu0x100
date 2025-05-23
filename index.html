@@ -9,38 +9,19 @@
 <body>
   <h1>Qu0x!</h1>
 
-  <div id="rules">
-    <ul>
-      <li>Use each of the 5 dice exactly once in your expression.</li>
-      <li>Build the expression only by clicking dice and operator buttons.</li>
-      <li>Allowed operators: +, -, *, /, ^, (, )</li>
-      <li>Submit to see how close you get to the target number.</li>
-      <li>Get a perfect score (Qu0x!) to lock the day and earn points!</li>
-    </ul>
+  <div id="top-right-controls">
+    <select id="day-select" title="Select Day"></select>
+    <button id="prev-btn" title="Previous Day">Prev</button>
+    <button id="next-btn" title="Next Day">Next</button>
   </div>
 
-  <div id="top-controls">
-    <div id="date-display"></div>
-    <div id="nav-controls">
-      <select id="day-select"></select>
-      <button id="prev-btn" title="Previous Day">Prev</button>
-      <button id="next-btn" title="Next Day">Next</button>
-    </div>
+  <div id="target-container">
+    <div id="target-box">Target: 25</div>
   </div>
-
-  <div id="target-box">Target: 25</div>
 
   <div id="dice-container"></div>
 
-  <div id="operator-row">
-    <button class="operator-btn">(</button>
-    <button class="operator-btn">)</button>
-    <button class="operator-btn">+</button>
-    <button class="operator-btn">-</button>
-    <button class="operator-btn">*</button>
-    <button class="operator-btn">/</button>
-    <button class="operator-btn">^</button>
-  </div>
+  <div id="operator-row"></div>
 
   <div id="expression-container">
     <div id="expression-box"></div>
@@ -48,18 +29,33 @@
     <div id="output-box">?</div>
   </div>
 
-  <div id="submit-container">
+  <div id="controls">
     <button id="submit-btn">Submit</button>
   </div>
 
-  <div id="scores-container">
-    <div id="daily-best-score"></div>
-    <div id="qu0x-completion">Qu0x Completion: <span id="qu0x-fraction">0/0</span></div>
-    <div id="qu0x-master">Qu0x Master Score: N/A</div>
+  <div id="daily-best-score"></div>
+
+  <div id="qu0x-completion">
+    Qu0x Completion: <span id="qu0x-fraction">0/0</span>
   </div>
+
+  <div id="qu0x-master"></div>
 
   <div id="qu0x-popup" style="display:none;"></div>
 
-  <script src="script.js"></script>
+  <div id="rules">
+    <h2>How to Play</h2>
+    <ul>
+      <li>Use all five dice exactly once each to build an expression.</li>
+      <li>Allowed operations: +, -, *, /, ^, (, ), and ! (factorial).</li>
+      <li>Click dice and operators to build your expression.</li>
+      <li>Expression evaluates in real time.</li>
+      <li>Submit to see your score: difference from target number.</li>
+      <li>Get a perfect score (0 difference) to Qu0x and lock that day!</li>
+      <li>Once locked, you cannot modify that day's expression.</li>
+    </ul>
+  </div>
+
+<script src="script.js"></script>
 </body>
 </html>
