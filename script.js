@@ -1,437 +1,433 @@
-// script.js
+"use strict";
 
-const startDate = new Date('2025-05-15T00:00:00');
+const startDate = new Date(2025, 4, 15); // May 15, 2025 (month is 0-based)
 const today = new Date();
-const oneDayMs = 24 * 60 * 60 * 1000;
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-function dateToYMD(date) {
-  const y = date.getFullYear();
-  const m = (date.getMonth() + 1).toString().padStart(2, '0');
-  const d = date.getDate().toString().padStart(2, '0');
-  return `${y}-${m}-${d}`;
+// Calculate the number of days between startDate and today (inclusive)
+function daysBetween(start, end) {
+  return Math.floor((end - start) / MS_PER_DAY);
 }
 
-// Number of puzzles = days between startDate and today inclusive
-const totalPuzzles = Math.floor((today - startDate) / oneDayMs) + 1;
+const totalDays = daysBetween(startDate, today) + 1;
 
+let currentDayIndex = totalDays - 1; // default to today
+
+// Dice colors mapping for dice face value
 const diceColors = {
-  1: {bg: 'red', fg: 'white'},
-  2: {bg: 'white', fg: 'black'},
-  3: {bg: 'blue', fg: 'white'},
-  4: {bg: 'yellow', fg: 'black'},
-  5: {bg: 'green', fg: 'white'},
-  6: {bg: 'black', fg: 'yellow'},
+  1: { bg: "red", fg: "white" },
+  2: { bg: "white", fg: "black" },
+  3: { bg: "blue", fg: "white" },
+  4: { bg: "yellow", fg: "black" },
+  5: { bg: "green", fg: "white" },
+  6: { bg: "black", fg: "yellow" },
 };
 
-const operators = ['+', '-', '*', '/', '^', '!'];
+const diceContainer = document.getElementById("dice-container");
+const operatorRow = document.getElementById("operator-row");
+const expressionBox = document.getElementById("expression-box");
+const outputBox = document.getElementById("output-box");
+const submitBtn = document.getElementById("submit-btn");
+const clearBtn = document.getElementById("clear-btn");
+const backspaceBtn = document.getElementById("backspace-btn");
+const dateDisplay = document.getElementById("date-display");
+const targetNumberSpan = document.getElementById("target-number");
+const dailyBestScoreDiv = document.getElementById("daily-best-score");
+const qu0xMasterDiv = document.getElementById("qu0x-master");
+const qu0xCompletionSpan = document.getElementById("qu0x-fraction");
+const qu0xPopup = document.getElementById("qu0x-popup");
+const prevBtn = document.getElementById("prev-btn");
+const nextBtn = document.getElementById("next-btn");
+const dayDropdown = document.getElementById("day-dropdown");
 
-let currentIndex = totalPuzzles - 1; // default today
-let expression = '';
-let usedDice = new Set();
 let diceValues = [];
-let targetNumber = 0;
-let qu0xData = {}; // key=date string, value={bestScore:int, expression:str, isQu0x:boolean}
-let qu0xCompletionCount = 0;
+let expression = "";
+let usedDice = new Set();
+let lockedDays = {}; // dayIndex: { expression, score }
+let dailyBestScores = {}; // dayIndex: bestScore (lowest difference)
+let dailyQu0x = {}; // dayIndex: boolean (true if qu0x achieved)
 
-const dateDisplay = document.getElementById('date-display');
-const diceContainer = document.getElementById('dice-container');
-const operatorRow = document.getElementById('operator-row');
-const expressionBox = document.getElementById('expression-box');
-const outputBox = document.getElementById('output-box');
-const submitBtn = document.getElementById('submit-btn');
-const prevBtn = document.getElementById('prev-btn');
-const nextBtn = document.getElementById('next-btn');
-const dayDropdown = document.getElementById('day-dropdown');
-const targetNumberDiv = document.getElementById('target-number');
-const dailyBestScoreDiv = document.getElementById('daily-best-score');
-const qu0xMasterDiv = document.getElementById('qu0x-master');
-const qu0xFractionSpan = document.getElementById('qu0x-fraction');
-const qu0xPopup = document.getElementById('qu0x-popup');
-
-function seedRandom(seed) {
-  // Simple seed RNG (mulberry32)
-  return function() {
-    var t = seed += 0x6D2B79F5;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  }
+// Utility functions for date formatting
+function formatDate(date) {
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
-function generatePuzzleForIndex(idx) {
-  // Generate dice and target for given day index deterministically
-  // Use index as seed
-  const seed = idx + 20250515; 
-  const rand = seedRandom(seed);
-  const dice = [];
-  for(let i=0; i<5; i++) {
-    dice.push(Math.floor(rand() * 6) + 1);
-  }
-  // Target: use sum of dice + a small random +/- offset - can be changed
-  const sumDice = dice.reduce((a,b) => a+b, 0);
-  // Offset between -10 and 10 but avoid negative or zero target
-  let offset = Math.floor(rand()*21) - 10;
-  let target = sumDice + offset;
-  if(target < 1) target = sumDice;
-  return {dice, target};
+function getDateForIndex(index) {
+  const d = new Date(startDate.getTime() + index * MS_PER_DAY);
+  return d;
 }
 
-function loadQu0xData() {
-  const data = localStorage.getItem('qu0xData');
-  if(data) {
-    qu0xData = JSON.parse(data);
-  } else {
-    qu0xData = {};
-  }
+function getStorageKey(dayIndex) {
+  return `qu0x_day_${dayIndex}`;
 }
 
-function saveQu0xData() {
-  localStorage.setItem('qu0xData', JSON.stringify(qu0xData));
+function getLockedStorageKey() {
+  return "qu0x_locked_days";
 }
 
-function updateQu0xCompletionCount() {
-  qu0xCompletionCount = Object.values(qu0xData).filter(d => d.isQu0x).length;
+function getBestScoresKey() {
+  return "qu0x_best_scores";
 }
 
-function updateQu0xMaster() {
-  if(qu0xCompletionCount === totalPuzzles) {
-    // Sum of best scores for all days
-    let sum = 0;
-    for(let i=0; i<totalPuzzles; i++) {
-      const dayKey = getDateKey(i);
-      if(qu0xData[dayKey] && qu0xData[dayKey].bestScore !== undefined) {
-        sum += qu0xData[dayKey].bestScore;
-      }
-    }
-    qu0xMasterDiv.textContent = `Qu0x Master Score: ${sum}`;
-  } else {
-    qu0xMasterDiv.textContent = 'Qu0x Master Score: N/A';
-  }
+function getQu0xCompletionKey() {
+  return "qu0x_completion";
 }
 
-function getDateKey(index) {
-  const d = new Date(startDate.getTime() + index * oneDayMs);
-  return dateToYMD(d);
+// Save locked days and best scores to localStorage
+function saveLockedDays() {
+  localStorage.setItem(getLockedStorageKey(), JSON.stringify(lockedDays));
 }
 
-function updateDropdown() {
-  dayDropdown.innerHTML = '';
-  for(let i=0; i<totalPuzzles; i++) {
-    const dayKey = getDateKey(i);
-    const option = document.createElement('option');
-    option.value = i;
-    const dayDate = new Date(startDate.getTime() + i * oneDayMs);
-    const labelDate = dayDate.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
-    let prefix = '';
-    if(qu0xData[dayKey]) {
-      if(qu0xData[dayKey].isQu0x) {
-        prefix = '⭐ ';
-      } else if(qu0xData[dayKey].bestScore !== undefined) {
-        prefix = `✔ (${qu0xData[dayKey].bestScore}) `;
-      }
-    }
-    option.textContent = `${prefix}${labelDate}`;
-    dayDropdown.appendChild(option);
-  }
-  dayDropdown.value = currentIndex;
+function loadLockedDays() {
+  const data = localStorage.getItem(getLockedStorageKey());
+  if (data) lockedDays = JSON.parse(data);
 }
 
-function createDiceElement(value, idx) {
-  const die = document.createElement('div');
-  die.classList.add('die');
-  die.classList.add(`die-${value}`);
-  die.textContent = value;
-  die.style.borderColor = 'black';
-  die.style.borderWidth = '2px';
-  die.style.borderStyle = 'solid';
-
-  if(usedDice.has(idx)) {
-    die.classList.add('fade-out');
-  } else {
-    die.classList.remove('fade-out');
-  }
-
-  die.addEventListener('click', () => {
-    if(usedDice.has(idx)) return; // already used
-    // Append dice value to expression only if no concat violation
-    if(canAddToExpression('' + value)) {
-      expression += value;
-      usedDice.add(idx);
-      updateExpressionDisplay();
-    }
-  });
-
-  return die;
+function saveBestScores() {
+  localStorage.setItem(getBestScoresKey(), JSON.stringify(dailyBestScores));
 }
 
-function createOperatorButton(op) {
-  const btn = document.createElement('button');
-  btn.classList.add('operator-btn');
-  btn.textContent = op === '*' ? '×' : op === '/' ? '÷' : op;
-  btn.title = op;
-  btn.addEventListener('click', () => {
-    if(canAddToExpression(op)) {
-      expression += op;
-      updateExpressionDisplay();
-    }
-  });
-  return btn;
+function loadBestScores() {
+  const data = localStorage.getItem(getBestScoresKey());
+  if (data) dailyBestScores = JSON.parse(data);
 }
 
-function canAddToExpression(char) {
-  // Prevent concat (e.g. two dice numbers directly side by side without operator)
-  // Allowed rules:
-  // - Dice values can be added only if previous char is operator or empty
-  // - Operator can be added only if previous char is digit or '!' (except factorial which is postfix)
-  // - Factorial only after whole number, no two factorials in a row
-  const last = expression.slice(-1);
-  if('0123456'.includes(char)) {
-    // char is dice value (only 1-6 actually)
-    if(last === '' || operators.includes(last) || last === '(' || last === ')') return true;
-    return false; // prevent concat number directly
-  }
-  if(operators.includes(char)) {
-    // factorial '!' only after digit or ')'
-    if(char === '!') {
-      if(last.match(/[0-9)]/)) return true;
-      return false;
-    } else {
-      // other operators require last char to be digit or '!' or ')'
-      if(last.match(/[0-9!)]/)) return true;
-      return false;
-    }
-  }
-  // parentheses can be added as needed, but we are not supporting parentheses in dice input currently
-  return true;
+function saveQu0xCompletion() {
+  localStorage.setItem(getQu0xCompletionKey(), JSON.stringify(dailyQu0x));
 }
 
-function updateExpressionDisplay() {
-  expressionBox.textContent = expression;
-  evaluateExpression();
-}
-
-function evaluateExpression() {
-  if(expression === '') {
-    outputBox.textContent = '';
-    return;
-  }
-  try {
-    // Replace ^ with ** for JS eval
-    // Handle factorial: replace n! with factorial(n)
-    let expr = expression.replace(/\^/g, '**');
-    expr = expr.replace(/(\d+)!/g, (match, p1) => {
-      const num = Number(p1);
-      if(!Number.isInteger(num) || num < 0) throw new Error('Invalid factorial');
-      return factorial(num);
-    });
-    // Check for invalid chars (only digits, operators, and factorial allowed)
-    if(/[^0-9+\-*/().!]/.test(expr)) throw new Error('Invalid chars');
-    // Evaluate safely
-    const result = eval(expr);
-    if(typeof result === 'number' && !isNaN(result) && isFinite(result)) {
-      outputBox.textContent = `= ${result}`;
-    } else {
-      outputBox.textContent = '= ?';
-    }
-  } catch(e) {
-    outputBox.textContent = '= ?';
-  }
+function loadQu0xCompletion() {
+  const data = localStorage.getItem(getQu0xCompletionKey());
+  if (data) dailyQu0x = JSON.parse(data);
 }
 
 function factorial(n) {
-  if(n === 0 || n === 1) return 1;
-  let f = 1;
-  for(let i=2; i<=n; i++) f *= i;
-  return f;
+  if (n < 0 || !Number.isInteger(n)) return NaN;
+  if (n === 0 || n === 1) return 1;
+  let res = 1;
+  for (let i = 2; i <= n; i++) res *= i;
+  return res;
 }
 
-function updateDiceContainer() {
-  diceContainer.innerHTML = '';
+function safeEval(expr) {
+  // Allowed characters: digits, + - * / ^ ( ) !
+  // Check for invalid characters
+  if (/[^0-9+\-*/^()!.\s]/.test(expr)) return NaN;
+
+  // Replace ^ with ** for exponentiation in JS
+  expr = expr.replace(/\^/g, "**");
+
+  // Handle factorial: find all occurrences of <number>! and replace with factorial value
+  // Use regex to match numbers followed by '!'
+  // Use a loop to replace all factorial expressions from right to left to handle nested factorials
+  while (true) {
+    const match = expr.match(/(\d+)!/);
+    if (!match) break;
+    const num = parseInt(match[1], 10);
+    const factVal = factorial(num);
+    if (isNaN(factVal)) return NaN;
+    expr = expr.replace(match[0], factVal);
+  }
+
+  try {
+    const val = eval(expr);
+    if (typeof val === "number" && isFinite(val)) return val;
+    return NaN;
+  } catch {
+    return NaN;
+  }
+}
+
+function generateDice(seed) {
+  // Deterministic dice generation based on seed (day index)
+  // Use simple PRNG with seed
+  function mulberry32(a) {
+    return function() {
+      let t = (a += 0x6d2b79f5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  const rng = mulberry32(seed + 123456789);
+
+  let dice = [];
+  for (let i = 0; i < 5; i++) {
+    dice.push(Math.floor(rng() * 6) + 1);
+  }
+  return dice;
+}
+
+function generateTarget(seed) {
+  // Generate a target number between 1 and 100 based on seed
+  const rng = (function () {
+    function mulberry32(a) {
+      return function () {
+        let t = (a += 0x6d2b79f5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    return mulberry32(seed + 987654321);
+  })();
+
+  return Math.floor(rng() * 100) + 1;
+}
+
+function createDiceElements() {
+  diceContainer.innerHTML = "";
   diceValues.forEach((val, idx) => {
-    const die = createDiceElement(val, idx);
+    const die = document.createElement("div");
+    die.className = `die die-${val}`;
+    die.textContent = val;
+    if (usedDice.has(idx)) {
+      die.classList.add("fade-out");
+    }
+    die.title = "Click to use this die value";
+    die.addEventListener("click", () => {
+      if (isDayLocked()) return;
+      if (!usedDice.has(idx)) {
+        expression += val.toString();
+        usedDice.add(idx);
+        updateExpression();
+        createDiceElements();
+      }
+    });
     diceContainer.appendChild(die);
   });
 }
 
-function updateOperatorRow() {
-  operatorRow.innerHTML = '';
+function createOperatorButtons() {
+  const operators = ["+", "-", "*", "/", "^", "(", ")", "!"];
+  operatorRow.innerHTML = "";
   operators.forEach(op => {
-    operatorRow.appendChild(createOperatorButton(op));
-  });
-  // Clear and Backspace buttons
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear';
-  clearBtn.classList.add('operator-btn');
-  clearBtn.title = 'Clear Expression';
-  clearBtn.addEventListener('click', () => {
-    expression = '';
-    usedDice.clear();
-    updateExpressionDisplay();
-    updateDiceContainer();
-  });
-  operatorRow.appendChild(clearBtn);
-
-  const backspaceBtn = document.createElement('button');
-  backspaceBtn.textContent = '←';
-  backspaceBtn.classList.add('operator-btn');
-  backspaceBtn.title = 'Backspace';
-  backspaceBtn.addEventListener('click', () => {
-    if(expression.length === 0) return;
-    const lastChar = expression.slice(-1);
-    expression = expression.slice(0, -1);
-    // If lastChar was a digit, remove that dice from usedDice by index
-    if(/[1-6]/.test(lastChar)) {
-      // Find the dice index of that value used in expression to free it
-      // This is tricky, so let's rebuild usedDice from expression
-      rebuildUsedDiceFromExpression();
-    }
-    updateExpressionDisplay();
-    updateDiceContainer();
-  });
-  operatorRow.appendChild(backspaceBtn);
-}
-
-function rebuildUsedDiceFromExpression() {
-  usedDice.clear();
-  // For each dice value in current puzzle, mark those used in expression as used
-  for(let i=0; i<diceValues.length; i++) {
-    if(expression.includes(diceValues[i].toString())) {
-      // But we must check usage count carefully because multiple dice same number
-      // For simplicity, we check occurrences of that digit in expression and compare to dice count
-      // We'll do a simple approach: for each dice value, find count in expression, 
-      // and mark first that many dice of that value as used
-    }
-  }
-  // For full correctness, let's do:
-  // Count of each digit in expression (excluding operators)
-  const digitCount = {};
-  for(let c of expression) {
-    if(/[1-6]/.test(c)) {
-      digitCount[c] = (digitCount[c] || 0) + 1;
-    }
-  }
-  // Mark dice used in order, up to count
-  const usedCount = {};
-  usedDice.clear();
-  for(let i=0; i<diceValues.length; i++) {
-    const val = diceValues[i];
-    const strVal = val.toString();
-    usedCount[strVal] = usedCount[strVal] || 0;
-    if(digitCount[strVal] && usedCount[strVal] < digitCount[strVal]) {
-      usedDice.add(i);
-      usedCount[strVal]++;
-    }
-  }
-}
-
-function updateDateDisplay() {
-  const currentDate = new Date(startDate.getTime() + currentIndex * oneDayMs);
-  dateDisplay.textContent = currentDate.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
-}
-
-function loadPuzzle() {
-  // Clear expression and used dice
-  expression = '';
-  usedDice.clear();
-
-  const puzzle = generatePuzzleForIndex(currentIndex);
-  diceValues = puzzle.dice;
-  targetNumber = puzzle.target;
-
-  updateDateDisplay();
-  updateDiceContainer();
-  updateOperatorRow();
-  updateExpressionDisplay();
-  updateDropdown();
-
-  targetNumberDiv.textContent = `Target: ${targetNumber}`;
-
-  const dayKey = getDateKey(currentIndex);
-  if(qu0xData[dayKey]) {
-    dailyBestScoreDiv.textContent = `Daily Best Score: ${qu0xData[dayKey].bestScore} (${qu0xData[dayKey].expression || ''})`;
-    // Lock if perfect
-    if(qu0xData[dayKey].isQu0x) {
-      submitBtn.disabled = true;
-      expressionBox.textContent += ' (Locked - Qu0x!)';
-    } else {
-      submitBtn.disabled = false;
-    }
-  } else {
-    dailyBestScoreDiv.textContent = 'Daily Best Score: None';
-    submitBtn.disabled = false;
-  }
-  updateQu0xMaster();
-}
-
-function calculateScore(exprResult) {
-  return Math.abs(exprResult - targetNumber);
-}
-
-submitBtn.addEventListener('click', () => {
-  // Evaluate expression result safely
-  let exprResult;
-  try {
-    let expr = expression.replace(/\^/g, '**');
-    expr = expr.replace(/(\d+)!/g, (match, p1) => {
-      const num = Number(p1);
-      if(!Number.isInteger(num) || num < 0) throw new Error('Invalid factorial');
-      return factorial(num);
+    const btn = document.createElement("button");
+    btn.className = "operator-button";
+    btn.textContent = op;
+    btn.title = op === "!" ? "Factorial (only on whole non-negative integers)" : `Operator ${op}`;
+    btn.addEventListener("click", () => {
+      if (isDayLocked()) return;
+      expression += op;
+      updateExpression();
     });
-    if(/[^0-9+\-*/().!]/.test(expr)) throw new Error('Invalid chars');
-    exprResult = eval(expr);
-    if(typeof exprResult !== 'number' || isNaN(exprResult) || !isFinite(exprResult)) throw new Error('Invalid result');
-  } catch(e) {
-    alert('Invalid expression');
+    operatorRow.appendChild(btn);
+  });
+}
+
+function updateExpression() {
+  expressionBox.textContent = expression || "";
+  updateOutput();
+}
+
+function updateOutput() {
+  const val = safeEval(expression);
+  if (isNaN(val)) {
+    outputBox.textContent = "?";
+  } else {
+    outputBox.textContent = val.toFixed(4).replace(/\.?0+$/, "");
+  }
+}
+
+function calculateScore(val, target) {
+  return Math.abs(val - target);
+}
+
+function isDayLocked() {
+  return dailyQu0x[currentDayIndex] === true;
+}
+
+function lockDay() {
+  dailyQu0x[currentDayIndex] = true;
+  lockedDays[currentDayIndex] = { expression, score: 0 };
+  saveLockedDays();
+  saveQu0xCompletion();
+  updateUI();
+}
+
+function updateUI() {
+  // Update date display
+  const currentDate = getDateForIndex(currentDayIndex);
+  dateDisplay.textContent = formatDate(currentDate);
+
+  // Update dice and target
+  diceValues = generateDice(currentDayIndex);
+  createDiceElements();
+
+  const target = generateTarget(currentDayIndex);
+  targetNumberSpan.textContent = target;
+
+  // Load previous best score for the day
+  const best = dailyBestScores[currentDayIndex];
+  if (best === undefined) {
+    dailyBestScoreDiv.textContent = "No best score yet";
+  } else if (best === 0) {
+    dailyBestScoreDiv.textContent = "Perfect Qu0x!";
+  } else {
+    dailyBestScoreDiv.textContent = `Best Score: ${best}`;
+  }
+
+  // Reset expression and used dice if not locked
+  if (isDayLocked()) {
+    expression = lockedDays[currentDayIndex]?.expression || "";
+    expressionBox.textContent = expression;
+    updateOutput();
+    submitBtn.disabled = true;
+    clearBtn.disabled = true;
+    backspaceBtn.disabled = true;
+  } else {
+    expression = "";
+    usedDice.clear();
+    updateExpression();
+    submitBtn.disabled = false;
+    clearBtn.disabled = false;
+    backspaceBtn.disabled = false;
+  }
+
+  // Update Qu0x master score and fraction
+  const completedCount = Object.values(dailyQu0x).filter(Boolean).length;
+  qu0xCompletionSpan.textContent = `${completedCount} / ${totalDays}`;
+
+  // Qu0x Master Score is sum of best scores for all solved days or "N/A"
+  if (completedCount === totalDays) {
+    const sumScores = Object.values(dailyBestScores).reduce((a, b) => a + b, 0);
+    qu0xMasterDiv.textContent = `Qu0x Master Score: ${sumScores}`;
+  } else {
+    qu0xMasterDiv.textContent = `Qu0x Master Score: N/A`;
+  }
+
+  updateDropdown();
+}
+
+function updateDropdown() {
+  dayDropdown.innerHTML = "";
+  for (let i = 0; i < totalDays; i++) {
+    const option = document.createElement("option");
+    option.value = i;
+    const d = getDateForIndex(i);
+    let prefix = "";
+    if (dailyQu0x[i]) prefix = "⭐ "; // Qu0x!
+    else if (dailyBestScores[i] !== undefined) prefix = "✔️ "; // solved but not perfect
+    option.textContent = `${prefix}${formatDate(d)}`;
+    if (i === currentDayIndex) option.selected = true;
+    dayDropdown.appendChild(option);
+  }
+}
+
+function submitExpression() {
+  if (isDayLocked()) return;
+
+  const val = safeEval(expression);
+  if (isNaN(val)) {
+    alert("Invalid expression or evaluation error.");
     return;
   }
-  const score = calculateScore(exprResult);
-  const dayKey = getDateKey(currentIndex);
 
-  if(!qu0xData[dayKey] || (qu0xData[dayKey].bestScore === undefined) || (score < qu0xData[dayKey].bestScore)) {
-    qu0xData[dayKey] = {
-      bestScore: score,
-      expression: expression,
-      isQu0x: score === 0
-    };
-    saveQu0xData();
-    updateQu0xCompletionCount();
-    updateQu0xMaster();
-    updateDropdown();
-    dailyBestScoreDiv.textContent = `Daily Best Score: ${score} (${expression})`;
+  const target = generateTarget(currentDayIndex);
+  const score = calculateScore(val, target);
+
+  // Show result and score
+  outputBox.textContent = val.toFixed(4).replace(/\.?0+$/, "") + ` =`;
+
+  if (score === 0) {
+    // Qu0x achieved
+    alert("🎉 Qu0x! Perfect score achieved!");
+    showQu0xAnimation();
+    lockDay();
+    dailyBestScores[currentDayIndex] = 0;
+  } else {
+    alert(`Score: ${score} (difference from target ${target})`);
+    if (
+      dailyBestScores[currentDayIndex] === undefined ||
+      score < dailyBestScores[currentDayIndex]
+    ) {
+      dailyBestScores[currentDayIndex] = score;
+    }
+  }
+  saveBestScores();
+  updateUI();
+}
+
+function clearExpression() {
+  if (isDayLocked()) return;
+  expression = "";
+  usedDice.clear();
+  updateExpression();
+  createDiceElements();
+}
+
+function backspaceExpression() {
+  if (isDayLocked()) return;
+  if (expression.length === 0) return;
+
+  // Remove last character and if it was a die value, mark that die unused again
+  const lastChar = expression.slice(-1);
+  expression = expression.slice(0, -1);
+
+  // Check if lastChar is a digit that matches a dice value and restore that die
+  // Because dice values can repeat, we check the rightmost used die with that value and remove it from usedDice
+  if (/\d/.test(lastChar)) {
+    const digit = parseInt(lastChar, 10);
+    // Find used dice with that value, remove the last used
+    let lastUsedDieIndex = -1;
+    Array.from(usedDice).forEach((dieIdx) => {
+      if (diceValues[dieIdx] === digit) {
+        if (dieIdx > lastUsedDieIndex) lastUsedDieIndex = dieIdx;
+      }
+    });
+    if (lastUsedDieIndex !== -1) {
+      usedDice.delete(lastUsedDieIndex);
+    }
   }
 
-  if(score === 0) {
-    // Qu0x! show animation and lock day
-    showQu0xPopup();
-    submitBtn.disabled = true;
-  }
-});
+  updateExpression();
+  createDiceElements();
+}
 
-function showQu0xPopup() {
-  qu0xPopup.style.display = 'block';
+function showQu0xAnimation() {
+  qu0xPopup.style.display = "block";
   setTimeout(() => {
-    qu0xPopup.style.display = 'none';
+    qu0xPopup.style.display = "none";
   }, 3000);
 }
 
-prevBtn.addEventListener('click', () => {
-  if(currentIndex > 0) {
-    currentIndex--;
-    loadPuzzle();
+function prevDay() {
+  if (currentDayIndex > 0) {
+    currentDayIndex--;
+    updateUI();
   }
-});
-nextBtn.addEventListener('click', () => {
-  if(currentIndex < totalPuzzles - 1) {
-    currentIndex++;
-    loadPuzzle();
+}
+
+function nextDay() {
+  if (currentDayIndex < totalDays - 1) {
+    currentDayIndex++;
+    updateUI();
   }
-});
+}
 
-dayDropdown.addEventListener('change', (e) => {
-  currentIndex = Number(e.target.value);
-  loadPuzzle();
-});
+function onDropdownChange() {
+  const val = parseInt(dayDropdown.value, 10);
+  if (!isNaN(val)) {
+    currentDayIndex = val;
+    updateUI();
+  }
+}
 
-loadQu0xData();
-updateQu0xCompletionCount();
-loadPuzzle();
+// Initialization
+function init() {
+  loadLockedDays();
+  loadBestScores();
+  loadQu0xCompletion();
+  createOperatorButtons();
+  updateUI();
+
+  submitBtn.addEventListener("click", submitExpression);
+  clearBtn.addEventListener("click", clearExpression);
+  backspaceBtn.addEventListener("click", backspaceExpression);
+  prevBtn.addEventListener("click", prevDay);
+  nextBtn.addEventListener("click", nextDay);
+  dayDropdown.addEventListener("change", onDropdownChange);
+}
+
+init();
