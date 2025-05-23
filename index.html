@@ -2,60 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Daily Dice Game - Qu0x Edition</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Qu0x!</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Daily Dice Game - Qu0x Edition</h1>
-
-  <div>
-    <label for="day-select">Select Game:</label>
-    <select id="day-select"></select>
-    <button id="prev-btn">Prev</button>
-    <button id="next-btn">Next</button>
+  <div id="header">
+    <h1>Qu0x!</h1>
+    <div id="top-right-controls">
+      <button id="prevDay">◀</button>
+      <select id="daySelect"></select>
+      <button id="nextDay">▶</button>
+    </div>
   </div>
 
-  <div id="target-number-container">
-    Target: <span id="target-number"></span>
+  <div id="instructions">
+    <ul>
+      <li>Use each of the 5 dice exactly once.</li>
+      <li>Build an expression using the buttons below (click-only).</li>
+      <li>Valid operations: +, −, ×, ÷, ^ (exponent), ! (factorial), and ( ).</li>
+      <li>Get as close as possible to the Target!</li>
+      <li>A perfect match earns a ⭐ Qu0x! and locks the day.</li>
+    </ul>
   </div>
 
-  <div id="dice-row">
-    <button class="dice-btn"></button>
-    <button class="dice-btn"></button>
-    <button class="dice-btn"></button>
-    <button class="dice-btn"></button>
-    <button class="dice-btn"></button>
+  <div id="targetContainer"><span id="targetBox"></span></div>
+  <div id="diceContainer"></div>
+
+  <div id="expressionContainer">
+    <input type="text" id="expression" readonly />
+    <span id="evaluatedValue">=</span>
   </div>
 
-  <div id="operator-row"></div>
-
-  <div>
-    Expression: <span id="expression-box"></span>
+  <div id="buttons">
+    <button class="opBtn">(</button>
+    <button class="opBtn">)</button>
+    <button class="opBtn">+</button>
+    <button class="opBtn">-</button>
+    <button class="opBtn">*</button>
+    <button class="opBtn">/</button>
+    <button class="opBtn">^</button>
+    <button class="opBtn">!</button>
+    <button class="opBtn" id="clearBtn">Clear</button>
+    <button class="opBtn" id="backspaceBtn">Backspace</button>
   </div>
 
-  <div>
-    Result: <span id="output-box">?</span>
-  </div>
-
-  <div>
-    <button id="submit-btn">Submit</button>
-  </div>
-
-  <div id="daily-best-score-container">
-    Best Score: <span id="daily-best-score">-</span>
-  </div>
-
-  <div id="qu0x-popup" style="display:none;">
-    <h2>Qu0x! ⭐🎉</h2>
-  </div>
-
-  <div id="qu0x-fraction-container">
-    Qu0x: <span id="qu0x-fraction"></span>
-  </div>
-
-  <div id="qu0x-master"></div>
-
-  <script src="script.js"></script>
-</body>
-</html>
+  <button id="submit">Submit</button
