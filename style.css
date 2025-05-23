@@ -1,122 +1,137 @@
 body {
-  font-family: sans-serif;
-  background: #f5f5f5;
-  margin: 0;
-  padding: 1em;
+  font-family: Arial, sans-serif;
   text-align: center;
+  margin: 0;
+  background: #f7f7f7;
 }
 
 .top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #333;
+  color: white;
+  padding: 0.5em 1em;
 }
 
-.top-right-controls button, .top-right-controls select {
-  margin: 0 0.25em;
-  font-size: 1em;
+.nav-controls select,
+.nav-controls button {
+  font-size: 1rem;
+  margin-left: 0.25em;
 }
 
 .instructions ul {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
-  font-size: 0.95em;
+  margin: 1em auto;
+  width: fit-content;
+  text-align: left;
 }
 
-#target-container {
-  margin-top: 1em;
-}
-
-#target-box {
+.target-box {
   background-color: pink;
   color: black;
-  display: inline-block;
+  font-weight: bold;
   padding: 0.5em 1em;
+  display: inline-block;
+  margin: 1em auto;
+  border-radius: 5px;
   border: 2px solid black;
-  font-size: 1.2em;
-  margin-bottom: 1em;
 }
 
-#dice-container {
+.dice-container {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 1em;
+  margin: 1em 0;
 }
 
 .die {
   width: 50px;
   height: 50px;
-  font-size: 24px;
+  font-size: 1.5em;
   font-weight: bold;
   border: 3px solid black;
+  border-radius: 8px;
+  margin: 0 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease;
 }
 
-.hidden {
-  opacity: 0.3;
+.die.faded {
+  opacity: 0.2;
   pointer-events: none;
 }
 
-#expression-container {
-  margin: 1em 0;
-}
-
-#expression-box {
-  background: white;
-  display: inline-block;
-  padding: 0.5em;
-  border: 2px solid #ccc;
-  font-size: 1.2em;
-  min-width: 300px;
-}
-
-.button-grid {
+.expression-section {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
   margin-bottom: 1em;
+  font-size: 1.5em;
 }
 
-.button-grid button {
-  font-size: 1.1em;
-  padding: 0.5em 1em;
+#expressionBox,
+#evaluationBox {
+  padding: 0.3em 0.6em;
+  background: white;
+  border: 2px solid #000;
+  min-width: 200px;
 }
 
-.submit-section {
-  margin-bottom: 1em;
+#equalsSign {
+  padding: 0 0.5em;
+  font-weight: bold;
 }
 
-#submit-button {
+#buttonGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5em;
+  margin: 1em auto;
+  max-width: 500px;
+}
+
+#buttonGrid button {
+  padding: 0.6em;
   font-size: 1.2em;
-  background-color: limegreen;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#submitArea {
+  margin: 1em;
+}
+
+.submit {
+  font-size: 1.3em;
+  padding: 0.5em 1em;
+  background-color: green;
   color: white;
-  padding: 0.5em 1.5em;
   border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 
 .scoreboard p {
-  margin: 0.3em;
+  margin: 0.5em;
 }
 
-#quox-animation {
+#qu0xAnimation {
+  font-size: 3em;
+  color: #ff00ff;
+  animation: pop 3s ease-in-out;
+}
+
+.hidden {
   display: none;
-  font-size: 2.5em;
-  color: gold;
-  margin-top: 1em;
-  animation: pop 3s ease-out;
 }
 
 @keyframes pop {
-  0% { transform: scale(0.5); opacity: 0; }
-  30% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(1); opacity: 0; }
+  0% { transform: scale(0); opacity: 0; }
+  25% { transform: scale(1.2); opacity: 1; }
+  50% { transform: scale(1); }
+  100% { opacity: 0; }
 }
