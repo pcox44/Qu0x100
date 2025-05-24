@@ -1,389 +1,344 @@
-// Qu0x 100 Weekly Game Script
-
-const diceContainer = document.getElementById('diceContainer');
-const inputBox = document.getElementById('inputBox');
-const outputBox = document.getElementById('outputBox');
-const buttonRow1Div = document.getElementById('buttonRow1');
-const buttonRow2Div = document.getElementById('buttonRow2');
-const numberGrid = document.getElementById('numberGrid');
-const completedCountSpan = document.getElementById('completedCountSpan');
-const weekSelect = document.getElementById('weekSelect');
-const gameNumberDiv = document.getElementById('gameNumber');
-
-let expression = '';
-let usedDiceIndices = new Set();
-let completedNumbers = new Set();
-let currentWeekIndex = 0;
-
-const firstWeekDate = new Date('2025-05-11');
-const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-
-let weeks = [];
-
-// Initialize weeks from firstWeekDate to current week
+// Utility to generate weeks from 5/11/2025 weekly on Sundays
 function generateWeeks() {
-  weeks = [];
-  const today = new Date();
-  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  let current = new Date(firstWeekDate);
+  const weeks = [];
+  const startDate = new Date(2025, 4, 11); // May is 4 in JS Date (0-indexed)
+  const now = new Date();
+  // Get last Sunday before today or today if Sunday
+  let current = new Date(now);
+  current.setHours(0,0,0,0);
+  while (current.getDay() !== 0) {
+    current.setDate(current.getDate() - 1);
+  }
+  // Generate weeks from startDate to current Sunday
+  for (let d = new Date(startDate); d <= current; d.setDate(d.getDate() + 7)) {
+    weeks.push(new Date(d));
+  }
+  return weeks;
+}
 
-  while (current <= todayMidnight) {
-    const startStr = current.toISOString().slice(0, 10);
-    weeks.push({start: startStr});
-    current = new Date(current.getTime() + msPerWeek);
+const weeks = generateWeeks();
+const weekSelect = document.getElementById('weekSelect');
+const diceContainer = document.getElementById('diceContainer');
+const expressionBox = document.getElementById('expressionBox');
+const evaluationBox = document.getElementById('evaluationBox');
+const equalsSign = document.getElementById('equalsSign');
+const submitBtn = document.getElementById('submitBtn');
+const scoreboard = document.getElementById('scoreboard');
+const counter = document.getElementById('counter');
+const qu0xAnimation = document.getElementById('qu0xAnimation');
+const gameNumberDisplay = document.getElementById('gameNumber');
+
+let currentWeekIndex = 0;
+let diceValues = [];
+let diceUsed = [false, false, false, false, false];
+let expression = '';
+let completedNumbers = {}; // Store numbers completed per week, keyed by week string
+let currentCompletedSet = new Set();
+
+function formatDate(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function saveProgress() {
+  localStorage.setItem('qu0x100Progress', JSON.stringify(completedNumbers));
+}
+
+function loadProgress() {
+  const data = localStorage.getItem('qu0x100Progress');
+  if (data) {
+    completedNumbers = JSON.parse(data);
   }
 }
 
-// Mulberry32 PRNG for seeding
-function mulberry32(seed) {
-  return function() {
-    let t = seed += 0x6D2B79F5;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  }
+function setGameNumber(index) {
+  gameNumberDisplay.textContent = `Game #${index + 1}`;
 }
 
-// Dice colors mapping by value
-const diceColors = {
-  1: {color: 'white', background: 'red'},
-  2: {color: 'black', background: 'white'},
-  3: {color: 'white', background: 'blue'},
-  4: {color: 'black', background: 'yellow'},
-  5: {color: 'white', background: 'green'},
-  6: {color: 'yellow', background: 'black'}
-};
-
-function createDice() {
-  diceContainer.innerHTML = '';
-  usedDiceIndices.clear();
-
-  // Seed from week start date string
-  const seedString = weeks[currentWeekIndex].start;
-  let seed = 0;
-  for (let i = 0; i < seedString.length; i++) {
-    seed = seed * 31 + seedString.charCodeAt(i);
-    seed = seed & 0xffffffff;
-  }
-  const rand = mulberry32(seed);
-
+function seedDice(weekDate) {
+  // Use the weekDate string (YYYY-MM-DD) as seed source for dice
+  // Simple deterministic pseudo-random: sum char codes mod 6 + 1 for each die
+  const seedStr = formatDate(weekDate);
+  const chars = [...seedStr];
+  const vals = [];
   for (let i = 0; i < 5; i++) {
-    const val = Math.floor(rand() * 6) + 1;
+    const charCodeSum = chars.reduce((a,c) => a + c.charCodeAt(0) + i*7, 0);
+    // Simple: modulo 6 + 1
+    vals.push((charCodeSum % 6) + 1);
+  }
+  return vals;
+}
+
+function renderDice() {
+  diceContainer.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
     const die = document.createElement('div');
-    die.classList.add('die');
+    die.classList.add('die', `die${diceValues[i]}`);
+    die.textContent = diceValues[i];
     die.dataset.index = i;
-    die.dataset.value = val.toString();
-    die.textContent = val;
-    die.style.color = diceColors[val].color;
-    die.style.backgroundColor = diceColors[val].background;
-    die.style.border = '1px solid black';
+    if (diceUsed[i]) {
+      die.classList.add('faded');
+    }
+    die.addEventListener('click', () => {
+      if (diceUsed[i]) return;
+      expression += diceValues[i];
+      diceUsed[i] = true;
+      updateExpression();
+    });
     diceContainer.appendChild(die);
   }
 }
 
-function updateNumberGrid() {
-  numberGrid.innerHTML = '';
-  for (let n = 1; n <= 100; n++) {
-    const cell = document.createElement('div');
-    cell.classList.add('numberCell');
-    cell.textContent = n;
-    if (completedNumbers.has(n)) {
-      cell.classList.add('completed');
+function updateExpression() {
+  expressionBox.textContent = expression;
+  try {
+    const val = evaluateExpression(expression);
+    evaluationBox.textContent = val === null ? '?' : val;
+  } catch {
+    evaluationBox.textContent = '?';
+  }
+}
+
+function clearExpression() {
+  expression = '';
+  diceUsed = [false, false, false, false, false];
+  updateExpression();
+  renderDice();
+}
+
+function backspace() {
+  if (expression.length === 0) return;
+  // Remove last char
+  const lastChar = expression.slice(-1);
+  expression = expression.slice(0, -1);
+
+  // If lastChar is a digit and dice was used, restore that die
+  // But must only restore if that number matches one of the dice that are currently used
+  // We'll try to find a used die with that number to restore
+  for (let i = diceUsed.length -1; i >= 0; i--) {
+    if (diceUsed[i] && diceValues[i].toString() === lastChar) {
+      diceUsed[i] = false;
+      break;
     }
-    numberGrid.appendChild(cell);
   }
+
+  updateExpression();
+  renderDice();
 }
 
-function saveProgress() {
-  const key = `qu0x100_week_${weeks[currentWeekIndex].start}`;
-  localStorage.setItem(key, JSON.stringify(Array.from(completedNumbers)));
-}
-
-function loadProgress() {
-  const key = `qu0x100_week_${weeks[currentWeekIndex].start}`;
-  const stored = localStorage.getItem(key);
-  if (stored) {
-    const arr = JSON.parse(stored);
-    completedNumbers = new Set(arr);
-  } else {
-    completedNumbers = new Set();
+function factorial(n) {
+  if (n < 0 || !Number.isInteger(n)) return null;
+  if (n === 0) return 1;
+  let res = 1;
+  for (let i = 1; i <= n; i++) {
+    res *= i;
   }
-  completedCountSpan.textContent = completedNumbers.size;
+  return res;
 }
 
-function onExpressionChange() {
-  inputBox.textContent = expression;
-  updateOutput();
-  trackDiceUsage();
-}
-
-function updateOutput() {
-  const val = evaluateExpression(expression);
-  if (val === null || isNaN(val) || !Number.isInteger(val) || val < 1 || val > 100) {
-    outputBox.textContent = '?';
-  } else {
-    outputBox.textContent = val;
-  }
-}
-
+// Evaluate expression string with factorial and exponent support
 function evaluateExpression(expr) {
   if (!expr) return null;
 
-  // Replace ^ with ** for exponentiation
-  const safeExpr = expr.replace(/\^/g, '**');
+  // Replace factorial expressions with function calls
+  // Support only single factorial: number or parenthesis expression followed by !
+  // Replace n! with factorial(n) in the code string
+  // Use regex to find all occurrences of (expression)!
+  // We need to parse carefully; use a loop to replace from right to left
+
+  // A simple approach: repeatedly find the last factorial and replace it
+  let exprCopy = expr;
+
+  const factorialRegex = /(\d+|\([^()]+\))!/;
+
+  while (factorialRegex.test(exprCopy)) {
+    exprCopy = exprCopy.replace(factorialRegex, (match, group1) => {
+      let val = null;
+      if (group1.startsWith('(')) {
+        val = evaluateExpression(group1.slice(1, -1));
+      } else {
+        val = Number(group1);
+      }
+      if (val === null || val === undefined) return 'null';
+      const f = factorial(val);
+      if (f === null) return 'null';
+      return f.toString();
+    });
+  }
+
+  // Replace ^ with ** for JS eval
+  exprCopy = exprCopy.replace(/\^/g, '**');
+
+  // Only allow safe characters: digits, operators, parentheses
+  if (/[^0-9+\-*/().^ ]/.test(exprCopy)) {
+    return null;
+  }
 
   try {
-    // Check for invalid characters first
-    if (/[^0-9+\-*/().! ]/.test(safeExpr)) return null;
-
-    // Evaluate factorial and double/triple factorials
-    const factorialRe = /(\d+|\([^()]+\))(!{1,3})/g;
-
-    function factorial(n) {
-      if (n < 0 || !Number.isInteger(n)) return null;
-      let res = 1;
-      for (let i = 2; i <= n; i++) res *= i;
-      return res;
+    // Evaluate with eval safely by restricting input
+    // eslint-disable-next-line no-eval
+    const result = eval(exprCopy);
+    if (typeof result === 'number' && isFinite(result)) {
+      return Math.round(result * 100000) / 100000; // Round to 5 decimals
     }
-
-    let exprToEval = safeExpr;
-
-    exprToEval = exprToEval.replace(factorialRe, (match, base, factMarks) => {
-      let val;
-      // Evaluate base if it is a parenthesized expression
-      if (base.startsWith('(')) {
-        val = evaluateExpression(base.slice(1, -1));
-      } else {
-        val = parseInt(base, 10);
-      }
-      if (val === null) return 'NaN';
-
-      // Calculate factorial or multiple factorials:
-      let res = val;
-      for (let i = 0; i < factMarks.length; i++) {
-        if (res === null || res < 0 || !Number.isInteger(res)) return 'NaN';
-        if (res === 0) {
-          res = 1;
-          continue;
-        }
-        if (factMarks[i] === '!') {
-          res = singleFactorial(res);
-        }
-      }
-      return res.toString();
-    });
-
-    function singleFactorial(x) {
-      if (x < 0 || !Number.isInteger(x)) return null;
-      if (x === 0) return 1;
-      let result = 1;
-      for (let i = x; i > 1; i -= 1) {
-        result *= i;
-      }
-      return result;
-    }
-
-    // Evaluate the final expression with Function constructor
-    // Prevent usage of disallowed characters by regexp above
-    const func = new Function(`return (${exprToEval});`);
-    const result = func();
-
-    if (typeof result === 'number' && Number.isFinite(result)) return result;
     return null;
   } catch {
     return null;
   }
 }
 
-function trackDiceUsage() {
-  usedDiceIndices.clear();
+function isValidExpression(expr) {
+  // Check if parentheses match and expression is not empty
+  if (!expr) return false;
 
-  // Extract all numbers from expression (including inside parentheses)
-  // Match numbers only (not partial numbers or decimals)
-  const numbers = expression.match(/\d+/g);
-  if (!numbers) {
-    updateDiceAvailability();
+  let parenCount = 0;
+  for (let ch of expr) {
+    if (ch === '(') parenCount++;
+    if (ch === ')') parenCount--;
+    if (parenCount < 0) return false;
+  }
+  if (parenCount !== 0) return false;
+
+  // Check dice usage count
+  const diceCountMap = {};
+  for (let d of diceValues) diceCountMap[d] = (diceCountMap[d] || 0) + 1;
+
+  // Count digits in expr (only digits 1-6 allowed)
+  // We will ignore digits part of multi-digit numbers for now because dice are 1-6 only
+  // The expression might have numbers > 9 if user typed manually, but we only allow dice once each.
+  // So we must check digits individually and dice count
+  // So best is to split into tokens carefully
+  // Because expressionBox built by clicking, no manual input, digits appear individually.
+
+  // Count how many dice digits used
+  const usedDigits = expr.match(/\d/g) || [];
+
+  // Count each digit usage
+  const usageMap = {};
+  for (const d of usedDigits) {
+    usageMap[d] = (usageMap[d] || 0) + 1;
+  }
+
+  // Check usage vs diceCountMap
+  for (const d in usageMap) {
+    if (usageMap[d] > (diceCountMap[d] || 0)) return false;
+  }
+
+  // Check that all dice are used exactly once (strict)
+  // Since we require all 5 dice used per rules
+  const totalUsed = usedDigits.length;
+  if (totalUsed !== 5) return false;
+
+  // If all checks passed
+  return true;
+}
+
+function updateScoreboard() {
+  scoreboard.innerHTML = '';
+  const completedArr = Array.from(currentCompletedSet).sort((a,b) => a - b);
+  if (completedArr.length === 0) {
+    scoreboard.textContent = 'No numbers completed yet.';
     return;
   }
+  const p = document.createElement('p');
+  p.textContent = `Completed numbers this week: ${completedArr.join(', ')}`;
+  scoreboard.appendChild(p);
+}
 
-  // Count each number's digit usage against dice values
-  // For Qu0x 100, dice values are 1-6 only, numbers can be > 9,
-  // but only dice values 1-6 exist.
+function updateCounter() {
+  counter.textContent = `Completed: ${currentCompletedSet.size} / 100`;
+}
 
-  // We will check if all dice values appear exactly once as numbers or parts of expression.
-  // Since dice values are single digits 1-6, and expression numbers can be multi-digit,
-  // this means each dice must appear exactly once as a single digit number in the expression.
+function showQu0xAnimation() {
+  qu0xAnimation.classList.remove('hidden');
+  setTimeout(() => {
+    qu0xAnimation.classList.add('hidden');
+  }, 3000);
+}
 
-  // But for this game, each dice value must be used once. The user inputs the expression
-  // with dice digits only once each (no repeats allowed).
-
-  // So, check expression digits against dice values:
-  const diceValues = Array.from(diceContainer.children).map(d => Number(d.dataset.value));
-
-  // Count usage of each dice value in expression digits
-  let usageCounts = {};
-  diceValues.forEach(v => usageCounts[v] = 0);
-
-  for (const ch of expression) {
-    const digit = Number(ch);
-    if (digit >= 1 && digit <= 6) {
-      if (usageCounts.hasOwnProperty(digit)) {
-        usageCounts[digit]++;
-      }
-    }
+function onSubmit() {
+  if (!isValidExpression(expression)) {
+    alert('Invalid Submission: Expression is invalid or does not use all dice exactly once.');
+    return;
   }
-
-  // Mark dice as used if usageCounts >=1
-  diceValues.forEach((val, i) => {
-    const die = diceContainer.children[i];
-    if (usageCounts[val] === 1) {
-      die.style.opacity = '0.3';
-      usedDiceIndices.add(i);
-    } else {
-      die.style.opacity = '1';
-    }
-  });
-}
-
-function updateDiceAvailability() {
-  const diceValues = Array.from(diceContainer.children).map(d => Number(d.dataset.value));
-  diceValues.forEach((val, i) => {
-    const die = diceContainer.children[i];
-    die.style.opacity = '1';
-  });
-}
-
-function addButtonListeners() {
-  // Clear existing buttons
-  buttonRow1Div.innerHTML = '';
-  buttonRow2Div.innerHTML = '';
-
-  // Row 1: digits 1-6 (dice values only)
-  // For Qu0x100, allow digits 1-6 buttons so user can click digits to build expression.
-  for (let i = 1; i <= 6; i++) {
-    const btn = document.createElement('button');
-    btn.textContent = i.toString();
-    btn.addEventListener('click', () => {
-      // Only allow digit if that dice value is not already used once in expression
-      const countInExpr = (expression.match(new RegExp(i.toString(), 'g')) || []).length;
-      const diceValues = Array.from(diceContainer.children).map(d => Number(d.dataset.value));
-      const maxCount = diceValues.filter(v => v === i).length; // Should be 0 or 1
-      if (countInExpr < maxCount) {
-        expression += i.toString();
-        onExpressionChange();
-      }
-    });
-    buttonRow1Div.appendChild(btn);
-  }
-
-  // Row 2: operations and controls
-  const ops = ['+', '-', '*', '/', '^', '(', ')', '!', 'Backspace', 'Clear', 'Submit'];
-  ops.forEach(op => {
-    const btn = document.createElement('button');
-    btn.textContent = op;
-    btn.addEventListener('click', () => {
-      if (op === 'Backspace') {
-        if (expression.length > 0) {
-          expression = expression.slice(0, -1);
-          onExpressionChange();
-        }
-      } else if (op === 'Clear') {
-        expression = '';
-        onExpressionChange();
-      } else if (op === 'Submit') {
-        handleSubmit();
-      } else {
-        // Add operation symbol
-        expression += op;
-        onExpressionChange();
-      }
-    });
-    buttonRow2Div.appendChild(btn);
-  });
-}
-
-function handleSubmit() {
   const val = evaluateExpression(expression);
-  if (val === null || !Number.isInteger(val) || val < 1 || val > 100) {
-    alert('Invalid submission. Expression must evaluate to an integer between 1 and 100.');
+  if (val === null) {
+    alert('Invalid Submission: Could not evaluate expression.');
+    return;
+  }
+  const roundedVal = Math.round(val);
+  if (roundedVal < 1 || roundedVal > 100) {
+    alert('Result out of range (1 to 100).');
+    return;
+  }
+  if (currentCompletedSet.has(roundedVal)) {
+    alert(`Number ${roundedVal} already completed this week.`);
     return;
   }
 
-  // Check if all dice used exactly once (all dice digits must appear once)
-  const diceValues = Array.from(diceContainer.children).map(d => Number(d.dataset.value));
-  let usageCounts = {};
-  diceValues.forEach(v => usageCounts[v] = 0);
-
-  for (const ch of expression) {
-    const digit = Number(ch);
-    if (digit >= 1 && digit <= 6 && usageCounts.hasOwnProperty(digit)) {
-      usageCounts[digit]++;
-    }
-  }
-
-  // Verify dice usage matches exactly once for each dice value
-  for (let i = 0; i < diceValues.length; i++) {
-    if (usageCounts[diceValues[i]] !== 1) {
-      alert('You must use each dice value exactly once in the expression.');
-      return;
-    }
-  }
-
-  // Check if number already completed
-  if (completedNumbers.has(val)) {
-    alert(`Number ${val} already completed! Try a different number.`);
-    return;
-  }
-
-  completedNumbers.add(val);
+  currentCompletedSet.add(roundedVal);
+  completedNumbers[getWeekKey()] = Array.from(currentCompletedSet);
   saveProgress();
-  completedCountSpan.textContent = completedNumbers.size;
-  updateNumberGrid();
-  expression = '';
-  onExpressionChange();
+  updateScoreboard();
+  updateCounter();
+  clearExpression();
 
-  // Update Game # display as week start date + completed count
-  gameNumberDiv.textContent = `Game #${weeks[currentWeekIndex].start} - Completed ${completedNumbers.size}/100`;
-
-  if (completedNumbers.size === 100) {
-    alert('Congratulations! You completed all numbers 1 to 100 for this week: Qu0x 100!');
+  if (currentCompletedSet.size === 100) {
+    showQu0xAnimation();
+    alert('Congratulations! You have completed all 100 numbers for this week: Qu0x 100!');
   }
 }
 
-function setupWeekSelect() {
-  weekSelect.innerHTML = '';
-  weeks.forEach((week, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = `Week starting ${week.start}`;
-    weekSelect.appendChild(opt);
-  });
-  // Default select last week (current)
-  currentWeekIndex = weeks.length - 1;
-  weekSelect.value = currentWeekIndex;
-  loadWeek(currentWeekIndex);
+function getWeekKey() {
+  return formatDate(weeks[currentWeekIndex]);
 }
 
 function loadWeek(index) {
   currentWeekIndex = index;
-  createDice();
+  setGameNumber(index);
+  diceValues = seedDice(weeks[index]);
+  clearExpression();
+  renderDice();
+  currentCompletedSet = new Set(completedNumbers[getWeekKey()] || []);
+  updateScoreboard();
+  updateCounter();
+}
+
+function setupWeekSelector() {
+  weeks.forEach((weekDate, i) => {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = `${formatDate(weekDate)}`;
+    weekSelect.appendChild(option);
+  });
+  weekSelect.value = weeks.length - 1;
+  loadWeek(weeks.length - 1);
+
+  weekSelect.addEventListener('change', e => {
+    const val = Number(e.target.value);
+    loadWeek(val);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
   loadProgress();
-  updateNumberGrid();
-  expression = '';
-  onExpressionChange();
-  gameNumberDiv.textContent = `Game #${weeks[currentWeekIndex].start} - Completed ${completedNumbers.size}/100`;
-}
+  setupWeekSelector();
 
-weekSelect.addEventListener('change', e => {
-  loadWeek(Number(e.target.value));
+  document.getElementById('backspaceBtn').addEventListener('click', () => {
+    backspace();
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    clearExpression();
+  });
+
+  document.querySelectorAll('#buttonGrid .op-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      expression += btn.dataset.value;
+      updateExpression();
+    });
+  });
+
+  submitBtn.addEventListener('click', () => {
+    onSubmit();
+  });
 });
-
-function init() {
-  generateWeeks();
-  setupWeekSelect();
-  addButtonListeners();
-  updateOutput();
-  updateNumberGrid();
-}
-
-init();
