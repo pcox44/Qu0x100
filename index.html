@@ -2,52 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Qu0x 100</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="top-bar">
-    <div id="game-number">Qu0x 100 – Week of <span id="week-label"></span></div>
-    <select id="week-selector"></select>
+  <h1 class="title">Qu0x 100</h1>
+  <div id="weekDropdownContainer">
+    <select id="weekSelector"></select>
+  </div>
+  <div class="instructions-box">
+    <p>
+      Use all five dice values exactly once per expression by clicking the dice. 
+      Build expressions using the buttons below to reach target numbers 1 through 100 each week.
+      Allowed operations: + - * / ^ ! (factorial)<br />
+      Get all 100 to achieve a Qu0x 100!
+    </p>
+  </div>
+  <div class="completed-counter">
+    Completed Numbers: <span id="completedCount">0</span>/100
   </div>
 
-  <div class="instructions">
-    Use all five dice values exactly once per expression by clicking the dice.  
-    Build expressions using the buttons below to reach target numbers 1 through 100 each week.  
-    Allowed operations: + - * / ^ ! (factorial).  
-    Get all 100 to achieve a Qu0x 100!
-  </div>
+  <div class="game-container">
+    <div id="diceContainer"></div>
 
-  <div class="dice-container" id="dice-container"></div>
-
-  <div class="expression-row">
-    <div id="expression-box" class="expression-box"></div>
-    <div class="equals-sign">=</div>
-    <div id="result-box" class="result-box">?</div>
-  </div>
-
-  <div class="buttons-container">
-    <div class="button-row">
-      <button class="op-btn" data-value="+">+</button>
-      <button class="op-btn" data-value="-">−</button>
-      <button class="op-btn" data-value="*">×</button>
-      <button class="op-btn" data-value="/">÷</button>
-      <button class="op-btn" data-value="^">^</button>
-      <button class="op-btn" data-value="!">!</button>
+    <div class="expression-row">
+      <div id="expressionBox" class="expression-box"></div>
+      <div id="resultBox" class="result-box">= <span id="resultValue">?</span></div>
     </div>
-    <div class="button-row">
-      <button class="op-btn" data-value="(">(</button>
-      <button class="op-btn" data-value=")">)</button>
-      <button id="backspace">Back</button>
-      <button id="clear">Clear</button>
+
+    <div class="buttons">
+      <div class="row">
+        <button class="op-btn">+</button>
+        <button class="op-btn">-</button>
+        <button class="op-btn">*</button>
+        <button class="op-btn">/</button>
+        <button class="op-btn">^</button>
+        <button class="op-btn">!</button>
+      </div>
+      <div class="row">
+        <button class="op-btn">(</button>
+        <button class="op-btn">)</button>
+        <button id="backspaceBtn">Back</button>
+        <button id="clearBtn">Clear</button>
+      </div>
     </div>
+
+    <button id="submitBtn">Submit</button>
   </div>
 
-  <button id="submit" class="submit-button">Submit</button>
-
-  <div class="grid-header">Completed Numbers:</div>
-  <div class="grid" id="number-grid"></div>
+  <div id="gridContainer" class="grid-container"></div>
+  <div id="popup" class="popup hidden">You must use all five dice!</div>
 
   <script src="script.js"></script>
 </body>
