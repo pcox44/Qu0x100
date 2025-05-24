@@ -11,7 +11,7 @@ body {
   margin-bottom: 15px;
   font-weight: bold;
   border-radius: 6px;
-  max-width: 600px;       /* ✅ limits how wide it can grow */
+  max-width: 300px;       /* ✅ limits how wide it can grow */
   margin-left: auto;      /* ✅ centers the box horizontally */
   margin-right: auto;     /* ✅ centers the box horizontally */
 }
@@ -97,7 +97,7 @@ body {
   border-radius: 6px;
   min-height: 40px;
   gap: 8px;
-  max-width: 600px;       /* ✅ prevent full screen stretch */
+  max-width: 300px;       /* ✅ prevent full screen stretch */
   width: 90%;             /* ✅ responsive on small screens */
   margin-left: auto;      /* ✅ center horizontally */
   margin-right: auto;
