@@ -1,58 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Qu0x 100</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1 class="title">Qu0x 100</h1>
-  <div id="weekDropdownContainer">
-    <select id="weekSelector"></select>
+  <div class="top-header">
+    <h1 class="title">Qu0x 100</h1>
+    <div id="weekDropdownContainer">
+      <select id="weekSelector" aria-label="Select week"></select>
+    </div>
   </div>
-  <div class="instructions-box">
-    <p>
-      Use all five dice values exactly once per expression by clicking the dice. 
-      Build expressions using the buttons below to reach target numbers 1 through 100 each week.
-      Allowed operations: + - * / ^ ! (factorial)<br />
-      Get all 100 to achieve a Qu0x 100!
-    </p>
+
+  <div class="instructions pink-box" role="region" aria-live="polite">
+    Use all 5 dice exactly once to build expressions that evaluate to every number from 1 to 100. Click dice and operation buttons to form expressions. Double/triple factorials allowed. New game every Saturday.
   </div>
-  <div class="completed-counter">
-    Completed Numbers: <span id="completedCount">0</span>/100
+
+  <div class="target-counter pink-box">
+    <h2>Completed Numbers: <span id="completedCount">0</span>/100</h2>
   </div>
 
   <div class="game-container">
-    <div id="diceContainer"></div>
-
-    <div class="expression-row">
-      <div id="expressionBox" class="expression-box"></div>
-      <div id="resultBox" class="result-box">= <span id="resultValue">?</span></div>
+    <div class="left-side">
+      <div id="diceContainer" aria-label="Dice container" role="list"></div>
+      <div id="buttonContainer" role="group" aria-label="Operation buttons"></div>
     </div>
 
-    <div class="buttons">
-      <div class="row">
-        <button class="op-btn">+</button>
-        <button class="op-btn">-</button>
-        <button class="op-btn">*</button>
-        <button class="op-btn">/</button>
-        <button class="op-btn">^</button>
-        <button class="op-btn">!</button>
+    <div class="right-side">
+      <div class="expression-container" aria-live="polite" aria-atomic="true">
+        <div id="expressionBox" aria-label="Expression input" role="textbox" tabindex="0"></div>
+        <div id="resultBox">= <span id="resultValue">?</span></div>
       </div>
-      <div class="row">
-        <button class="op-btn">(</button>
-        <button class="op-btn">)</button>
-        <button id="backspaceBtn">Back</button>
-        <button id="clearBtn">Clear</button>
+      <div class="control-buttons">
+        <button id="submitBtn" class="submit-btn" type="button">Submit</button>
+        <button id="backspaceBtn" class="op-btn" type="button">Backspace</button>
+        <button id="clearBtn" class="op-btn" type="button">Clear</button>
       </div>
     </div>
-
-    <button id="submitBtn">Submit</button>
   </div>
 
-  <div id="gridContainer" class="grid-container"></div>
-  <div id="popup" class="popup hidden">You must use all five dice!</div>
+  <div id="gridContainer" aria-label="Number completion grid"></div>
+
+  <div id="popup" class="popup hidden" role="alert">You must use all five dice!</div>
 
   <script src="script.js"></script>
 </body>
