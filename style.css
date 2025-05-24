@@ -16,10 +16,11 @@ body {
   font-size: 1.2em;
 }
 
-.nav-controls select,
-.nav-controls button {
+.nav-controls select {
   font-size: 1rem;
   margin-left: 0.25em;
+  padding: 0.2em 0.5em;
+  border-radius: 4px;
 }
 
 .counter-box {
@@ -61,7 +62,7 @@ body {
   pointer-events: none;
 }
 
-/* Dice colors as specified */
+/* Dice colors */
 .die[data-value="1"] {
   background-color: red;
   color: white;
@@ -165,10 +166,4 @@ body {
   25% { transform: scale(1.2); opacity: 1; }
   50% { transform: scale(1); }
   100% { opacity: 0; }
-}
-
-#weekSelect {
-  font-size: 1rem;
-  padding: 0.2em 0.5em;
-  border-radius: 4px;
 }
