@@ -1,174 +1,45 @@
-const expressionBox = document.getElementById('expressionBox');
-const resultValue = document.getElementById('resultValue');
-const gridContainer = document.getElementById('gridContainer');
-const completedCount = document.getElementById('completedCount');
-const popup = document.getElementById('popup');
-const diceContainer = document.getElementById('diceContainer');
-const weekSelector = document.getElementById('weekSelector');
-
-let expression = '';
-let usedDice = [];
-let diceValues = [];
-let solvedNumbers = {};
-let currentWeek;
-
-function getCurrentWeekDate() {
-  const now = new Date();
-  const day = now.getDay();
-  const diff = now.getDate() - day + (day === 6 ? 0 : -1); // previous Saturday
-  return new Date(now.setDate(diff));
-}
-
-function formatDate(date) {
-  return date.toISOString().split('T')[0];
-}
-
-function seedRandomFromDate(date) {
-  const seed = new Date(date).getTime();
-  let x = Math.sin(seed) * 10000;
-  return () => {
-    x = Math.sin(x) * 10000;
-    return x - Math.floor(x);
-  };
-}
-
-function generateDice(date) {
-  const rand = seedRandomFromDate(date);
-  return Array.from({ length: 5 }, () => Math.floor(rand() * 6) + 1);
-}
-
-function updateDiceDisplay() {
-  diceContainer.innerHTML = '';
-  diceValues.forEach((val, idx) => {
-    const die = document.createElement('div');
-    die.className = `die die-${val}`;
-    die.textContent = val;
-    if (usedDice.includes(idx)) die.classList.add('used');
-    die.onclick = () => {
-      if (!usedDice.includes(idx)) {
-        expression += val;
-        usedDice.push(idx);
-        updateDisplay();
-      }
-    };
-    diceContainer.appendChild(die);
-  });
-}
-
-function updateDisplay() {
-  expressionBox.textContent = expression;
-  try {
-    if (usedDice.length < 5) {
-      resultValue.textContent = '?';
-    } else {
-      const val = eval(expression.replace(/[^-()\d/*+.!^]/g, ''));
-      resultValue.textContent = isNaN(val) ? '?' : Math.round(val * 1000) / 1000;
-    }
-  } catch {
-    resultValue.textContent = '?';
-  }
-}
-
-function updateGrid() {
-  gridContainer.innerHTML = '';
-  let count = 0;
-  for (let i = 1; i <= 100; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'grid-cell';
-    if (solvedNumbers[i]) {
-      cell.classList.add('solved');
-      count++;
-    }
-    cell.textContent = i;
-    gridContainer.appendChild(cell);
-  }
-  completedCount.textContent = count;
-}
-
-function loadWeek(dateStr) {
-  currentWeek = dateStr;
-  expression = '';
-  usedDice = [];
-  solvedNumbers = JSON.parse(localStorage.getItem(`solved-${dateStr}`)) || {};
-  diceValues = generateDice(dateStr);
-  updateDiceDisplay();
-  updateDisplay();
-  updateGrid();
-}
-
-function saveWeekProgress() {
-  localStorage.setItem(`solved-${currentWeek}`, JSON.stringify(solvedNumbers));
-}
-
-document.querySelectorAll('.op-btn').forEach(btn => {
-  btn.onclick = () => {
-    const val = btn.textContent;
-    if (!expression.endsWith(val)) {
-      expression += val;
-      updateDisplay();
-    }
-  };
-});
-
-document.getElementById('submitBtn').onclick = () => {
-  if (usedDice.length !== 5) {
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 2000);
-    return;
-  }
-  try {
-    const result = eval(expression);
-    const rounded = Math.round(result);
-    if (rounded >= 1 && rounded <= 100) {
-      solvedNumbers[rounded] = true;
-      saveWeekProgress();
-      updateGrid();
-    }
-  } catch {}
-  expression = '';
-  usedDice = [];
-  updateDiceDisplay();
-  updateDisplay();
-};
-
-document.getElementById('backspaceBtn').onclick = () => {
-  if (expression.length > 0) {
-    const last = expression.slice(-1);
-    const idx = diceValues.findIndex((val, i) => !usedDice.includes(i) && val.toString() === last);
-    if (idx !== -1) {
-      usedDice = usedDice.filter(i => i !== idx);
-    }
-    expression = expression.slice(0, -1);
-    updateDiceDisplay();
-    updateDisplay();
-  }
-};
-
-document.getElementById('clearBtn').onclick = () => {
-  expression = '';
-  usedDice = [];
-  updateDiceDisplay();
-  updateDisplay();
-};
-
-function populateWeekSelector() {
-  const start = new Date('2025-05-10');
-  const now = new Date();
-  let week = 1;
-  while (start <= now) {
-    const dateStr = formatDate(start);
-    const option = document.createElement('option');
-    option.value = dateStr;
-    option.textContent = `Week ${week}`;
-    weekSelector.appendChild(option);
-    start.setDate(start.getDate() + 7);
-    week++;
-  }
-  const current = formatDate(getCurrentWeekDate());
-  weekSelector.value = current;
-  loadWeek(current);
-}
-
-weekSelector.onchange = (e) => loadWeek(e.target.value);
-
-populateWeekSelector();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qu0x 100</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="top-header">
+    <h1 class="title">Qu0x 100</h1>
+    <div id="weekDropdownContainer">
+      <select id="weekSelector"></select>
+    </div>
+  </div>
+  <div class="instructions">
+    <p>
+      Use all 5 dice exactly once to build expressions that evaluate to every number from 1 to 100. Click the dice and operation buttons to form your expression. Each completed number is saved. Double/triple factorials are allowed. A new game begins every Saturday.
+    </p>
+  </div>
+  <div class="target-counter pink-box">
+    <h2>Completed Numbers: <span id="completedCount">0</span>/100</h2>
+  </div>
+  <div class="game-container">
+    <div class="left-side">
+      <div id="diceContainer"></div>
+      <div id="buttonContainer"></div>
+    </div>
+    <div class="right-side">
+      <div class="expression-container">
+        <div id="expressionBox"></div>
+        <div id="resultBox">= <span id="resultValue">?</span></div>
+      </div>
+      <div class="control-buttons">
+        <button id="submitBtn" class="op-button">Submit</button>
+        <button id="backspaceBtn" class="op-button">Backspace</button>
+        <button id="clearBtn" class="op-button">Clear</button>
+      </div>
+    </div>
+  </div>
+  <div id="gridContainer"></div>
+  <div id="popup" class="popup hidden">You must use all five dice!</div>
+  <script src="script.js"></script>
+</body>
+</html>
