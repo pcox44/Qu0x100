@@ -11,7 +11,7 @@ body {
   margin-bottom: 15px;
   font-weight: bold;
   border-radius: 6px;
-  max-width: 300px;       /* ✅ limits how wide it can grow */
+  max-width: 600px;       /* ✅ limits how wide it can grow */
   margin-left: auto;      /* ✅ centers the box horizontally */
   margin-right: auto;     /* ✅ centers the box horizontally */
 }
