@@ -1,128 +1,164 @@
+const buttonValues = ['+', '-', '*', '/', '^', '(', ')', '!', '!!', '!!!'];
+const diceColors = {
+  1: ['red', 'white'],
+  2: ['white', 'black'],
+  3: ['blue', 'white'],
+  4: ['yellow', 'black'],
+  5: ['green', 'white'],
+  6: ['black', 'yellow']
+};
+
+const expressionBox = document.getElementById('expressionBox');
+const evaluationBox = document.getElementById('evaluationBox');
+const diceContainer = document.getElementById('diceContainer');
+const numberGrid = document.getElementById('numberGrid');
+const progressCount = document.getElementById('progressCount');
+const weekSelector = document.getElementById('weekSelector');
+
+let currentWeekStart = getWeekStart(new Date());
 let dice = [];
 let usedDice = [];
-let expression = '';
-let completed = new Set();
+let foundNumbers = new Set();
 
-function getWeekSeed() {
-  const now = new Date();
-  const start = new Date(now.setDate(now.getDate() - now.getDay()));
-  return start.toISOString().slice(0, 10);
+function getWeekStart(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - d.getDay() + 1); // Monday
+  return new Date(d);
 }
 
 function seedRandom(seed) {
-  let x = seed.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  return () => (x = (x * 16807) % 2147483647) / 2147483647;
+  return () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
 }
 
-function rollDice() {
-  const rand = seedRandom(getWeekSeed());
-  dice = [];
-  for (let i = 0; i < 5; i++) {
-    dice.push(1 + Math.floor(rand() * 6));
-  }
+function getDiceForWeek(date) {
+  const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+  const rand = seedRandom(seed);
+  return Array.from({ length: 5 }, () => Math.floor(rand() * 6) + 1);
 }
 
-function renderDice() {
-  const container = document.getElementById('diceContainer');
-  container.innerHTML = '';
-  dice.forEach((val, idx) => {
+function drawDice() {
+  diceContainer.innerHTML = '';
+  usedDice = [];
+  dice.forEach((val, i) => {
     const die = document.createElement('div');
     die.className = 'die';
-    die.innerText = val;
-    die.onclick = () => {
-      expression += val;
-      usedDice.push(idx);
+    die.dataset.value = val;
+    die.textContent = val;
+    die.style.backgroundColor = diceColors[val][0];
+    die.style.color = diceColors[val][1];
+    die.addEventListener('click', () => {
+      expressionBox.textContent += val;
+      usedDice.push(i);
       die.classList.add('faded');
-      updateExpression();
-    };
-    if (usedDice.includes(idx)) die.classList.add('faded');
-    container.appendChild(die);
+    });
+    diceContainer.appendChild(die);
   });
 }
 
-function updateExpression() {
-  document.getElementById('expressionBox').innerText = expression;
-  try {
-    const value = evalExpression(expression);
-    document.getElementById('evaluationBox').innerText = isFinite(value) ? value : '?';
-  } catch {
-    document.getElementById('evaluationBox').innerText = '?';
+function drawButtons() {
+  const grid = document.getElementById('buttonGrid');
+  grid.innerHTML = '';
+  buttonValues.forEach(val => {
+    const btn = document.createElement('button');
+    btn.textContent = val;
+    btn.onclick = () => expressionBox.textContent += val;
+    grid.appendChild(btn);
+  });
+}
+
+function drawGrid() {
+  numberGrid.innerHTML = '';
+  for (let i = 1; i <= 100; i++) {
+    const cell = document.createElement('div');
+    cell.textContent = i;
+    if (foundNumbers.has(i)) cell.classList.add('found');
+    numberGrid.appendChild(cell);
   }
+  progressCount.textContent = foundNumbers.size;
 }
 
-function addChar(c) {
-  expression += c;
-  updateExpression();
+function parseFactorial(expr) {
+  return expr.replace(/(\d+|\))(!{1,3})/g, (_, base, bangs) => {
+    let count = bangs.length;
+    return `factorial(${base},${count})`;
+  });
 }
 
-function backspace() {
-  if (expression.length > 0) {
-    expression = expression.slice(0, -1);
-    usedDice = [];
-    renderDice();
-    updateExpression();
-  }
+function factorial(n, level) {
+  n = parseInt(n);
+  if (!Number.isInteger(n) || n < 0) return NaN;
+  if (level === 1) return n <= 1 ? 1 : n * factorial(n - 1, 1);
+  if (level === 2) return n <= 0 ? 1 : n * factorial(n - 2, 2);
+  if (level === 3) return n <= 0 ? 1 : n * factorial(n - 3, 3);
+  return NaN;
 }
 
-function clearExpression() {
-  expression = '';
-  usedDice = [];
-  renderDice();
-  updateExpression();
-}
-
-function evalExpression(expr) {
-  if (/[^0-9+\-*/^!().]/.test(expr)) throw 'Invalid char';
-  const safeExpr = expr.replace(/(\d+)!/g, (_, n) => factorial(Number(n)))
-                       .replace(/\^/g, '**');
-  return Function('"use strict"; return (' + safeExpr + ')')();
-}
-
-function factorial(n) {
-  if (n < 0 || !Number.isInteger(n)) throw 'Invalid factorial';
-  return n <= 1 ? 1 : n * factorial(n - 1);
-}
-
-function submitExpression() {
+document.getElementById('submitBtn').onclick = () => {
+  const expr = expressionBox.textContent;
+  if (usedDice.length !== 5) return alert('Use all 5 dice!');
   try {
-    const val = Math.round(evalExpression(expression));
-    if (val >= 1 && val <= 100 && !completed.has(val)) {
-      completed.add(val);
-      updateGrid();
-      clearExpression();
-      if (completed.size === 100) {
+    const transformed = parseFactorial(expr);
+    const result = eval(transformed);
+    evaluationBox.textContent = isFinite(result) ? result : '?';
+    if (Number.isInteger(result) && result >= 1 && result <= 100) {
+      foundNumbers.add(result);
+      drawGrid();
+      if (foundNumbers.size === 100) {
         document.getElementById('qu0xAnimation').classList.remove('hidden');
+        document.getElementById('shareBtn').classList.remove('hidden');
+        document.getElementById('qu0xMessage').classList.remove('hidden');
       }
     }
   } catch {
-    alert('Invalid expression');
+    evaluationBox.textContent = '?';
   }
-}
-
-function buildGrid() {
-  const grid = document.getElementById('numberGrid');
-  grid.innerHTML = '';
-  for (let i = 1; i <= 100; i++) {
-    const cell = document.createElement('div');
-    cell.innerText = i;
-    if (completed.has(i)) cell.classList.add('complete');
-    grid.appendChild(cell);
-  }
-}
-
-function updateGrid() {
-  buildGrid();
-}
-
-function resetGrid() {
-  completed.clear();
-  updateGrid();
-  clearExpression();
-  document.getElementById('qu0xAnimation').classList.add('hidden');
-}
-
-window.onload = () => {
-  rollDice();
-  renderDice();
-  buildGrid();
 };
+
+document.getElementById('clearBtn').onclick = () => {
+  expressionBox.textContent = '';
+  evaluationBox.textContent = '?';
+  drawDice();
+};
+
+document.getElementById('backspaceBtn').onclick = () => {
+  expressionBox.textContent = expressionBox.textContent.slice(0, -1);
+};
+
+document.getElementById('shareBtn').onclick = () => {
+  alert('Sharing feature coming soon!');
+};
+
+function populateWeeks() {
+  const first = new Date(2025, 4, 11);
+  const now = new Date();
+  let week = new Date(first);
+  let count = 1;
+  while (week <= now) {
+    const opt = document.createElement('option');
+    opt.value = week.toISOString();
+    opt.textContent = `#${count} – ${week.toLocaleDateString()}`;
+    weekSelector.appendChild(opt);
+    week.setDate(week.getDate() + 7);
+    count++;
+  }
+  weekSelector.value = getWeekStart(new Date()).toISOString();
+}
+
+weekSelector.onchange = () => {
+  currentWeekStart = new Date(weekSelector.value);
+  dice = getDiceForWeek(currentWeekStart);
+  drawDice();
+  expressionBox.textContent = '';
+  evaluationBox.textContent = '?';
+};
+
+populateWeeks();
+dice = getDiceForWeek(currentWeekStart);
+drawDice();
+drawButtons();
+drawGrid();
+
