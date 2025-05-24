@@ -281,19 +281,30 @@ document.getElementById('submitBtn').addEventListener('click', () => {
 document.querySelectorAll('.op-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     const op = btn.getAttribute('data-op');
-    // Prevent operators if expression is empty or last char is operator (except minus)
+    const lastChar = expression.slice(-1);
+
+    // Prevent operators if expression is empty (except '-' or '(')
     if (expression.length === 0 && (op !== '-' && op !== '(')) return;
 
-    const lastChar = expression.slice(-1);
+    // If last char is an operator (except '('), replace it with the new operator
+    // But if new operator is '(', we *don't* replace the previous operator
     if ('+-*/^'.includes(lastChar)) {
-      // Replace last operator with new
-      expression = expression.slice(0, -1) + op;
+      if (op === '(') {
+        // Just add '(' without replacing last operator
+        expression += op;
+      } else {
+        // Replace last operator with new operator (e.g. change '+' to '*')
+        expression = expression.slice(0, -1) + op;
+      }
     } else {
+      // Otherwise just add the operator
       expression += op;
     }
+
     updateDisplay();
   });
 });
+
 
 setupWeekSelector();
 
