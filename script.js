@@ -286,13 +286,10 @@ document.querySelectorAll('.op-btn').forEach((btn) => {
 
     const lastChar = expression.slice(-1);
     if ('+-*/^'.includes(lastChar)) {
-  // Replace last operator with new
-  expression = expression.slice(0, -1) + op;
-} else {
-  expression += op;
-}
-
-
+      // Replace last operator with new
+      expression = expression.slice(0, -1) + op;
+    } else {
+      expression += op;
     }
     updateDisplay();
   });
