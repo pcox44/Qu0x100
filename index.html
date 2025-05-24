@@ -8,23 +8,18 @@
 </head>
 <body>
   <div class="top-bar">
-    <div><strong>Qu0x 100</strong> - Weekly Puzzle</div>
+    <div>Qu0x 100 - Game <span id="gameNumber">#1</span></div>
     <div class="nav-controls">
-      <button onclick="resetGrid()">Reset Grid</button>
+      <label for="weekSelector">Week:</label>
+      <select id="weekSelector"></select>
     </div>
   </div>
 
   <div class="instructions">
-    <p>Your goal: Build expressions using the 5 dice to make <strong>every number from 1 to 100</strong>.</p>
-    <ul>
-      <li>Use each die <strong>exactly once</strong>.</li>
-      <li>Allowed operations: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code>, <code>!</code>, parentheses.</li>
-      <li>Submit an expression to check if it evaluates to a number you haven't achieved yet.</li>
-      <li class="qu0x">Qu0x 100 = All numbers 1–100 completed in the week!</li>
-    </ul>
+    Use the five dice values exactly once each to make expressions that evaluate to every number from 1 to 100. Supported operations: +, −, ×, ÷, ^, !, !!, !!!, and parentheses. Click buttons to build expressions. Get all 100 to win a <span class="qu0x">Qu0x 100!</span>
   </div>
 
-  <div id="targetBox" class="target-box">Target: ???</div>
+  <div class="counter">Numbers Found: <span id="progressCount">0</span>/100</div>
 
   <div class="dice-container" id="diceContainer"></div>
 
@@ -34,26 +29,22 @@
     <div id="evaluationBox">?</div>
   </div>
 
-  <div id="buttonGrid">
-    <button onclick="addChar('+')">+</button>
-    <button onclick="addChar('-')">−</button>
-    <button onclick="addChar('*')">×</button>
-    <button onclick="addChar('/')">÷</button>
-    <button onclick="addChar('^')">^</button>
-    <button onclick="addChar('!')">!</button>
-    <button onclick="addChar('(')">(</button>
-    <button onclick="addChar(')')">)</button>
-    <button onclick="backspace()">⌫</button>
-    <button onclick="clearExpression()">Clear</button>
-    <button onclick="submitExpression()" class="submit">Submit</button>
+  <div id="buttonGrid"></div>
+
+  <div id="submitArea">
+    <button class="submit" id="submitBtn">Submit</button>
+    <button id="clearBtn">Clear</button>
+    <button id="backspaceBtn">Backspace</button>
   </div>
 
-  <div id="qu0xAnimation" class="hidden">🎉 Qu0x 100! 🎉</div>
-
-  <div id="gridContainer">
-    <h2>Numbers Completed</h2>
-    <div id="numberGrid"></div>
+  <div class="scoreboard">
+    <p id="qu0xMessage" class="hidden">🎉 <strong>Qu0x 100 Achieved!</strong> 🎉</p>
+    <button id="shareBtn" class="hidden">Share Your Grid</button>
   </div>
+
+  <div class="grid-container" id="numberGrid"></div>
+
+  <div id="qu0xAnimation" class="hidden">Qu0x 100!</div>
 
   <script src="script.js"></script>
 </body>
