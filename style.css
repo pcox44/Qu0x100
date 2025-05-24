@@ -12,27 +12,28 @@ body {
   background: #333;
   color: white;
   padding: 0.5em 1em;
+}
+
+.game-number {
   font-weight: bold;
   font-size: 1.2em;
 }
 
-.nav-controls select {
+.nav-controls select,
+.nav-controls button {
   font-size: 1rem;
   margin-left: 0.25em;
-  padding: 0.2em 0.5em;
-  border-radius: 4px;
 }
 
 .counter-box {
+  font-weight: bold;
   background-color: pink;
   color: black;
-  font-weight: bold;
   padding: 0.5em 1em;
-  font-size: 1.8em;
-  margin: 1em auto;
   border-radius: 5px;
   border: 5px solid black;
-  max-width: 300px;
+  font-size: 1.5em;
+  min-width: 150px;
 }
 
 .dice-container {
@@ -53,40 +54,39 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  user-select: none;
   transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+/* Dice colors with black trim */
+.die.d1 {
+  background-color: red;
+  color: white;
+}
+.die.d2 {
+  background-color: white;
+  color: black;
+}
+.die.d3 {
+  background-color: blue;
+  color: white;
+}
+.die.d4 {
+  background-color: yellow;
+  color: black;
+}
+.die.d5 {
+  background-color: green;
+  color: white;
+}
+.die.d6 {
+  background-color: black;
+  color: yellow;
 }
 
 .die.faded {
   opacity: 0.2;
   pointer-events: none;
-}
-
-/* Dice colors */
-.die[data-value="1"] {
-  background-color: red;
-  color: white;
-}
-.die[data-value="2"] {
-  background-color: white;
-  color: black;
-  border-color: black;
-}
-.die[data-value="3"] {
-  background-color: blue;
-  color: white;
-}
-.die[data-value="4"] {
-  background-color: yellow;
-  color: black;
-}
-.die[data-value="5"] {
-  background-color: green;
-  color: white;
-}
-.die[data-value="6"] {
-  background-color: black;
-  color: yellow;
 }
 
 .expression-section {
@@ -101,10 +101,11 @@ body {
   padding: 0.4em 1.2em;
   background: white;
   border: 2px solid #000;
-  min-width: 300px;
-  min-height: 1.4em;
-  overflow-wrap: break-word;
-  user-select: none;
+  min-width: 240px;
+  min-height: 1.2em;
+  text-align: left;
+  white-space: nowrap;
+  overflow-x: auto;
 }
 
 #evaluationBox {
@@ -112,8 +113,10 @@ body {
   background: white;
   border: 2px solid #000;
   min-width: 80px;
-  min-height: 1.4em;
-  font-weight: bold;
+  min-height: 1.2em;
+  text-align: left;
+  white-space: nowrap;
+  overflow-x: auto;
 }
 
 #equalsSign {
@@ -122,48 +125,61 @@ body {
 }
 
 #buttonGrid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 0.5em;
   margin: 1em auto;
   max-width: 500px;
 }
 
+.button-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5em;
+  gap: 0.5em;
+}
+
 #buttonGrid button {
-  padding: 0.6em;
-  font-size: 1.2em;
+  padding: 0.6em 1em;
+  font-size: 1.3em;
   border-radius: 5px;
   cursor: pointer;
   user-select: none;
-}
-
-#submitBtn {
-  font-size: 1.3em;
-  padding: 0.5em 1em;
-  background-color: green;
-  color: white;
   border: 2px solid black;
-  border-radius: 8px;
-  cursor: pointer;
+  background-color: #eee;
+  transition: background-color 0.2s ease;
 }
 
-.scoreboard p {
-  margin: 0.5em;
+#buttonGrid button:hover {
+  background-color: #ddd;
 }
 
-#qu0xAnimation {
-  font-size: 4.5em;
-  color: #ff00ff;
-  animation: pop 3s ease-in-out;
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  max-width: 520px;
+  margin: 1em auto 2em;
+  gap: 4px;
+  user-select: none;
+}
+
+.number-cell {
+  width: 48px;
+  height: 48px;
+  border: 2px solid black;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.2em;
+  background-color: white;
+  cursor: default;
+}
+
+.number-cell.completed {
+  background-color: #4caf50;
+  color: white;
+  text-decoration: line-through;
 }
 
 .hidden {
   display: none;
-}
-
-@keyframes pop {
-  0% { transform: scale(0); opacity: 0; }
-  25% { transform: scale(1.2); opacity: 1; }
-  50% { transform: scale(1); }
-  100% { opacity: 0; }
 }
