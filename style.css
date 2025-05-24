@@ -2,6 +2,7 @@ body {
   font-family: Arial, sans-serif;
   margin: 20px;
   background: #f9f9f9;
+  text-align: center; /* Center inline text globally */
 }
 
 #instructions {
@@ -11,25 +12,37 @@ body {
   margin-bottom: 15px;
   font-weight: bold;
   border-radius: 6px;
-  max-width: 600px;       /* ✅ limits how wide it can grow */
-  margin-left: auto;      /* ✅ centers the box horizontally */
-  margin-right: auto;     /* ✅ centers the box horizontally */
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center; /* Center text inside */
 }
-
 
 #topBar {
   margin-bottom: 10px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 #targetCountContainer {
   font-weight: bold;
   margin-bottom: 10px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 #diceContainer {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
+  justify-content: center; /* Center dice horizontally */
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .die {
@@ -89,6 +102,7 @@ body {
 #expressionArea {
   display: flex;
   align-items: center;
+  justify-content: center; /* Center contents horizontally */
   font-size: 24px;
   margin-bottom: 10px;
   background: #fff;
@@ -97,15 +111,14 @@ body {
   border-radius: 6px;
   min-height: 40px;
   gap: 8px;
-  max-width: 300px;       /* ✅ prevent full screen stretch */
-  width: 90%;             /* ✅ responsive on small screens */
-  margin-left: auto;      /* ✅ center horizontally */
+  max-width: 600px;
+  width: 90%;
+  margin-left: auto;
   margin-right: auto;
 }
 
-
 #expressionBox {
-  max-width: 200px;  /* or however wide you want */
+  max-width: 200px;
   width: 100%;
   user-select: none;
   white-space: nowrap;
@@ -115,8 +128,8 @@ body {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
+  text-align: center; /* Center text inside */
 }
-
 
 #resultValue {
   font-weight: bold;
@@ -126,6 +139,10 @@ body {
 
 #buttonsContainer {
   margin-bottom: 15px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 #buttonsContainer button {
@@ -154,11 +171,13 @@ body {
 }
 
 #gridContainer {
-  width: 340px; /* ~ 10 cells * 30px + margins */
+  width: 340px;
   margin-bottom: 20px;
-  /* This will force wrapping every ~10 cells */
   display: flex;
   flex-wrap: wrap;
+  justify-content: center; /* Center grid horizontally */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #popup {
