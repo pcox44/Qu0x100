@@ -1,117 +1,164 @@
-body {
-  font-family: sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f4f4f4;
-  color: #333;
-  text-align: center;
+const diceContainer = document.getElementById("dice-container");
+const expressionDiv = document.getElementById("expression");
+const outputDiv = document.getElementById("output");
+const gridContainer = document.getElementById("grid-container");
+const submitBtn = document.getElementById("submit");
+const backspaceBtn = document.getElementById("backspace");
+const clearBtn = document.getElementById("clear");
+const weekSelector = document.getElementById("week-selector");
+
+let diceValues = [];
+let usedDice = [];
+let expression = "";
+let weekStartDates = [];
+let currentWeek = 0;
+let solvedNumbers = {};
+
+function generateWeekList() {
+  const start = new Date("2025-05-11");
+  const today = new Date();
+  const sundays = [];
+  while (start <= today) {
+    sundays.push(new Date(start));
+    start.setDate(start.getDate() + 7);
+  }
+  weekStartDates = sundays;
+  weekSelector.innerHTML = "";
+  sundays.forEach((date, i) => {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = `Week ${i + 1} (${date.toLocaleDateString()})`;
+    weekSelector.appendChild(option);
+  });
+  currentWeek = sundays.length - 1;
+  weekSelector.value = currentWeek;
 }
 
-#top-bar {
-  background: #eee;
-  padding: 1em;
+function seedDice() {
+  const seed = weekStartDates[currentWeek].toDateString();
+  let rng = mulberry32(hashString(seed));
+  diceValues = Array.from({ length: 5 }, () => Math.floor(rng() * 6) + 1);
+  usedDice = Array(5).fill(false);
 }
 
-#instructions {
-  font-size: 0.9em;
-  margin-top: 0.5em;
+function renderDice() {
+  diceContainer.innerHTML = "";
+  diceValues.forEach((val, i) => {
+    const die = document.createElement("div");
+    die.className = `die die${val}`;
+    if (usedDice[i]) die.classList.add("used");
+    die.textContent = val;
+    die.addEventListener("click", () => {
+      if (!usedDice[i]) {
+        expression += val;
+        usedDice[i] = true;
+        updateDisplay();
+      }
+    });
+    diceContainer.appendChild(die);
+  });
 }
 
-#dice-container {
-  display: flex;
-  justify-content: center;
-  margin: 1em;
-  gap: 10px;
+function updateDisplay() {
+  expressionDiv.textContent = expression;
+  try {
+    let result = math.evaluate(expression);
+    if (!Number.isFinite(result)) throw "bad result";
+    outputDiv.textContent = result;
+  } catch (e) {
+    outputDiv.textContent = "?";
+  }
+  renderDice();
 }
 
-.die {
-  width: 50px;
-  height: 50px;
-  line-height: 50px;
-  font-size: 1.5em;
-  font-weight: bold;
-  border: 2px solid black;
-  border-radius: 8px;
-  user-select: none;
-  opacity: 1;
-  transition: opacity 0.3s;
+function renderGrid() {
+  gridContainer.innerHTML = "";
+  for (let i = 1; i <= 100; i++) {
+    const div = document.createElement("div");
+    div.className = "grid-number";
+    if (solvedNumbers[i]) div.classList.add("solved");
+    div.textContent = i;
+    gridContainer.appendChild(div);
+  }
 }
 
-.die.used {
-  opacity: 0.4;
-  pointer-events: none;
+function submitExpression() {
+  try {
+    const result = math.evaluate(expression);
+    const rounded = Math.round(result);
+    if (Number.isInteger(result) && rounded >= 1 && rounded <= 100 && usedDice.every(u => u)) {
+      solvedNumbers[rounded] = true;
+      saveProgress();
+      expression = "";
+      usedDice = Array(5).fill(false);
+      updateDisplay();
+      renderGrid();
+    }
+  } catch (e) {
+    alert("Invalid expression");
+  }
 }
 
-.die1 { background: red; color: white; }
-.die2 { background: white; color: black; }
-.die3 { background: blue; color: white; }
-.die4 { background: yellow; color: black; }
-.die5 { background: green; color: white; }
-.die6 { background: black; color: yellow; }
-
-#expression-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1em;
-  font-size: 1.2em;
+function backspace() {
+  if (expression.length === 0) return;
+  const last = expression.slice(-1);
+  expression = expression.slice(0, -1);
+  const val = parseInt(last);
+  if (!isNaN(val)) {
+    const idx = diceValues.findIndex((v, i) => v == val && usedDice[i]);
+    if (idx !== -1) usedDice[idx] = false;
+  }
+  updateDisplay();
 }
 
-#expression, #output {
-  padding: 0.5em;
-  min-width: 100px;
-  border: 1px solid #ccc;
-  background: white;
+function clearExpression() {
+  expression = "";
+  usedDice = Array(5).fill(false);
+  updateDisplay();
 }
 
-#equals {
-  margin: 0 0.5em;
+function hashString(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h *= 16777619;
+  }
+  return h >>> 0;
 }
 
-#button-pad {
-  margin: 1em;
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t ^= t + Math.imul(t ^ t >>> 7, 61 | t);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
 }
 
-.button-row {
-  margin: 0.5em 0;
+function saveProgress() {
+  const key = `qu0x100-week${currentWeek}`;
+  localStorage.setItem(key, JSON.stringify(solvedNumbers));
 }
 
-button {
-  padding: 0.5em 1em;
-  margin: 0 0.3em;
-  font-size: 1em;
-  cursor: pointer;
+function loadProgress() {
+  const key = `qu0x100-week${currentWeek}`;
+  const saved = localStorage.getItem(key);
+  solvedNumbers = saved ? JSON.parse(saved) : {};
 }
 
-#submit {
-  background: green;
-  color: white;
-  border: none;
-  margin-top: 1em;
-}
+submitBtn.addEventListener("click", submitExpression);
+backspaceBtn.addEventListener("click", backspace);
+clearBtn.addEventListener("click", clearExpression);
+weekSelector.addEventListener("change", () => {
+  currentWeek = parseInt(weekSelector.value);
+  loadProgress();
+  seedDice();
+  updateDisplay();
+  renderGrid();
+});
 
-#grid-container {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 5px;
-  padding: 1em;
-  max-width: 600px;
-  margin: auto;
-}
-
-.grid-number {
-  padding: 0.5em;
-  border: 1px solid #999;
-  border-radius: 4px;
-  background: white;
-}
-
-.grid-number.solved {
-  background: #aaffaa;
-  font-weight: bold;
-}
-
-#week-selector {
-  font-size: 1em;
-  padding: 0.5em;
-}
+generateWeekList();
+loadProgress();
+seedDice();
+updateDisplay();
+renderGrid();
