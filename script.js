@@ -1,137 +1,164 @@
-// script.js
+const expressionBox = document.getElementById('expressionBox');
+const resultValue = document.getElementById('resultValue');
+const gridContainer = document.getElementById('gridContainer');
+const completedCount = document.getElementById('completedCount');
+const popup = document.getElementById('popup');
+const diceContainer = document.getElementById('diceContainer');
+const weekSelector = document.getElementById('weekSelector');
 
-// Your existing variables and setup here
-let diceValues = [1, 2, 3, 4, 5];  // Example dice values, update as needed
+let expression = '';
 let usedDice = [];
-let expression = "";
+let diceValues = [];
+let solvedNumbers = {};
+let currentWeek;
 
-// Factorial function
-function factorial(n) {
-  if (n < 0 || !Number.isInteger(n)) return NaN;
-  if (n === 0 || n === 1) return 1;
-  let result = 1;
-  for (let i = 2; i <= n; i++) {
-    result *= i;
-  }
-  return result;
+function getCurrentWeekDate() {
+  const now = new Date();
+  const day = now.getDay();
+  // Find the most recent Saturday (day 6)
+  const diff = now.getDate() - day + (day >= 6 ? 0 : - (7 - 6));
+  const saturday = new Date(now.getFullYear(), now.getMonth(), diff);
+  saturday.setHours(0, 0, 0, 0);
+  return saturday;
 }
 
-// Process factorials in expression (supports multiple factorials like !!)
-function processFactorials(expr) {
-  return expr.replace(/(\d+|\([^()]+\))(!+)/g, (match, base, bangs) => {
-    let result = base;
-    for (let i = 0; i < bangs.length; i++) {
-      result = `factorial(${result})`;
-    }
-    return result;
-  });
+function formatDate(date) {
+  return date.toISOString().split('T')[0];
 }
 
-// Update the dice display, fading used dice
+function seedRandomFromDate(date) {
+  const seed = new Date(date).getTime();
+  let x = Math.sin(seed) * 10000;
+  return () => {
+    x = Math.sin(x) * 10000;
+    return x - Math.floor(x);
+  };
+}
+
+function generateDice(date) {
+  const rand = seedRandomFromDate(date);
+  return Array.from({ length: 5 }, () => Math.floor(rand() * 6) + 1);
+}
+
 function updateDiceDisplay() {
-  const diceContainer = document.getElementById('dice-container');
   diceContainer.innerHTML = '';
-
-  diceValues.forEach((value, idx) => {
+  diceValues.forEach((val, idx) => {
     const die = document.createElement('div');
-    die.classList.add('die');
-    die.textContent = value;
-
-    // Fade dice if used
-    if (usedDice.includes(idx)) {
-      die.classList.add('used', 'fade');
-    } else {
-      die.classList.remove('fade');
-    }
-
-    die.addEventListener('click', () => {
+    die.className = `die die-${val}`;
+    die.textContent = val;
+    if (usedDice.includes(idx)) die.classList.add('used');
+    die.onclick = () => {
       if (!usedDice.includes(idx)) {
-        // Add die to usedDice and update expression
+        const lastChar = expression.slice(-1);
+        if (lastChar && !isNaN(lastChar)) {
+          // Prevent concatenation of dice values
+          return;
+        }
+        expression += val;
         usedDice.push(idx);
-        expression += value.toString();
         updateDisplay();
       }
-    });
-
+    };
     diceContainer.appendChild(die);
   });
 }
 
-// Update the expression display and evaluate
 function updateDisplay() {
-  const expressionDisplay = document.getElementById('expression-display');
-  const resultDisplay = document.getElementById('result-display');
+  expressionBox.textContent = expression;
+  try {
+    if (usedDice.length < 5) {
+      resultValue.textContent = '?';
+    } else {
+      // Evaluate safely with allowed characters only
+      // Replace ^ with ** for exponentiation since eval does not support ^
+      const safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
+      const val = eval(safeExpression);
+      resultValue.textContent = isNaN(val) ? '?' : Math.round(val * 1000) / 1000;
+    }
+  } catch {
+    resultValue.textContent = '?';
+  }
+}
 
-  expressionDisplay.textContent = expression;
+function updateGrid() {
+  gridContainer.innerHTML = '';
+  let count = 0;
+  for (let i = 1; i <= 100; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    if (solvedNumbers[i]) {
+      cell.classList.add('solved');
+      count++;
+    }
+    cell.textContent = i;
+    gridContainer.appendChild(cell);
+  }
+  completedCount.textContent = count;
+}
 
-  if (expression === '') {
-    resultDisplay.textContent = '';
+function loadWeek(dateStr) {
+  currentWeek = dateStr;
+  expression = '';
+  usedDice = [];
+  solvedNumbers = JSON.parse(localStorage.getItem(`solved_${dateStr}`)) || {};
+  diceValues = generateDice(dateStr);
+  updateDiceDisplay();
+  updateGrid();
+  updateDisplay();
+}
+
+function saveSolved() {
+  localStorage.setItem(`solved_${currentWeek}`, JSON.stringify(solvedNumbers));
+}
+
+function submitExpression() {
+  if (usedDice.length !== 5) {
+    popup.classList.remove('hidden');
+    setTimeout(() => popup.classList.add('hidden'), 2000);
     return;
   }
-
   try {
-    // Prepare expression for eval
-    let safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
-    safeExpression = processFactorials(safeExpression);
-
-    // Evaluate expression with factorial support
-    const val = Function('factorial', `return ${safeExpression}`)(factorial);
-
-    if (val === undefined || val === null || Number.isNaN(val)) {
-      resultDisplay.textContent = '?';
+    // Evaluate expression
+    const safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
+    let val = eval(safeExpression);
+    val = Math.round(val);
+    if (val >= 1 && val <= 100) {
+      solvedNumbers[val] = true;
+      saveSolved();
+      updateGrid();
+      expression = '';
+      usedDice = [];
+      updateDiceDisplay();
+      updateDisplay();
     } else {
-      resultDisplay.textContent = val;
+      alert('Result is out of range 1 to 100.');
     }
   } catch {
-    resultDisplay.textContent = '?';
+    alert('Invalid expression.');
   }
 }
 
-// Submit expression (on Enter or submit button)
-function submitExpression() {
-  if (expression === '') return;
-
-  try {
-    let safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
-    safeExpression = processFactorials(safeExpression);
-
-    const val = Function('factorial', `return ${safeExpression}`)(factorial);
-
-    if (val === undefined || val === null || Number.isNaN(val)) {
-      alert('Invalid expression');
-      return;
-    }
-
-    // Handle submission logic (score checking, etc)
-    alert(`Result: ${val}`);
-
-  } catch {
-    alert('Invalid expression');
-  }
-}
-
-// Backspace function to remove last character and update dice usage
 function backspace() {
   if (expression.length === 0) return;
-
-  // Remove last character
+  // Remove last character and if it matches a dice value, restore that die usage
   const lastChar = expression.slice(-1);
   expression = expression.slice(0, -1);
 
-  // Check if lastChar is a digit matching a used die and remove from usedDice accordingly
-  // We'll try to remove the last used die that matches lastChar
-  for (let i = usedDice.length - 1; i >= 0; i--) {
-    if (diceValues[usedDice[i]].toString() === lastChar) {
-      usedDice.splice(i, 1);
-      break;
+  // Try to convert lastChar to a number and remove from usedDice if found
+  const lastNum = parseInt(lastChar);
+  if (!isNaN(lastNum)) {
+    // Find index of last used die with that value
+    for (let i = usedDice.length - 1; i >= 0; i--) {
+      if (diceValues[usedDice[i]] === lastNum) {
+        usedDice.splice(i, 1);
+        break;
+      }
     }
   }
-
   updateDisplay();
   updateDiceDisplay();
 }
 
-// Clear the entire expression and reset used dice
 function clearExpression() {
   expression = '';
   usedDice = [];
@@ -139,12 +166,48 @@ function clearExpression() {
   updateDiceDisplay();
 }
 
-// Initialization
-document.addEventListener('DOMContentLoaded', () => {
-  updateDiceDisplay();
+function fillWeekDropdown() {
+  // Weeks starting from 5/11/2025 (Sunday)
+  const start = new Date(2025, 4, 11); // May is month 4 zero-based
+  const today = new Date();
+  const weeks = [];
+  for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 7)) {
+    const label = `${formatDate(d)} (Week #${weeks.length + 1})`;
+    weeks.push({ date: formatDate(new Date(d)), label });
+  }
 
-  // Bind buttons
-  document.getElementById('backspace-btn').addEventListener('click', backspace);
-  document.getElementById('clear-btn').addEventListener('click', clearExpression);
-  document.getElementById('submit-btn').addEventListener('click', submitExpression);
+  weeks.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w.date;
+    opt.textContent = w.label;
+    weekSelector.appendChild(opt);
+  });
+}
+
+weekSelector.addEventListener('change', () => {
+  loadWeek(weekSelector.value);
 });
+
+document.getElementById('submitBtn').addEventListener('click', submitExpression);
+document.getElementById('backspaceBtn').addEventListener('click', backspace);
+document.getElementById('clearBtn').addEventListener('click', clearExpression);
+
+document.querySelectorAll('.op-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Only add operator buttons if allowed and if dice are all used or operators
+    const val = btn.textContent;
+    if (val.match(/^\d+$/)) return; // ignore number buttons (none here)
+    if (val === 'Back' || val === 'Clear') return; // ignore back/clear here
+    expression += val;
+    updateDisplay();
+  });
+});
+
+fillWeekDropdown();
+
+const currentWeekDate = getCurrentWeekDate();
+const currentWeekStr = formatDate(currentWeekDate);
+
+// Set dropdown to current week and load game
+weekSelector.value = currentWeekStr;
+loadWeek(currentWeekStr);
