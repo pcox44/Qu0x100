@@ -97,7 +97,12 @@ body {
   border-radius: 6px;
   min-height: 40px;
   gap: 8px;
+  max-width: 600px;       /* ✅ prevent full screen stretch */
+  width: 90%;             /* ✅ responsive on small screens */
+  margin-left: auto;      /* ✅ center horizontally */
+  margin-right: auto;
 }
+
 
 #expressionBox {
   max-width: 200px;  /* or however wide you want */
