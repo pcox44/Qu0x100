@@ -44,11 +44,16 @@ function updateDiceDisplay() {
   diceContainer.innerHTML = '';
   diceValues.forEach((val, idx) => {
     const die = document.createElement('div');
-    die.className = die die-${val};
+    die.className = `die die-${val}`;
     die.textContent = val;
     if (usedDice.includes(idx)) die.classList.add('used');
     die.onclick = () => {
       if (!usedDice.includes(idx)) {
+        const lastChar = expression.slice(-1);
+        if (lastChar && !isNaN(lastChar)) {
+          // Prevent concatenation of dice values
+          return;
+        }
         expression += val;
         usedDice.push(idx);
         updateDisplay();
@@ -95,7 +100,7 @@ function loadWeek(dateStr) {
   currentWeek = dateStr;
   expression = '';
   usedDice = [];
-  solvedNumbers = JSON.parse(localStorage.getItem(solved_${dateStr})) || {};
+  solvedNumbers = JSON.parse(localStorage.getItem(`solved_${dateStr}`)) || {};
   diceValues = generateDice(dateStr);
   updateDiceDisplay();
   updateGrid();
@@ -103,7 +108,7 @@ function loadWeek(dateStr) {
 }
 
 function saveSolved() {
-  localStorage.setItem(solved_${currentWeek}, JSON.stringify(solvedNumbers));
+  localStorage.setItem(`solved_${currentWeek}`, JSON.stringify(solvedNumbers));
 }
 
 function submitExpression() {
@@ -167,7 +172,7 @@ function fillWeekDropdown() {
   const today = new Date();
   const weeks = [];
   for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 7)) {
-    const label = ${formatDate(d)} (Week #${weeks.length + 1});
+    const label = `${formatDate(d)} (Week #${weeks.length + 1})`;
     weeks.push({ date: formatDate(new Date(d)), label });
   }
 
