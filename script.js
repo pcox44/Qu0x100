@@ -44,43 +44,18 @@ function updateDiceDisplay() {
   diceContainer.innerHTML = '';
   diceValues.forEach((val, idx) => {
     const die = document.createElement('div');
-    die.className = `die die-${val}`;
+    die.className = die die-${val};
     die.textContent = val;
     if (usedDice.includes(idx)) die.classList.add('used');
     die.onclick = () => {
-  if (!usedDice.includes(idx)) {
-    expression += val;
-    usedDice.push(idx);
-    updateDisplay();
-  }
-};
-
-
+      if (!usedDice.includes(idx)) {
+        expression += val;
+        usedDice.push(idx);
+        updateDisplay();
       }
     };
     diceContainer.appendChild(die);
   });
-}
-
-function factorial(n) {
-  if (n < 0 || !Number.isInteger(n)) return NaN;
-  let result = 1;
-  for (let i = 2; i <= n; i++) result *= i;
-  return result;
-}
-
-function doubleFactorial(n) {
-  if (n < 0 || !Number.isInteger(n)) return NaN;
-  let result = 1;
-  for (let i = n; i > 1; i -= 2) result *= i;
-  return result;
-}
-
-function tripleFactorial(n) {
-  if (n < 0 || !Number.isInteger(n)) return NaN;
-  let result = 1;
-  for (let i = n; i > 1; i -= 3) result *= i;
-  return result;
 }
 
 function updateDisplay() {
@@ -91,13 +66,7 @@ function updateDisplay() {
     } else {
       // Evaluate safely with allowed characters only
       // Replace ^ with ** for exponentiation since eval does not support ^
-      const safeExpression = expression
-  .replace(/\^/g, '**')
-  .replace(/(\d+|\))!!!/g, 'tripleFactorial($1)')
-  .replace(/(\d+|\))!!/g, 'doubleFactorial($1)')
-  .replace(/(\d+|\))!/g, 'factorial($1)')
-  .replace(/[^-()\d/*+.!^a-zA-Z]/g, '');
-
+      const safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
       const val = eval(safeExpression);
       resultValue.textContent = isNaN(val) ? '?' : Math.round(val * 1000) / 1000;
     }
@@ -126,7 +95,7 @@ function loadWeek(dateStr) {
   currentWeek = dateStr;
   expression = '';
   usedDice = [];
-  solvedNumbers = JSON.parse(localStorage.getItem(`solved_${dateStr}`)) || {};
+  solvedNumbers = JSON.parse(localStorage.getItem(solved_${dateStr})) || {};
   diceValues = generateDice(dateStr);
   updateDiceDisplay();
   updateGrid();
@@ -134,7 +103,7 @@ function loadWeek(dateStr) {
 }
 
 function saveSolved() {
-  localStorage.setItem(`solved_${currentWeek}`, JSON.stringify(solvedNumbers));
+  localStorage.setItem(solved_${currentWeek}, JSON.stringify(solvedNumbers));
 }
 
 function submitExpression() {
@@ -145,13 +114,7 @@ function submitExpression() {
   }
   try {
     // Evaluate expression
-    const safeExpression = expression
-  .replace(/\^/g, '**')
-  .replace(/(\d+|\))!!!/g, 'tripleFactorial($1)')
-  .replace(/(\d+|\))!!/g, 'doubleFactorial($1)')
-  .replace(/(\d+|\))!/g, 'factorial($1)')
-  .replace(/[^-()\d/*+.!^a-zA-Z]/g, '');
-
+    const safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
     let val = eval(safeExpression);
     val = Math.round(val);
     if (val >= 1 && val <= 100) {
@@ -204,7 +167,7 @@ function fillWeekDropdown() {
   const today = new Date();
   const weeks = [];
   for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 7)) {
-    const label = `${formatDate(d)} (Week #${weeks.length + 1})`;
+    const label = ${formatDate(d)} (Week #${weeks.length + 1});
     weeks.push({ date: formatDate(new Date(d)), label });
   }
 
