@@ -14,6 +14,7 @@ body {
   padding: 0.5em 1em;
 }
 
+.nav-controls select,
 .nav-controls button {
   font-size: 1rem;
   margin-left: 0.25em;
@@ -31,41 +32,16 @@ body {
   box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
 }
 
-.instructions ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-
-.instructions li {
-  position: relative;
-  padding-left: 1.4em;
-  margin-bottom: 0.75em;
-}
-
-.instructions code {
-  background: #eee;
-  padding: 0.1em 0.3em;
-  border-radius: 3px;
-  font-family: monospace;
-  font-weight: bold;
-}
-
 .instructions .qu0x {
   color: #d500f9;
   font-weight: 900;
   font-style: italic;
 }
 
-.target-box {
-  background-color: pink;
-  color: black;
+.counter {
+  font-size: 2em;
   font-weight: bold;
-  padding: 0.5em 1em;
-  font-size: 2.5em;
-  display: inline-block;
-  margin: 1em auto;
-  border-radius: 5px;
-  border: 5px solid black;
+  margin: 1em 0;
 }
 
 .dice-container {
@@ -94,6 +70,13 @@ body {
   pointer-events: none;
 }
 
+.die[data-value="1"] { background: red; color: white; }
+.die[data-value="2"] { background: white; color: black; }
+.die[data-value="3"] { background: blue; color: white; }
+.die[data-value="4"] { background: yellow; color: black; }
+.die[data-value="5"] { background: green; color: white; }
+.die[data-value="6"] { background: black; color: yellow; }
+
 .expression-section {
   display: flex;
   justify-content: center;
@@ -102,7 +85,7 @@ body {
   font-size: 1.5em;
 }
 
-#expressionBox {
+#expressionBox, #evaluationBox {
   padding: 0.4em 1.2em;
   background: white;
   border: 2px solid #000;
@@ -111,11 +94,7 @@ body {
 }
 
 #evaluationBox {
-  padding: 0.4em 0.5em;
-  background: white;
-  border: 2px solid #000;
   min-width: 80px;
-  min-height: 1.2em;
 }
 
 #equalsSign {
@@ -138,6 +117,10 @@ body {
   cursor: pointer;
 }
 
+#submitArea {
+  margin: 1em;
+}
+
 .submit {
   font-size: 1.3em;
   padding: 0.5em 1em;
@@ -146,6 +129,16 @@ body {
   border: 2px solid black;
   border-radius: 8px;
   cursor: pointer;
+}
+
+#clearBtn, #backspaceBtn {
+  margin-left: 0.5em;
+  font-size: 1em;
+  padding: 0.4em 0.8em;
+}
+
+.scoreboard p {
+  margin: 0.5em;
 }
 
 #qu0xAnimation {
@@ -165,7 +158,23 @@ body {
   100% { opacity: 0; }
 }
 
-#numberGrid {
+#shareBtn {
+  font-size: 1.1em;
+  padding: 0.4em 1em;
+  background-color: #ff6600;
+  color: white;
+  border: 2px solid black;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1em;
+}
+
+#shareBtn:hover {
+  background-color: #cc5200;
+  border-color: #993d00;
+}
+
+.grid-container {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   gap: 4px;
@@ -173,15 +182,14 @@ body {
   margin: 1em auto;
 }
 
-#numberGrid div {
-  padding: 0.5em;
+.grid-container div {
+  padding: 8px;
   border: 1px solid #ccc;
   background: #fff;
-  border-radius: 4px;
+  font-weight: bold;
 }
 
-#numberGrid .complete {
-  background-color: #4caf50;
+.grid-container .found {
+  background: limegreen;
   color: white;
-  font-weight: bold;
 }
