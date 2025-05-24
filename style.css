@@ -123,6 +123,16 @@ body {
   font-size: 0.9rem;
 }
 
+.die {
+  transition: opacity 0.5s ease;
+  cursor: pointer;
+}
+
+.die.fade {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .grid-cell.solved {
   background: lightgreen;
 }
