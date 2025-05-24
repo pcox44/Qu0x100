@@ -13,45 +13,25 @@
       <label for="weekSelect">Weekly Game:</label>
       <select id="weekSelect"></select>
     </div>
+    <div class="counter-box" title="Numbers completed this week">
+      Completed: <span id="completedCount">0</span>/100
+    </div>
   </div>
 
-  <div class="counter-box">
-    Completed: <span id="completedCount">0</span>/100
-  </div>
-
-  <div class="dice-container" id="diceContainer">
-    <!-- Dice buttons dynamically generated -->
-  </div>
+  <div class="dice-container" id="diceContainer"></div>
 
   <div class="expression-section">
-    <div id="expressionBox" aria-live="polite"></div>
+    <div id="expressionBox" aria-label="Expression" role="textbox" tabindex="0"></div>
     <div id="equalsSign">=</div>
-    <div id="evaluationBox" aria-live="polite">?</div>
+    <div id="evaluationBox" aria-live="polite" aria-atomic="true">?</div>
   </div>
 
   <div id="buttonGrid">
-    <button data-val="(">(</button>
-    <button data-val=")">)</button>
-    <button data-val="+">+</button>
-    <button data-val="-">-</button>
-    <button data-val="*">&times;</button>
-    <button data-val="/">&#247;</button>
-
-    <button data-val="^">^</button>
-    <button data-val="!">!</button>
-    <button data-val="!!">!!</button>
-    <button data-val="!!!">!!!</button>
-
-    <button id="backspaceBtn">&larr;</button>
-    <button id="clearBtn">Clear</button>
-    <button id="submitBtn" class="submit">Submit</button>
+    <div id="buttonRow1" class="button-row"></div>
+    <div id="buttonRow2" class="button-row"></div>
   </div>
 
-  <div class="scoreboard" id="scoreboard">
-    <p>Numbers Completed This Week: <span id="weeklyCompleted">0</span>/100</p>
-  </div>
-
-  <div id="qu0xAnimation" class="hidden">Qu0x 100!</div>
+  <div class="number-grid" id="numberGrid"></div>
 
   <script src="script.js"></script>
 </body>
