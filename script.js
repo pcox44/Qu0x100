@@ -15,11 +15,8 @@ let currentWeek;
 function getCurrentWeekDate() {
   const now = new Date();
   const day = now.getDay();
-  // Find the most recent Saturday (day 6)
-  const diff = now.getDate() - day + (day >= 6 ? 0 : - (7 - 6));
-  const saturday = new Date(now.getFullYear(), now.getMonth(), diff);
-  saturday.setHours(0, 0, 0, 0);
-  return saturday;
+  const diff = now.getDate() - day + (day === 6 ? 0 : -1);
+  return new Date(now.setDate(diff));
 }
 
 function formatDate(date) {
@@ -49,7 +46,7 @@ function updateDiceDisplay() {
     if (usedDice.includes(idx)) die.classList.add('used');
     die.onclick = () => {
       if (!usedDice.includes(idx)) {
-        expression += val;
+        expression += `D${idx}`;
         usedDice.push(idx);
         updateDisplay();
       }
@@ -58,16 +55,31 @@ function updateDiceDisplay() {
   });
 }
 
+function factorial(n, depth = 1) {
+  if (!Number.isInteger(n) || n < 0) return NaN;
+  if (depth === 1) return n <= 1 ? 1 : n * factorial(n - 1, 1);
+  if (depth === 2) return n <= 0 ? 1 : n * factorial(n - 2, 2);
+  if (depth === 3) return n <= 0 ? 1 : n * factorial(n - 3, 3);
+  return NaN;
+}
+
+function safeEval(expr) {
+  const parsed = expr
+    .replace(/D(\d)/g, (_, dIdx) => diceValues[+dIdx]) // Replace D0–D4 with actual dice
+    .replace(/(\([^()]*\)|\d+)(!{1,3})/g, (_, base, bangs) => {
+      const depth = bangs.length;
+      return `factorial(${base}, ${depth})`;
+    });
+  return Function(`"use strict"; return (${parsed})`)();
+}
+
 function updateDisplay() {
   expressionBox.textContent = expression;
   try {
     if (usedDice.length < 5) {
       resultValue.textContent = '?';
     } else {
-      // Evaluate safely with allowed characters only
-      // Replace ^ with ** for exponentiation since eval does not support ^
-      const safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
-      const val = eval(safeExpression);
+      const val = safeEval(expression);
       resultValue.textContent = isNaN(val) ? '?' : Math.round(val * 1000) / 1000;
     }
   } catch {
@@ -95,114 +107,82 @@ function loadWeek(dateStr) {
   currentWeek = dateStr;
   expression = '';
   usedDice = [];
-  solvedNumbers = JSON.parse(localStorage.getItem(`solved_${dateStr}`)) || {};
+  solvedNumbers = JSON.parse(localStorage.getItem(`solved-${dateStr}`)) || {};
   diceValues = generateDice(dateStr);
   updateDiceDisplay();
-  updateGrid();
   updateDisplay();
+  updateGrid();
 }
 
-function saveSolved() {
-  localStorage.setItem(`solved_${currentWeek}`, JSON.stringify(solvedNumbers));
+function saveWeekProgress() {
+  localStorage.setItem(`solved-${currentWeek}`, JSON.stringify(solvedNumbers));
 }
 
-function submitExpression() {
+document.querySelectorAll('.op-btn').forEach(btn => {
+  btn.onclick = () => {
+    const val = btn.textContent;
+    expression += val;
+    updateDisplay();
+  };
+});
+
+document.getElementById('submitBtn').onclick = () => {
   if (usedDice.length !== 5) {
     popup.classList.remove('hidden');
     setTimeout(() => popup.classList.add('hidden'), 2000);
     return;
   }
   try {
-    // Evaluate expression
-    const safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
-    let val = eval(safeExpression);
-    val = Math.round(val);
-    if (val >= 1 && val <= 100) {
-      solvedNumbers[val] = true;
-      saveSolved();
+    const result = safeEval(expression);
+    const rounded = Math.round(result);
+    if (rounded >= 1 && rounded <= 100) {
+      solvedNumbers[rounded] = true;
+      saveWeekProgress();
       updateGrid();
-      expression = '';
-      usedDice = [];
-      updateDiceDisplay();
-      updateDisplay();
-    } else {
-      alert('Result is out of range 1 to 100.');
     }
-  } catch {
-    alert('Invalid expression.');
-  }
-}
-
-function backspace() {
-  if (expression.length === 0) return;
-  // Remove last character and if it matches a dice value, restore that die usage
-  const lastChar = expression.slice(-1);
-  expression = expression.slice(0, -1);
-
-  // Try to convert lastChar to a number and remove from usedDice if found
-  const lastNum = parseInt(lastChar);
-  if (!isNaN(lastNum)) {
-    // Find index of last used die with that value
-    for (let i = usedDice.length - 1; i >= 0; i--) {
-      if (diceValues[usedDice[i]] === lastNum) {
-        usedDice.splice(i, 1);
-        break;
-      }
-    }
-  }
-  updateDisplay();
-  updateDiceDisplay();
-}
-
-function clearExpression() {
+  } catch {}
   expression = '';
   usedDice = [];
-  updateDisplay();
   updateDiceDisplay();
-}
+  updateDisplay();
+};
 
-function fillWeekDropdown() {
-  // Weeks starting from 5/11/2025 (Sunday)
-  const start = new Date(2025, 4, 11); // May is month 4 zero-based
-  const today = new Date();
-  const weeks = [];
-  for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 7)) {
-    const label = `${formatDate(d)} (Week #${weeks.length + 1})`;
-    weeks.push({ date: formatDate(new Date(d)), label });
+document.getElementById('backspaceBtn').onclick = () => {
+  const match = expression.match(/D(\d)$/);
+  if (match) {
+    const idx = +match[1];
+    usedDice = usedDice.filter(i => i !== idx);
   }
+  expression = expression.slice(0, -1);
+  updateDiceDisplay();
+  updateDisplay();
+};
 
-  weeks.forEach(w => {
-    const opt = document.createElement('option');
-    opt.value = w.date;
-    opt.textContent = w.label;
-    weekSelector.appendChild(opt);
-  });
+document.getElementById('clearBtn').onclick = () => {
+  expression = '';
+  usedDice = [];
+  updateDiceDisplay();
+  updateDisplay();
+};
+
+function populateWeekSelector() {
+  const start = new Date('2025-05-10');
+  const now = new Date();
+  let week = 1;
+  while (start <= now) {
+    const dateStr = formatDate(start);
+    const option = document.createElement('option');
+    option.value = dateStr;
+    option.textContent = `Week ${week} (${dateStr})`;
+    weekSelector.appendChild(option);
+    start.setDate(start.getDate() + 7);
+    week++;
+  }
+  const current = formatDate(getCurrentWeekDate());
+  weekSelector.value = current;
+  loadWeek(current);
 }
 
-weekSelector.addEventListener('change', () => {
-  loadWeek(weekSelector.value);
-});
+weekSelector.onchange = (e) => loadWeek(e.target.value);
 
-document.getElementById('submitBtn').addEventListener('click', submitExpression);
-document.getElementById('backspaceBtn').addEventListener('click', backspace);
-document.getElementById('clearBtn').addEventListener('click', clearExpression);
-
-document.querySelectorAll('.op-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Only add operator buttons if allowed and if dice are all used or operators
-    const val = btn.textContent;
-    if (val.match(/^\d+$/)) return; // ignore number buttons (none here)
-    if (val === 'Back' || val === 'Clear') return; // ignore back/clear here
-    expression += val;
-    updateDisplay();
-  });
-});
-
-fillWeekDropdown();
-
-const currentWeekDate = getCurrentWeekDate();
-const currentWeekStr = formatDate(currentWeekDate);
-
-// Set dropdown to current week and load game
-weekSelector.value = currentWeekStr;
-loadWeek(currentWeekStr);
+populateWeekSelector();
