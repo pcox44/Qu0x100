@@ -3,52 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Qu0x 100 - Weekly Challenge</title>
+  <title>Qu0x 100 Weekly</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="top-bar">
-    <div id="gameNumber">Game #</div>
+    <div class="game-number">Game #<span id="gameNumber">1</span></div>
     <div class="nav-controls">
       <label for="weekSelect">Weekly Game:</label>
       <select id="weekSelect"></select>
     </div>
   </div>
 
-  <div class="instructions">
-    <ul>
-      <li>Use all five dice values exactly once per expression by clicking the dice.</li>
-      <li>Build expressions using the buttons below to reach target numbers 1 through 100 each week.</li>
-      <li>Allowed operations: <code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>^</code> <code>!</code> (factorial, supports single factorial only).</li>
-      <li>Parentheses are supported.</li>
-      <li>Backspace removes one character from expression and restores dice if number removed.</li>
-      <li>Clear resets the expression and dice.</li>
-      <li>Submit to check your expression and cross off any numbers you made this week.</li>
-      <li>Get all 100 to achieve a <span class="qu0x">Qu0x 100</span>!</li>
-    </ul>
+  <div class="instructions" id="instructions">
+    Use all five dice values exactly once per expression by clicking the dice. <br />
+    Build expressions using the buttons below to reach target numbers 1 through 100 each week.<br />
+    Allowed operations: + - * / ^ ! (factorial) <br />
+    Get all 100 to achieve a Qu0x 100!
   </div>
 
-  <div id="counter" class="target-box">Completed: 0 / 100</div>
+  <div class="counter-box" id="counterBox">0 / 100</div>
 
   <div class="dice-container" id="diceContainer"></div>
 
   <div class="expression-section">
-    <div id="expressionBox" aria-label="Expression input" tabindex="0"></div>
+    <div id="expressionBox" aria-live="polite" aria-label="Expression input" tabindex="0"></div>
     <div id="equalsSign">=</div>
-    <div id="evaluationBox" aria-label="Expression evaluation"></div>
+    <div id="evaluationBox" aria-live="polite" aria-label="Expression evaluation result">?</div>
   </div>
 
   <div id="buttonGrid">
-    <!-- Row 1 -->
-    <button class="op-btn" data-value="+">+</button>
-    <button class="op-btn" data-value="-">-</button>
-    <button class="op-btn" data-value="*">*</button>
-    <button class="op-btn" data-value="/">/</button>
-    <button class="op-btn" data-value="^">^</button>
-    <button class="op-btn" data-value="!">!</button>
-    <!-- Row 2 -->
-    <button class="op-btn" data-value="(">(</button>
-    <button class="op-btn" data-value=")">)</button>
+    <button data-value="+">+</button>
+    <button data-value="-">-</button>
+    <button data-value="*">*</button>
+    <button data-value="/">/</button>
+    <button data-value="^">^</button>
+    <button data-value="!">!</button>
+
+    <button data-value="("> (</button>
+    <button data-value=")"> )</button>
     <button id="backspaceBtn">Back</button>
     <button id="clearBtn">Clear</button>
   </div>
@@ -57,9 +50,7 @@
     <button id="submitBtn" class="submit">Submit</button>
   </div>
 
-  <div class="scoreboard" id="scoreboard"></div>
-
-  <div id="qu0xAnimation" class="hidden">Qu0x 100!</div>
+  <div id="gridContainer"></div>
 
   <script src="script.js"></script>
 </body>
