@@ -1,413 +1,458 @@
-// Qu0x 100 Weekly Game
+// --- Constants and selectors ---
+const diceValues = [1, 2, 3, 4, 5, 6];
+const diceColors = {
+  1: { bg: 'red', fg: 'white', class: 'd1' },
+  2: { bg: 'white', fg: 'black', class: 'd2' },
+  3: { bg: 'blue', fg: 'white', class: 'd3' },
+  4: { bg: 'yellow', fg: 'black', class: 'd4' },
+  5: { bg: 'green', fg: 'white', class: 'd5' },
+  6: { bg: 'black', fg: 'yellow', class: 'd6' },
+};
 
-const diceCount = 5;
-
-const startDate = new Date(2025, 4, 11); // May 11, 2025 (0-based month)
-const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+const buttonRow1 = ['+', '-', '*', '/', '^', '!'];
+const buttonRow2 = ['(', ')', 'Back', 'Clear'];
 
 const diceContainer = document.getElementById('diceContainer');
 const expressionBox = document.getElementById('expressionBox');
 const evaluationBox = document.getElementById('evaluationBox');
-const buttonGrid = document.getElementById('buttonGrid');
-const submitBtn = document.getElementById('submitBtn');
-const backspaceBtn = document.getElementById('backspaceBtn');
-const clearBtn = document.getElementById('clearBtn');
+const equalsSign = document.getElementById('equalsSign');
+const numberGrid = document.getElementById('numberGrid');
 const weekSelect = document.getElementById('weekSelect');
 const completedCountSpan = document.getElementById('completedCount');
 const gameNumberSpan = document.getElementById('gameNumber');
+const buttonRow1Div = document.getElementById('buttonRow1');
+const buttonRow2Div = document.getElementById('buttonRow2');
 
-let currentWeekIndex = 0;
-let diceValues = [];
-let usedDice = Array(diceCount).fill(false);
 let expression = '';
+let usedDiceIndices = new Set();
+
 let completedNumbers = new Set();
 
-function getWeekIndex(date) {
-  const diff = date - startDate;
-  return Math.floor(diff / msPerWeek);
+let currentWeekIndex = 0;  // Index into weeks array
+let weeks = []; // will hold {label: "5/11/2025", date: Date object}
+
+// --- Initialization ---
+
+function generateWeeks(startDate, endDate) {
+  // Generate weeks from startDate (Monday assumed) to endDate (today)
+  const weeksArr = [];
+  let cur = new Date(startDate);
+  let i = 1;
+  while (cur <= endDate) {
+    const label = `${cur.getMonth()+1}/${cur.getDate()}/${cur.getFullYear()}`;
+    weeksArr.push({ label, date: new Date(cur), number: i });
+    cur.setDate(cur.getDate() + 7);
+    i++;
+  }
+  return weeksArr;
 }
 
-function getDateFromWeekIndex(weekIndex) {
-  return new Date(startDate.getTime() + weekIndex * msPerWeek);
-}
+// Set start date to May 11, 2025 (Sunday)
+const startDate = new Date(2025, 4, 11);
+const today = new Date();
+weeks = generateWeeks(startDate, today);
 
-function formatDate(d) {
-  return (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
-}
-
+// Populate dropdown
 function populateWeekSelect() {
-  const today = new Date();
-  const lastWeekIndex = getWeekIndex(today);
   weekSelect.innerHTML = '';
-  for(let i = 0; i <= lastWeekIndex; i++) {
-    const option = document.createElement('option');
-    option.value = i;
-    const weekDate = getDateFromWeekIndex(i);
-    option.textContent = `Game #${i+1} - ${formatDate(weekDate)}`;
-    weekSelect.appendChild(option);
-  }
-  weekSelect.value = lastWeekIndex;
-  currentWeekIndex = lastWeekIndex;
-  gameNumberSpan.textContent = currentWeekIndex + 1;
-  loadGameData();
+  weeks.forEach(({label, number}, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = `#${number} (${label})`;
+    weekSelect.appendChild(opt);
+  });
 }
 
-function rollDice() {
-  diceValues = [];
-  for (let i = 0; i < diceCount; i++) {
-    diceValues.push(Math.floor(Math.random() * 6) + 1);
+// Get current week index based on today's date
+function findCurrentWeekIndex() {
+  for (let i = weeks.length - 1; i >= 0; i--) {
+    if (weeks[i].date <= today) return i;
   }
-  usedDice = Array(diceCount).fill(false);
+  return 0;
 }
 
-function renderDice() {
+// --- Dice Setup ---
+
+function createDice() {
   diceContainer.innerHTML = '';
-  diceValues.forEach((val, idx) => {
+  for (let i = 0; i < 5; i++) {
+    const val = diceValues[Math.floor(Math.random() * diceValues.length)];
     const die = document.createElement('div');
-    die.classList.add('die');
-    die.dataset.value = val;
+    die.className = `die ${diceColors[val].class}`;
     die.textContent = val;
-    if (usedDice[idx]) {
-      die.classList.add('faded');
-    }
-    die.addEventListener('click', () => {
-      if (!usedDice[idx]) {
-        expression += val;
-        usedDice[idx] = true;
-        renderDice();
-        updateExpression();
-      }
-    });
+    die.dataset.value = val;
+    die.dataset.index = i;
+    die.addEventListener('click', onDieClick);
     diceContainer.appendChild(die);
+  }
+}
+
+// --- Button Setup ---
+
+function createButtons() {
+  buttonRow1Div.innerHTML = '';
+  buttonRow2Div.innerHTML = '';
+
+  buttonRow1.forEach(sym => {
+    const btn = document.createElement('button');
+    btn.textContent = sym;
+    btn.dataset.value = sym;
+    btn.addEventListener('click', () => onButtonClick(sym));
+    buttonRow1Div.appendChild(btn);
+  });
+
+  buttonRow2.forEach(sym => {
+    const btn = document.createElement('button');
+    btn.textContent = sym;
+    btn.dataset.value = sym;
+    btn.addEventListener('click', () => onButtonClick(sym));
+    buttonRow2Div.appendChild(btn);
   });
 }
 
-function updateExpression() {
-  expressionBox.textContent = expression;
-  evaluateExpression();
+// --- Expression & Dice Handling ---
+
+function onDieClick(e) {
+  const die = e.currentTarget;
+  if (die.classList.contains('faded')) return; // Already used
+
+  const idx = parseInt(die.dataset.index);
+  const val = die.dataset.value;
+
+  // Append value to expression
+  expression += val;
+  usedDiceIndices.add(idx);
+  die.classList.add('faded');
+  updateExpression();
+  updateEvaluation();
 }
 
-function evaluateExpression() {
-  if (!expression) {
-    evaluationBox.textContent = '?';
-    return;
-  }
-
-  // Validate that all dice used once in expression
-  const numbersInExpr = expression.match(/\d+/g) || [];
-  let tempUsed = Array(diceCount).fill(false);
-  let allUsed = true;
-
-  // Make sure expression uses all dice exactly once (order doesn't matter here)
-  // So check counts of numbers in expression against diceValues counts
-  let diceCountMap = {};
-  diceValues.forEach(d => diceCountMap[d] = (diceCountMap[d] || 0) + 1);
-  let exprCountMap = {};
-  numbersInExpr.forEach(n => {
-    const num = parseInt(n, 10);
-    exprCountMap[num] = (exprCountMap[num] || 0) + 1;
-  });
-  allUsed = Object.keys(diceCountMap).every(key => exprCountMap[key] === diceCountMap[key]) &&
-            Object.keys(exprCountMap).every(key => diceCountMap[key] === exprCountMap[key]);
-
-  if (!allUsed) {
-    evaluationBox.textContent = '?';
-    return;
-  }
-
-  // Evaluate with support for factorials and double/triple factorials
-  try {
-    const val = evaluateAdvancedExpression(expression);
-    if (val === null || val === undefined || isNaN(val)) {
-      evaluationBox.textContent = '?';
-    } else {
-      evaluationBox.textContent = val;
-    }
-  } catch {
-    evaluationBox.textContent = '?';
+function onButtonClick(value) {
+  if (value === 'Back') {
+    backspace();
+  } else if (value === 'Clear') {
+    clearExpression();
+  } else {
+    expression += value;
+    updateExpression();
+    updateEvaluation();
   }
 }
 
-function factorial(n) {
-  if (n < 0 || !Number.isInteger(n)) return null;
-  let res = 1;
-  for (let i = 2; i <= n; i++) res *= i;
-  return res;
-}
+function backspace() {
+  if (expression.length === 0) return;
+  // Remove last char
+  const lastChar = expression.slice(-1);
+  expression = expression.slice(0, -1);
 
-function doubleFactorial(n) {
-  if (n < 0 || !Number.isInteger(n)) return null;
-  let res = 1;
-  for (let i = n; i > 0; i -= 2) res *= i;
-  return res;
-}
-
-function tripleFactorial(n) {
-  if (n < 0 || !Number.isInteger(n)) return null;
-  let res = 1;
-  for (let i = n; i > 0; i -= 3) res *= i;
-  return res;
-}
-
-function evaluateAdvancedExpression(expr) {
-  // Replace factorials with function calls
-  // Support !, !!, !!!
-  // Regex to find expressions like (2+1)!, 4!, 5!!, 7!!! etc.
-  // We replace them stepwise with a unique token, evaluate inside, then replace.
-
-  let replacedExpr = expr;
-  const factorialPattern = /(\([^\(\)]+\)|\d+)(!{1,3})/g;
-
-  // Replace factorial groups with placeholders and compute values
-  let match;
-  while ((match = factorialPattern.exec(replacedExpr)) !== null) {
-    const wholeMatch = match[0];
-    const baseExpr = match[1];
-    const factMarks = match[2];
-
-    let baseValue;
-    try {
-      baseValue = eval(baseExpr);
-    } catch {
-      return null;
-    }
-    if (!Number.isInteger(baseValue) || baseValue < 0) return null;
-
-    let factValue = null;
-    if (factMarks === '!') {
-      factValue = factorial(baseValue);
-    } else if (factMarks === '!!') {
-      factValue = doubleFactorial(baseValue);
-    } else if (factMarks === '!!!') {
-      factValue = tripleFactorial(baseValue);
-    }
-
-    if (factValue === null) return null;
-
-    replacedExpr = replacedExpr.replace(wholeMatch, factValue);
-    factorialPattern.lastIndex = 0; // Reset regex index after replace
-  }
-
-  // Now replace ^ with Math.pow
-  // We'll convert expr with ^ to calls of Math.pow(a,b)
-  // For simplicity, replace all a^b with Math.pow(a,b) - careful with operator precedence.
-
-  function replacePowers(str) {
-    // Replace simple powers like 2^3, or (1+1)^2 etc.
-    // Use regex for a simple pattern: ([^()\s]+|\([^()]+\))\^([^()\s]+|\([^()]+\))
-    // We will iteratively replace powers from right to left (to handle multiple powers correctly)
-
-    // The regex used is simple and may not handle nested powers well.
-    // For this project, assume expressions are simple.
-
-    let powerRegex = /(\([^()]+\)|\d+(\.\d+)?|\w+)\^(\([^()]+\)|\d+(\.\d+)?|\w+)/g;
-    while(powerRegex.test(str)) {
-      str = str.replace(powerRegex, (match, base, _, exp) => `Math.pow(${base},${exp})`);
-    }
-    return str;
-  }
-
-  replacedExpr = replacePowers(replacedExpr);
-
-  // Finally, evaluate safely with Math
-  // Block any letters except Math and digits/operators
-  if (/[^0-9+\-*/(). Mathpow]/.test(replacedExpr)) return null;
-
-  let val = eval(replacedExpr);
-  if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
-    return val;
-  }
-  return null;
-}
-
-function renderButtons() {
-  // Nothing dynamic here, buttons exist in HTML
-  // Add event listeners
-  buttonGrid.querySelectorAll('button').forEach(btn => {
-    const val = btn.dataset.val;
-    if (val) {
-      btn.onclick = () => {
-        if (val === '!' || val === '!!' || val === '!!!') {
-          // Factorial requires something before it
-          if (expression.length === 0) return;
-          expression += val;
-          updateExpression();
-          return;
-        }
-        expression += val;
-        updateExpression();
-      };
-    }
-  });
-
-  backspaceBtn.onclick = () => {
-    if (expression.length === 0) return;
-
-    // Remove last token (number or operator or factorial marks)
-    // If last char is digit, remove digit(s) at end, and restore used dice
-    // If last char is factorial mark !, remove them all (!!! or !! or !)
-    // If last char is operator or parenthesis, remove one char
-
-    // Handle factorials
-    if (expression.endsWith('!!!')) {
-      expression = expression.slice(0, -3);
-      updateExpression();
-      return;
-    } else if (expression.endsWith('!!')) {
-      expression = expression.slice(0, -2);
-      updateExpression();
-      return;
-    } else if (expression.endsWith('!')) {
-      expression = expression.slice(0, -1);
-      updateExpression();
-      return;
-    }
-
-    // Remove last character
-    const lastChar = expression.slice(-1);
-    expression = expression.slice(0, -1);
-
-    // If last char was digit, remove full last number and restore dice
-    if (/\d/.test(lastChar)) {
-      // Remove full last number
-      let i = expression.length - 1;
-      while (i >= 0 && /\d/.test(expression[i])) i--;
-      const removedNumber = expression.slice(i + 1);
-      expression = expression.slice(0, i + 1);
-
-      // Find dice that matches removedNumber and restore one usage
-      const num = parseInt(removedNumber, 10);
-      for (let d = 0; d < diceCount; d++) {
-        if (diceValues[d] === num && usedDice[d]) {
-          usedDice[d] = false;
+  // If lastChar was a dice number, restore dice
+  if (/[1-6]/.test(lastChar)) {
+    // Find last used dice with that number to restore
+    // Dice indices stored, but expression can have multiple same digits - only restore one die per backspace
+    // So we find the rightmost dice used with that number
+    for (let i = 4; i >= 0; i--) {
+      if (usedDiceIndices.has(i)) {
+        const die = diceContainer.children[i];
+        if (die && die.textContent === lastChar) {
+          usedDiceIndices.delete(i);
+          die.classList.remove('faded');
           break;
         }
       }
     }
-
-    updateExpression();
-    renderDice();
-  };
-
-  clearBtn.onclick = () => {
-    expression = '';
-    usedDice = Array(diceCount).fill(false);
-    updateExpression();
-    renderDice();
-  };
-
-  submitBtn.onclick = () => {
-    if (!expression) return alert('Enter an expression.');
-
-    // Evaluate expression and check if uses all dice exactly once
-    const numbersInExpr = expression.match(/\d+/g) || [];
-    // Validate dice usage again
-    let diceCountMap = {};
-    diceValues.forEach(d => diceCountMap[d] = (diceCountMap[d] || 0) + 1);
-    let exprCountMap = {};
-    numbersInExpr.forEach(n => {
-      const num = parseInt(n, 10);
-      exprCountMap[num] = (exprCountMap[num] || 0) + 1;
-    });
-    let allUsed = Object.keys(diceCountMap).every(key => exprCountMap[key] === diceCountMap[key]) &&
-                  Object.keys(exprCountMap).every(key => diceCountMap[key] === exprCountMap[key]);
-
-    if (!allUsed) {
-      alert('Expression must use all dice values exactly once.');
-      return;
-    }
-
-    let val = evaluateAdvancedExpression(expression);
-    if (val === null || isNaN(val)) {
-      alert('Invalid expression.');
-      return;
-    }
-
-    val = Math.round(val);
-
-    if (val < 1 || val > 100) {
-      alert('Result must be between 1 and 100.');
-      return;
-    }
-
-    if (completedNumbers.has(val)) {
-      alert(`Number ${val} is already completed this week.`);
-      return;
-    }
-
-    completedNumbers.add(val);
-    saveGameData();
-    updateCompletedCount();
-    showQu0xIfComplete();
-
-    // Reset for next
-    expression = '';
-    usedDice = Array(diceCount).fill(false);
-    updateExpression();
-    renderDice();
-  };
-}
-
-function saveGameData() {
-  const key = `qu0x100_week_${currentWeekIndex}`;
-  const data = {
-    diceValues,
-    completed: Array.from(completedNumbers)
-  };
-  localStorage.setItem(key, JSON.stringify(data));
-}
-
-function loadGameData() {
-  const key = `qu0x100_week_${currentWeekIndex}`;
-  const dataStr = localStorage.getItem(key);
-  completedNumbers.clear();
-  if (dataStr) {
-    try {
-      const data = JSON.parse(dataStr);
-      if (data.diceValues && data.diceValues.length === diceCount) {
-        diceValues = data.diceValues;
-      } else {
-        rollDice();
-      }
-      if (data.completed && Array.isArray(data.completed)) {
-        data.completed.forEach(n => completedNumbers.add(n));
-      }
-    } catch {
-      rollDice();
-    }
-  } else {
-    rollDice();
   }
-  usedDice = Array(diceCount).fill(false);
-  expression = '';
   updateExpression();
-  renderDice();
-  updateCompletedCount();
-  showQu0xIfComplete();
+  updateEvaluation();
 }
 
-function updateCompletedCount() {
-  completedCountSpan.textContent = completedNumbers.size;
-  document.getElementById('weeklyCompleted').textContent = completedNumbers.size;
+function clearExpression() {
+  expression = '';
+  usedDiceIndices.clear();
+  Array.from(diceContainer.children).forEach(die => die.classList.remove('faded'));
+  updateExpression();
+  updateEvaluation();
 }
 
-function showQu0xIfComplete() {
-  const anim = document.getElementById('qu0xAnimation');
-  if (completedNumbers.size === 100) {
-    anim.classList.remove('hidden');
-    setTimeout(() => anim.classList.add('hidden'), 3000);
-  } else {
-    anim.classList.add('hidden');
+function updateExpression() {
+  expressionBox.textContent = expression;
+}
+
+function updateEvaluation() {
+  if (expression.length === 0) {
+    evaluationBox.textContent = '?';
+    return;
+  }
+  try {
+    // Only allow safe characters in eval
+    if (!/^[0-9+\-*/^().!]+$/.test(expression)) {
+      evaluationBox.textContent = 'Invalid';
+      return;
+    }
+    // Evaluate with factorial and ^ support
+    let val = evaluateExpression(expression);
+    if (val === null || isNaN(val) || !isFinite(val)) {
+      evaluationBox.textContent = 'Invalid';
+      return;
+    }
+    // Must be integer >= 1 and <= 100 to consider completing number
+    if (!Number.isInteger(val)) {
+      evaluationBox.textContent = val.toFixed(2);
+    } else {
+      evaluationBox.textContent = val;
+    }
+  } catch (e) {
+    evaluationBox.textContent = 'Invalid';
   }
 }
+
+// Evaluate expression with factorial support
+function evaluateExpression(expr) {
+  // Replace ^ with **
+  let modExpr = expr.replace(/\^/g, '**');
+
+  // Handle factorial: replace n! with fact(n)
+  // We'll do a recursive replacement for factorials, including double/triple factorial
+  // Note: double factorials (!!) and triple factorials (!!!) supported
+
+  function factorial(n) {
+    if (n < 0 || !Number.isInteger(n)) return NaN;
+    if (n === 0 || n === 1) return 1;
+    let res = 1;
+    for (let i = n; i > 1; i--) {
+      res *= i;
+    }
+    return res;
+  }
+
+  function doubleFactorial(n) {
+    if (n < 0 || !Number.isInteger(n)) return NaN;
+    if (n === 0 || n === -1) return 1;
+    let res = 1;
+    for (let i = n; i > 0; i -= 2) {
+      res *= i;
+    }
+    return res;
+  }
+
+  // Parse and replace factorials and double/triple factorials with function calls
+
+  // Regex to match (expression)! or (expression)!! or (expression)!!!
+  // or number factorials like 5!, 5!!, 5!!!
+  // We parse inside parentheses recursively
+  // Approach: repeatedly replace from right to left all factorials
+
+  while (true) {
+    // Match factorial pattern: capture number or parenthesis expression with factorial(s)
+    // We'll match the rightmost factorial first to replace
+    const factRegex = /(\([^\(\)]+\)|\d+)(!{1,3})/g;
+    let replaced = false;
+
+    modExpr = modExpr.replace(factRegex, (match, numExpr, facts) => {
+      replaced = true;
+      let val;
+      try {
+        val = eval(numExpr);
+      } catch {
+        return match; // fail silently
+      }
+      if (isNaN(val) || !isFinite(val) || val < 0 || !Number.isInteger(val)) {
+        return match; // invalid factorial base, leave as is
+      }
+      // Apply factorials
+      if (facts.length === 1) {
+        return factorial(val);
+      } else if (facts.length === 2) {
+        return doubleFactorial(val);
+      } else if (facts.length === 3) {
+        // triple factorial = double factorial applied once more on double factorial result?
+        // Triple factorial is n!!! = product of every third number down to 1 or 2
+        // Implement it similarly:
+        if (val === 0 || val === -1) return 1;
+        let res = 1;
+        for (let i = val; i > 0; i -= 3) {
+          res *= i;
+        }
+        return res;
+      } else {
+        return match; // unsupported
+      }
+    });
+    if (!replaced) break;
+  }
+
+  // Evaluate final expression safely (only digits and operators)
+  // eslint-disable-next-line no-new-func
+  const finalVal = Function(`"use strict"; return (${modExpr})`)();
+
+  return finalVal;
+}
+
+// --- Number Grid Setup ---
+
+function createNumberGrid() {
+  numberGrid.innerHTML = '';
+  for (let i = 1; i <= 100; i++) {
+    const cell = document.createElement('div');
+    cell.classList.add('number-cell');
+    cell.textContent = i;
+    if (completedNumbers.has(i)) {
+      cell.classList.add('completed');
+    }
+    numberGrid.appendChild(cell);
+  }
+}
+
+function updateNumberGrid() {
+  Array.from(numberGrid.children).forEach(cell => {
+    const num = parseInt(cell.textContent);
+    if (completedNumbers.has(num)) {
+      cell.classList.add('completed');
+    } else {
+      cell.classList.remove('completed');
+    }
+  });
+  completedCountSpan.textContent = completedNumbers.size;
+}
+
+// --- Storage ---
+
+function loadProgress() {
+  const key = `qu0x100_week_${currentWeekIndex}`;
+  const saved = localStorage.getItem(key);
+  completedNumbers = saved ? new Set(JSON.parse(saved)) : new Set();
+}
+
+function saveProgress() {
+  const key = `qu0x100_week_${currentWeekIndex}`;
+  localStorage.setItem(key, JSON.stringify(Array.from(completedNumbers)));
+}
+
+// --- Handle week changes ---
+
+function setCurrentWeek(index) {
+  currentWeekIndex = index;
+  gameNumberSpan.textContent = weeks[index].number;
+  loadProgress();
+  createDice();
+  clearExpression();
+  createNumberGrid();
+  updateNumberGrid();
+}
+
+// --- Check if current expression matches a number 1-100 ---
+
+function checkExpression() {
+  const val = evaluateExpression(expression);
+  if (val === null || isNaN(val) || !isFinite(val)) return;
+
+  if (Number.isInteger(val) && val >= 1 && val <= 100 && usedDiceIndices.size === 5) {
+    if (!completedNumbers.has(val)) {
+      completedNumbers.add(val);
+      saveProgress();
+      updateNumberGrid();
+      completedCountSpan.textContent = completedNumbers.size;
+      alert(`Congrats! You completed number ${val}`);
+      clearExpression();
+      createDice();
+    }
+  }
+}
+
+// --- Event Listeners ---
 
 weekSelect.addEventListener('change', () => {
-  currentWeekIndex = parseInt(weekSelect.value, 10);
-  gameNumberSpan.textContent = currentWeekIndex + 1;
-  loadGameData();
+  setCurrentWeek(parseInt(weekSelect.value));
 });
 
-window.onload = () => {
+// After expression changes (via dice or buttons), update and check
+function onExpressionChange() {
+  updateExpression();
+  updateEvaluation();
+  checkExpression();
+}
+
+// Override previous updateExpression and updateEvaluation usage to call onExpressionChange
+
+// Replace calls to updateExpression and updateEvaluation inside onDieClick, onButtonClick, backspace, clearExpression
+
+// Modify onDieClick:
+function onDieClickUpdated(e) {
+  const die = e.currentTarget;
+  if (die.classList.contains('faded')) return;
+
+  const idx = parseInt(die.dataset.index);
+  const val = die.dataset.value;
+
+  expression += val;
+  usedDiceIndices.add(idx);
+  die.classList.add('faded');
+  onExpressionChange();
+}
+
+function onButtonClickUpdated(value) {
+  if (value === 'Back') {
+    backspaceUpdated();
+  } else if (value === 'Clear') {
+    clearExpressionUpdated();
+  } else {
+    expression += value;
+    onExpressionChange();
+  }
+}
+
+function backspaceUpdated() {
+  if (expression.length === 0) return;
+  const lastChar = expression.slice(-1);
+  expression = expression.slice(0, -1);
+  if (/[1-6]/.test(lastChar)) {
+    for (let i = 4; i >= 0; i--) {
+      if (usedDiceIndices.has(i)) {
+        const die = diceContainer.children[i];
+        if (die && die.textContent === lastChar) {
+          usedDiceIndices.delete(i);
+          die.classList.remove('faded');
+          break;
+        }
+      }
+    }
+  }
+  onExpressionChange();
+}
+
+function clearExpressionUpdated() {
+  expression = '';
+  usedDiceIndices.clear();
+  Array.from(diceContainer.children).forEach(die => die.classList.remove('faded'));
+  onExpressionChange();
+}
+
+// Reassign these updated versions
+diceContainer.removeEventListener('click', onDieClick);
+diceContainer.removeEventListener('click', onDieClickUpdated);
+diceContainer.childNodes.forEach(node => node.removeEventListener('click', onDieClick));
+buttonRow1Div.childNodes.forEach(node => node.removeEventListener('click', onButtonClick));
+buttonRow2Div.childNodes.forEach(node => node.removeEventListener('click', onButtonClick));
+
+
+// After creating dice and buttons, add event listeners with updated functions
+function init() {
   populateWeekSelect();
-  renderButtons();
-};
+  const currentIndex = findCurrentWeekIndex();
+  weekSelect.value = currentIndex;
+  setCurrentWeek(currentIndex);
+  createButtons();
+
+  // After buttons created, update event listeners for buttons to updated versions
+  Array.from(buttonRow1Div.children).forEach(btn => {
+    btn.removeEventListener('click', onButtonClick);
+    btn.addEventListener('click', () => onButtonClickUpdated(btn.dataset.value));
+  });
+  Array.from(buttonRow2Div.children).forEach(btn => {
+    btn.removeEventListener('click', onButtonClick);
+    btn.addEventListener('click', () => onButtonClickUpdated(btn.dataset.value));
+  });
+
+  // Dice listeners are attached on dice creation in createDice()
+}
+
+init();
