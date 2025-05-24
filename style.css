@@ -4,6 +4,15 @@ body {
   background: #f9f9f9;
 }
 
+#instructions {
+  background: #ffe0e0;
+  border: 1px solid #ff8080;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-weight: bold;
+  border-radius: 6px;
+}
+
 #topBar {
   margin-bottom: 10px;
 }
@@ -75,7 +84,7 @@ body {
 
 #expressionArea {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   font-size: 24px;
   margin-bottom: 10px;
   background: #fff;
@@ -83,6 +92,7 @@ body {
   border: 2px solid black;
   border-radius: 6px;
   min-height: 40px;
+  gap: 8px;
 }
 
 #expressionBox {
@@ -90,11 +100,11 @@ body {
   user-select: none;
   white-space: nowrap;
   overflow-x: auto;
+  min-height: 28px;
 }
 
 #resultValue {
   font-weight: bold;
-  margin-left: 10px;
   min-width: 40px;
   text-align: right;
 }
@@ -126,6 +136,14 @@ body {
 .grid-cell.solved {
   background: lightgreen;
   font-weight: bold;
+}
+
+#gridContainer {
+  width: 320px; /* ~ 10 cells * 30px + margins */
+  margin-bottom: 20px;
+  /* This will force wrapping every ~10 cells */
+  display: flex;
+  flex-wrap: wrap;
 }
 
 #popup {
