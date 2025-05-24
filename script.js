@@ -1,273 +1,413 @@
-// Qu0x 100 - Weekly game with 5 dice, must use all dice, factorials up to triple, operation buttons, colored dice
+// Qu0x 100 Weekly Game
 
-// Dice colors mapping for display & emoji conversion (for future share feature if needed)
-const diceColors = {
-  1: {class: "one", emoji: "🎲"}, // emoji not used here but stored for potential share
-  2: {class: "two"},
-  3: {class: "three"},
-  4: {class: "four"},
-  5: {class: "five"},
-  6: {class: "six"}
-};
+const diceCount = 5;
 
-const diceValues = [];
-let usedDice = [false, false, false, false, false];
+const startDate = new Date(2025, 4, 11); // May 11, 2025 (0-based month)
+const msPerWeek = 7 * 24 * 60 * 60 * 1000;
 
-const expressionBox = document.getElementById("expressionBox");
-const evaluationBox = document.getElementById("evaluationBox");
-const diceContainer = document.getElementById("diceContainer");
-const submitBtn = document.getElementById("submitBtn");
-const buttonGrid = document.getElementById("buttonGrid");
-const weeklyGameSelect = document.getElementById("weeklyGameSelect");
-const counterBox = document.getElementById("counterBox");
-const prevGameBtn = document.getElementById("prevGameBtn");
-const nextGameBtn = document.getElementById("nextGameBtn");
-const qu0x100Status = document.getElementById("qu0x100Status");
+const diceContainer = document.getElementById('diceContainer');
+const expressionBox = document.getElementById('expressionBox');
+const evaluationBox = document.getElementById('evaluationBox');
+const buttonGrid = document.getElementById('buttonGrid');
+const submitBtn = document.getElementById('submitBtn');
+const backspaceBtn = document.getElementById('backspaceBtn');
+const clearBtn = document.getElementById('clearBtn');
+const weekSelect = document.getElementById('weekSelect');
+const completedCountSpan = document.getElementById('completedCount');
+const gameNumberSpan = document.getElementById('gameNumber');
 
-let currentWeeklyGameIndex = 0;
-let weeklyGames = [];
+let currentWeekIndex = 0;
+let diceValues = [];
+let usedDice = Array(diceCount).fill(false);
+let expression = '';
 let completedNumbers = new Set();
-let expression = "";
 
-const operators = ["+", "-", "*", "/", "(", ")", "^", "!", "!!", "!!!"];
+function getWeekIndex(date) {
+  const diff = date - startDate;
+  return Math.floor(diff / msPerWeek);
+}
 
-// Initialize weekly games from 5/11/2025 every 7 days up to today or 52 weeks max
-function generateWeeklyGames() {
-  const start = new Date(2025, 4, 11); // May 11, 2025 (months 0-based)
+function getDateFromWeekIndex(weekIndex) {
+  return new Date(startDate.getTime() + weekIndex * msPerWeek);
+}
+
+function formatDate(d) {
+  return (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
+}
+
+function populateWeekSelect() {
   const today = new Date();
-  const weeksToGenerate = 52; // one year approx
-  let games = [];
-  for(let i = 0; i < weeksToGenerate; i++) {
-    const gameDate = new Date(start.getTime() + i * 7 * 24 * 60 * 60 * 1000);
-    if(gameDate > today) break;
-    games.push(gameDate);
-  }
-  return games;
-}
-
-function formatDate(date) {
-  // format mm/dd/yyyy
-  const mm = date.getMonth() + 1;
-  const dd = date.getDate();
-  const yyyy = date.getFullYear();
-  return `${mm}/${dd}/${yyyy}`;
-}
-
-function populateWeeklySelect() {
-  weeklyGames = generateWeeklyGames();
-  weeklyGameSelect.innerHTML = "";
-  weeklyGames.forEach((date, i) => {
-    const option = document.createElement("option");
+  const lastWeekIndex = getWeekIndex(today);
+  weekSelect.innerHTML = '';
+  for(let i = 0; i <= lastWeekIndex; i++) {
+    const option = document.createElement('option');
     option.value = i;
-    option.textContent = `#${i+1} - ${formatDate(date)}`;
-    weeklyGameSelect.appendChild(option);
-  });
-  currentWeeklyGameIndex = weeklyGames.length - 1; // default to latest game
-  weeklyGameSelect.value = currentWeeklyGameIndex;
-}
-
-function initDice() {
-  diceValues.length = 0;
-  usedDice = [false, false, false, false, false];
-  for(let i=0; i<5; i++) {
-    diceValues.push(randomDice());
+    const weekDate = getDateFromWeekIndex(i);
+    option.textContent = `Game #${i+1} - ${formatDate(weekDate)}`;
+    weekSelect.appendChild(option);
   }
-  renderDice();
+  weekSelect.value = lastWeekIndex;
+  currentWeekIndex = lastWeekIndex;
+  gameNumberSpan.textContent = currentWeekIndex + 1;
+  loadGameData();
 }
 
-function randomDice() {
-  return Math.floor(Math.random() * 6) + 1;
+function rollDice() {
+  diceValues = [];
+  for (let i = 0; i < diceCount; i++) {
+    diceValues.push(Math.floor(Math.random() * 6) + 1);
+  }
+  usedDice = Array(diceCount).fill(false);
 }
 
 function renderDice() {
-  diceContainer.innerHTML = "";
+  diceContainer.innerHTML = '';
   diceValues.forEach((val, idx) => {
-    const die = document.createElement("div");
-    die.classList.add("die", diceColors[val].class);
-    if(usedDice[idx]) die.classList.add("faded");
+    const die = document.createElement('div');
+    die.classList.add('die');
+    die.dataset.value = val;
     die.textContent = val;
-    die.dataset.index = idx;
-    die.title = usedDice[idx] ? "Used" : "Click to use this die";
-    die.addEventListener("click", () => {
-      if(!usedDice[idx]) {
-        addToExpression(val.toString());
+    if (usedDice[idx]) {
+      die.classList.add('faded');
+    }
+    die.addEventListener('click', () => {
+      if (!usedDice[idx]) {
+        expression += val;
         usedDice[idx] = true;
         renderDice();
+        updateExpression();
       }
     });
     diceContainer.appendChild(die);
   });
 }
 
-function addToExpression(char) {
-  expression += char;
-  updateExpressionBox();
-  evaluateExpression();
-}
-
-function removeLastFromExpression() {
-  if(expression.length === 0) return;
-  // Check if last chars form !! or !!! to remove all at once
-  if(expression.endsWith("!!!")) {
-    expression = expression.slice(0, -3);
-  } else if(expression.endsWith("!!")) {
-    expression = expression.slice(0, -2);
-  } else {
-    expression = expression.slice(0, -1);
-  }
-  updateExpressionBox();
-  evaluateExpression();
-  updateUsedDice();
-}
-
-function updateUsedDice() {
-  // Reset usedDice
-  usedDice = [false, false, false, false, false];
-  // Mark dice used if their numbers appear in expression counting number of appearances
-  let tempExpr = expression;
-  let diceCount = {};
-  diceValues.forEach(v => diceCount[v] = 0);
-
-  // Count dice values used from expression by parsing numbers in order
-  // We'll extract all numbers (multi-digit) from expression
-  const nums = expression.match(/\d+/g) || [];
-  nums.forEach(nStr => {
-    const n = parseInt(nStr);
-    if(diceCount[n] !== undefined) diceCount[n]++;
-  });
-
-  // Now for each dice, mark used if its count is > 0 and decrement count to not reuse same die twice
-  diceValues.forEach((val, idx) => {
-    if(diceCount[val] && diceCount[val] > 0) {
-      usedDice[idx] = true;
-      diceCount[val]--;
-    }
-  });
-  renderDice();
-}
-
-function updateExpressionBox() {
+function updateExpression() {
   expressionBox.textContent = expression;
+  evaluateExpression();
 }
 
 function evaluateExpression() {
-  if(expression.trim() === "") {
-    evaluationBox.textContent = "?";
+  if (!expression) {
+    evaluationBox.textContent = '?';
     return;
   }
+
+  // Validate that all dice used once in expression
+  const numbersInExpr = expression.match(/\d+/g) || [];
+  let tempUsed = Array(diceCount).fill(false);
+  let allUsed = true;
+
+  // Make sure expression uses all dice exactly once (order doesn't matter here)
+  // So check counts of numbers in expression against diceValues counts
+  let diceCountMap = {};
+  diceValues.forEach(d => diceCountMap[d] = (diceCountMap[d] || 0) + 1);
+  let exprCountMap = {};
+  numbersInExpr.forEach(n => {
+    const num = parseInt(n, 10);
+    exprCountMap[num] = (exprCountMap[num] || 0) + 1;
+  });
+  allUsed = Object.keys(diceCountMap).every(key => exprCountMap[key] === diceCountMap[key]) &&
+            Object.keys(exprCountMap).every(key => diceCountMap[key] === exprCountMap[key]);
+
+  if (!allUsed) {
+    evaluationBox.textContent = '?';
+    return;
+  }
+
+  // Evaluate with support for factorials and double/triple factorials
   try {
-    // Evaluate with factorial support and ^ as exponentiation
+    const val = evaluateAdvancedExpression(expression);
+    if (val === null || val === undefined || isNaN(val)) {
+      evaluationBox.textContent = '?';
+    } else {
+      evaluationBox.textContent = val;
+    }
+  } catch {
+    evaluationBox.textContent = '?';
+  }
+}
 
-    // Replace ^ with ** for JS eval
-    let toEval = expression.replace(/\^/g, "**");
+function factorial(n) {
+  if (n < 0 || !Number.isInteger(n)) return null;
+  let res = 1;
+  for (let i = 2; i <= n; i++) res *= i;
+  return res;
+}
 
-    // Replace factorials: support !!!, !!, and !
-    // We'll use a regex to find numbers or parenthesized expressions followed by factorials
-    // We'll do repeated replacements until none left to handle nested factorials
+function doubleFactorial(n) {
+  if (n < 0 || !Number.isInteger(n)) return null;
+  let res = 1;
+  for (let i = n; i > 0; i -= 2) res *= i;
+  return res;
+}
 
-    function factorial(n) {
-      if(n < 0 || !Number.isInteger(n)) throw "Invalid factorial";
-      if(n === 0 || n === 1) return 1;
-      let f = 1;
-      for(let i=2; i<=n; i++) f *= i;
-      return f;
+function tripleFactorial(n) {
+  if (n < 0 || !Number.isInteger(n)) return null;
+  let res = 1;
+  for (let i = n; i > 0; i -= 3) res *= i;
+  return res;
+}
+
+function evaluateAdvancedExpression(expr) {
+  // Replace factorials with function calls
+  // Support !, !!, !!!
+  // Regex to find expressions like (2+1)!, 4!, 5!!, 7!!! etc.
+  // We replace them stepwise with a unique token, evaluate inside, then replace.
+
+  let replacedExpr = expr;
+  const factorialPattern = /(\([^\(\)]+\)|\d+)(!{1,3})/g;
+
+  // Replace factorial groups with placeholders and compute values
+  let match;
+  while ((match = factorialPattern.exec(replacedExpr)) !== null) {
+    const wholeMatch = match[0];
+    const baseExpr = match[1];
+    const factMarks = match[2];
+
+    let baseValue;
+    try {
+      baseValue = eval(baseExpr);
+    } catch {
+      return null;
+    }
+    if (!Number.isInteger(baseValue) || baseValue < 0) return null;
+
+    let factValue = null;
+    if (factMarks === '!') {
+      factValue = factorial(baseValue);
+    } else if (factMarks === '!!') {
+      factValue = doubleFactorial(baseValue);
+    } else if (factMarks === '!!!') {
+      factValue = tripleFactorial(baseValue);
     }
 
-    function doubleFactorial(n) {
-      if(n < 0 || !Number.isInteger(n)) throw "Invalid factorial";
-      if(n === 0 || n === -1) return 1;
-      let f = 1;
-      for(let i=n; i>0; i-=2) f *= i;
-      return f;
+    if (factValue === null) return null;
+
+    replacedExpr = replacedExpr.replace(wholeMatch, factValue);
+    factorialPattern.lastIndex = 0; // Reset regex index after replace
+  }
+
+  // Now replace ^ with Math.pow
+  // We'll convert expr with ^ to calls of Math.pow(a,b)
+  // For simplicity, replace all a^b with Math.pow(a,b) - careful with operator precedence.
+
+  function replacePowers(str) {
+    // Replace simple powers like 2^3, or (1+1)^2 etc.
+    // Use regex for a simple pattern: ([^()\s]+|\([^()]+\))\^([^()\s]+|\([^()]+\))
+    // We will iteratively replace powers from right to left (to handle multiple powers correctly)
+
+    // The regex used is simple and may not handle nested powers well.
+    // For this project, assume expressions are simple.
+
+    let powerRegex = /(\([^()]+\)|\d+(\.\d+)?|\w+)\^(\([^()]+\)|\d+(\.\d+)?|\w+)/g;
+    while(powerRegex.test(str)) {
+      str = str.replace(powerRegex, (match, base, _, exp) => `Math.pow(${base},${exp})`);
+    }
+    return str;
+  }
+
+  replacedExpr = replacePowers(replacedExpr);
+
+  // Finally, evaluate safely with Math
+  // Block any letters except Math and digits/operators
+  if (/[^0-9+\-*/(). Mathpow]/.test(replacedExpr)) return null;
+
+  let val = eval(replacedExpr);
+  if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
+    return val;
+  }
+  return null;
+}
+
+function renderButtons() {
+  // Nothing dynamic here, buttons exist in HTML
+  // Add event listeners
+  buttonGrid.querySelectorAll('button').forEach(btn => {
+    const val = btn.dataset.val;
+    if (val) {
+      btn.onclick = () => {
+        if (val === '!' || val === '!!' || val === '!!!') {
+          // Factorial requires something before it
+          if (expression.length === 0) return;
+          expression += val;
+          updateExpression();
+          return;
+        }
+        expression += val;
+        updateExpression();
+      };
+    }
+  });
+
+  backspaceBtn.onclick = () => {
+    if (expression.length === 0) return;
+
+    // Remove last token (number or operator or factorial marks)
+    // If last char is digit, remove digit(s) at end, and restore used dice
+    // If last char is factorial mark !, remove them all (!!! or !! or !)
+    // If last char is operator or parenthesis, remove one char
+
+    // Handle factorials
+    if (expression.endsWith('!!!')) {
+      expression = expression.slice(0, -3);
+      updateExpression();
+      return;
+    } else if (expression.endsWith('!!')) {
+      expression = expression.slice(0, -2);
+      updateExpression();
+      return;
+    } else if (expression.endsWith('!')) {
+      expression = expression.slice(0, -1);
+      updateExpression();
+      return;
     }
 
-    function tripleFactorial(n) {
-      if(n < 0 || !Number.isInteger(n)) throw "Invalid factorial";
-      if(n <= 0) return 1;
-      let f = 1;
-      for(let i=n; i>0; i-=3) f *= i;
-      return f;
-    }
+    // Remove last character
+    const lastChar = expression.slice(-1);
+    expression = expression.slice(0, -1);
 
-    // Helper to compute factorial expression
-    function computeFactorial(match, expr, factMarks) {
-      // Evaluate expr safely (no factorials inside here)
-      let val = Function(`"use strict";return (${expr})`)();
-      if(!Number.isInteger(val) || val < 0) throw "Invalid factorial input";
-      switch(factMarks.length) {
-        case 1: return factorial(val);
-        case 2: return doubleFactorial(val);
-        case 3: return tripleFactorial(val);
-        default: throw "Invalid factorial marks";
+    // If last char was digit, remove full last number and restore dice
+    if (/\d/.test(lastChar)) {
+      // Remove full last number
+      let i = expression.length - 1;
+      while (i >= 0 && /\d/.test(expression[i])) i--;
+      const removedNumber = expression.slice(i + 1);
+      expression = expression.slice(0, i + 1);
+
+      // Find dice that matches removedNumber and restore one usage
+      const num = parseInt(removedNumber, 10);
+      for (let d = 0; d < diceCount; d++) {
+        if (diceValues[d] === num && usedDice[d]) {
+          usedDice[d] = false;
+          break;
+        }
       }
     }
 
-    // Replace factorial patterns until none remain
-    let regex = /(\([^()]+\)|\d+)(!{1,3})/g;
-    while(regex.test(toEval)) {
-      toEval = toEval.replace(regex, (m, expr, factMarks) => {
-        try {
-          return computeFactorial(m, expr, factMarks);
-        } catch {
-          throw "Invalid factorial";
-        }
-      });
+    updateExpression();
+    renderDice();
+  };
+
+  clearBtn.onclick = () => {
+    expression = '';
+    usedDice = Array(diceCount).fill(false);
+    updateExpression();
+    renderDice();
+  };
+
+  submitBtn.onclick = () => {
+    if (!expression) return alert('Enter an expression.');
+
+    // Evaluate expression and check if uses all dice exactly once
+    const numbersInExpr = expression.match(/\d+/g) || [];
+    // Validate dice usage again
+    let diceCountMap = {};
+    diceValues.forEach(d => diceCountMap[d] = (diceCountMap[d] || 0) + 1);
+    let exprCountMap = {};
+    numbersInExpr.forEach(n => {
+      const num = parseInt(n, 10);
+      exprCountMap[num] = (exprCountMap[num] || 0) + 1;
+    });
+    let allUsed = Object.keys(diceCountMap).every(key => exprCountMap[key] === diceCountMap[key]) &&
+                  Object.keys(exprCountMap).every(key => diceCountMap[key] === exprCountMap[key]);
+
+    if (!allUsed) {
+      alert('Expression must use all dice values exactly once.');
+      return;
     }
 
-    let val = Function(`"use strict";return (${toEval})`)();
-
-    if(typeof val === "number" && !isNaN(val) && isFinite(val)) {
-      evaluationBox.textContent = val.toFixed(4).replace(/\.?0+$/,"");
-    } else {
-      evaluationBox.textContent = "?";
+    let val = evaluateAdvancedExpression(expression);
+    if (val === null || isNaN(val)) {
+      alert('Invalid expression.');
+      return;
     }
-  } catch {
-    evaluationBox.textContent = "?";
+
+    val = Math.round(val);
+
+    if (val < 1 || val > 100) {
+      alert('Result must be between 1 and 100.');
+      return;
+    }
+
+    if (completedNumbers.has(val)) {
+      alert(`Number ${val} is already completed this week.`);
+      return;
+    }
+
+    completedNumbers.add(val);
+    saveGameData();
+    updateCompletedCount();
+    showQu0xIfComplete();
+
+    // Reset for next
+    expression = '';
+    usedDice = Array(diceCount).fill(false);
+    updateExpression();
+    renderDice();
+  };
+}
+
+function saveGameData() {
+  const key = `qu0x100_week_${currentWeekIndex}`;
+  const data = {
+    diceValues,
+    completed: Array.from(completedNumbers)
+  };
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+function loadGameData() {
+  const key = `qu0x100_week_${currentWeekIndex}`;
+  const dataStr = localStorage.getItem(key);
+  completedNumbers.clear();
+  if (dataStr) {
+    try {
+      const data = JSON.parse(dataStr);
+      if (data.diceValues && data.diceValues.length === diceCount) {
+        diceValues = data.diceValues;
+      } else {
+        rollDice();
+      }
+      if (data.completed && Array.isArray(data.completed)) {
+        data.completed.forEach(n => completedNumbers.add(n));
+      }
+    } catch {
+      rollDice();
+    }
+  } else {
+    rollDice();
+  }
+  usedDice = Array(diceCount).fill(false);
+  expression = '';
+  updateExpression();
+  renderDice();
+  updateCompletedCount();
+  showQu0xIfComplete();
+}
+
+function updateCompletedCount() {
+  completedCountSpan.textContent = completedNumbers.size;
+  document.getElementById('weeklyCompleted').textContent = completedNumbers.size;
+}
+
+function showQu0xIfComplete() {
+  const anim = document.getElementById('qu0xAnimation');
+  if (completedNumbers.size === 100) {
+    anim.classList.remove('hidden');
+    setTimeout(() => anim.classList.add('hidden'), 3000);
+  } else {
+    anim.classList.add('hidden');
   }
 }
 
-function validateExpression() {
-  if(expression.trim() === "") return false;
+weekSelect.addEventListener('change', () => {
+  currentWeekIndex = parseInt(weekSelect.value, 10);
+  gameNumberSpan.textContent = currentWeekIndex + 1;
+  loadGameData();
+});
 
-  // Must use all 5 dice exactly once each in expression
-  // Count dice usage similarly as updateUsedDice
-  let diceCount = {};
-  diceValues.forEach(v => diceCount[v] = 0);
-
-  const nums = expression.match(/\d+/g) || [];
-  nums.forEach(nStr => {
-    const n = parseInt(nStr);
-    if(diceCount[n] !== undefined) diceCount[n]++;
-  });
-
-  // Check each dice appears exactly once
-  for(let i=0; i<5; i++) {
-    const val = diceValues[i];
-    if(!diceCount[val] || diceCount[val] < 1) return false;
-    diceCount[val]--;
-  }
-
-  // Also check diceCount values are not more than dice appearences
-  // (e.g. if a number appears twice but only one die)
-  for(let k in diceCount) {
-    if(diceCount[k] > 0) return false;
-  }
-
-  // Check for invalid chars (only digits, operators, spaces allowed)
-  if(!/^[0-9+\-*/^()! ]+$/.test(expression)) return false;
-
-  // Evaluate expression to check no error and result between 1 and 100 integer
-  try {
-    let val = parseFloat(evaluationBox.textContent);
-    if(isNaN(val) || val < 1 || val > 100) return false;
-    if(!Number.isInteger(val)) return false;
-  } catch {
-    return false;
-  }
-
-  return true;
-}
-
-function submitExpression() {
-  if(!validateExpression()) {
-    alert("Invalid expression or must use all 5 dice exactly once.\
+window.onload = () => {
+  populateWeekSelect();
+  renderButtons();
+};
