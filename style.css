@@ -1,152 +1,145 @@
 body {
-  font-family: sans-serif;
-  padding: 0;
-  margin: 0;
-  text-align: center;
-  background: #f5f5f5;
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f9f9f9;
 }
 
-.title {
-  font-size: 2rem;
-  margin-top: 1rem;
+#topBar {
+  margin-bottom: 10px;
 }
 
-.instructions-box {
-  background: #fff;
-  padding: 10px;
-  margin: 10px auto;
-  width: 90%;
-  max-width: 600px;
-  border-radius: 8px;
-}
-
-#weekDropdownContainer {
-  margin: 10px;
-}
-
-.completed-counter {
-  font-size: 1.2rem;
-  margin: 10px;
+#targetCountContainer {
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 #diceContainer {
   display: flex;
-  justify-content: center;
-  margin: 10px;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .die {
-  width: 40px;
-  height: 40px;
-  font-size: 1.5rem;
-  margin: 5px;
-  border: 2px solid black;
+  width: 50px;
+  height: 50px;
+  font-size: 28px;
+  line-height: 50px;
+  text-align: center;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 2px solid black;
   cursor: pointer;
-  transition: opacity 0.3s;
+  user-select: none;
+  transition: opacity 0.3s ease;
 }
 
-.die.used {
-  opacity: 0.4;
-  pointer-events: none;
+.die-used {
+  opacity: 0.3;
+  cursor: default;
 }
 
-.die-1 { background: red; color: white; }
-.die-2 { background: white; color: black; }
-.die-3 { background: blue; color: white; }
-.die-4 { background: yellow; color: black; }
-.die-5 { background: green; color: white; }
-.die-6 { background: black; color: yellow; }
-
-.expression-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 10px;
-}
-
-.expression-box {
-  min-height: 30px;
-  padding: 5px 10px;
-  background: #fff;
-  border: 1px solid #ccc;
-  width: 50%;
-  max-width: 300px;
-  text-align: left;
-}
-
-.result-box {
-  margin-left: 10px;
-  font-weight: bold;
-}
-
-.buttons .row {
-  margin: 5px 0;
-}
-
-.op-btn {
-  padding: 10px 14px;
-  margin: 0 5px;
-  font-size: 1.1rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background: #e0e0e0;
-  cursor: pointer;
-}
-
-#submitBtn {
-  margin-top: 10px;
-  background: green;
+.die-1 {
+  background-color: red;
   color: white;
-  font-weight: bold;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  border-color: black;
 }
 
-.grid-container {
-  margin: 20px auto;
-  max-width: 600px;
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 5px;
+.die-2 {
+  background-color: white;
+  color: black;
+  border-color: black;
+}
+
+.die-3 {
+  background-color: blue;
+  color: white;
+  border-color: black;
+}
+
+.die-4 {
+  background-color: yellow;
+  color: black;
+  border-color: black;
+}
+
+.die-5 {
+  background-color: green;
+  color: white;
+  border-color: black;
+}
+
+.die-6 {
+  background-color: black;
+  color: yellow;
+  border-color: black;
+}
+
+#expressionArea {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24px;
+  margin-bottom: 10px;
+  background: #fff;
+  padding: 10px;
+  border: 2px solid black;
+  border-radius: 6px;
+  min-height: 40px;
+}
+
+#expressionBox {
+  flex-grow: 1;
+  user-select: none;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+#resultValue {
+  font-weight: bold;
+  margin-left: 10px;
+  min-width: 40px;
+  text-align: right;
+}
+
+#buttonsContainer {
+  margin-bottom: 15px;
+}
+
+#buttonsContainer button {
+  margin-right: 8px;
+  font-size: 18px;
+  padding: 8px 12px;
+  cursor: pointer;
 }
 
 .grid-cell {
-  background: #fff;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
   border: 1px solid #ccc;
-  padding: 6px;
-  font-size: 0.9rem;
-}
-
-.die {
-  transition: opacity 0.5s ease;
-  cursor: pointer;
-}
-
-.die.fade {
-  opacity: 0.4;
-  pointer-events: none;
+  display: inline-block;
+  margin: 2px;
+  user-select: none;
+  border-radius: 4px;
+  background: white;
 }
 
 .grid-cell.solved {
   background: lightgreen;
+  font-weight: bold;
 }
 
-.popup {
-  background: pink;
-  padding: 10px;
+#popup {
   position: fixed;
-  top: 20%;
+  top: 10%;
   left: 50%;
   transform: translateX(-50%);
-  border: 1px solid red;
+  background: #ff4444;
+  color: white;
+  padding: 10px 20px;
   border-radius: 8px;
+  font-weight: bold;
   z-index: 100;
+  user-select: none;
 }
 
 .hidden {
