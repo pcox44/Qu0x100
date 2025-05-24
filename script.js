@@ -48,10 +48,18 @@ function updateDiceDisplay() {
     die.textContent = val;
     if (usedDice.includes(idx)) die.classList.add('used');
     die.onclick = () => {
-      if (!usedDice.includes(idx)) {
-        expression += val;
-        usedDice.push(idx);
-        updateDisplay();
+  if (!usedDice.includes(idx)) {
+    const lastChar = expression.slice(-1);
+    if (lastChar && !isNaN(lastChar)) {
+      // last char is digit, prevent concatenation of dice values
+      return;
+    }
+    expression += val;
+    usedDice.push(idx);
+    updateDisplay();
+  }
+};
+
       }
     };
     diceContainer.appendChild(die);
