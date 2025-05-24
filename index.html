@@ -3,35 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Qu0x 100 Weekly</title>
+  <title>Qu0x 100 Weekly Game</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="top-bar">
-    <div class="game-number">Game #<span id="gameNumber">1</span></div>
-    <div class="nav-controls">
-      <label for="weekSelect">Weekly Game:</label>
-      <select id="weekSelect"></select>
-    </div>
-    <div class="counter-box" title="Numbers completed this week">
-      Completed: <span id="completedCount">0</span>/100
-    </div>
+  <div id="instructions">
+    Use all 5 dice exactly once each to build an expression with operations by clicking buttons.<br />
+    Allowed operations: +, -, *, /, ^ (exponent), ! (factorial), and parentheses ().<br />
+    Click Submit to check your result (must be an integer 1–100). Achieve all numbers to complete the game!
   </div>
 
-  <div class="dice-container" id="diceContainer"></div>
-
-  <div class="expression-section">
-    <div id="expressionBox" aria-label="Expression" role="textbox" tabindex="0"></div>
-    <div id="equalsSign">=</div>
-    <div id="evaluationBox" aria-live="polite" aria-atomic="true">?</div>
+  <div id="topbar">
+    <label for="weekSelect">Weekly Game:</label>
+    <select id="weekSelect"></select>
+    <div id="gameNumber">Game #</div>
+    <div id="completedCount">Completed: <span id="completedCountSpan">0</span>/100</div>
   </div>
 
-  <div id="buttonGrid">
-    <div id="buttonRow1" class="button-row"></div>
-    <div id="buttonRow2" class="button-row"></div>
+  <div id="diceContainer"></div>
+
+  <div id="expressionInput">
+    <div id="inputBox"></div>
+    <div id="outputBox">?</div>
   </div>
 
-  <div class="number-grid" id="numberGrid"></div>
+  <div id="buttonsContainer">
+    <div id="buttonRow1"></div>
+    <div id="buttonRow2"></div>
+  </div>
+
+  <div id="numberGrid"></div>
 
   <script src="script.js"></script>
 </body>
