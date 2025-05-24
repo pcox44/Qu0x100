@@ -58,6 +58,27 @@ function updateDiceDisplay() {
   });
 }
 
+function factorial(n) {
+  if (n < 0 || !Number.isInteger(n)) return NaN;
+  let result = 1;
+  for (let i = 2; i <= n; i++) result *= i;
+  return result;
+}
+
+function doubleFactorial(n) {
+  if (n < 0 || !Number.isInteger(n)) return NaN;
+  let result = 1;
+  for (let i = n; i > 1; i -= 2) result *= i;
+  return result;
+}
+
+function tripleFactorial(n) {
+  if (n < 0 || !Number.isInteger(n)) return NaN;
+  let result = 1;
+  for (let i = n; i > 1; i -= 3) result *= i;
+  return result;
+}
+
 function updateDisplay() {
   expressionBox.textContent = expression;
   try {
@@ -66,7 +87,13 @@ function updateDisplay() {
     } else {
       // Evaluate safely with allowed characters only
       // Replace ^ with ** for exponentiation since eval does not support ^
-      const safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
+      const safeExpression = expression
+  .replace(/\^/g, '**')
+  .replace(/(\d+|\))!!!/g, 'tripleFactorial($1)')
+  .replace(/(\d+|\))!!/g, 'doubleFactorial($1)')
+  .replace(/(\d+|\))!/g, 'factorial($1)')
+  .replace(/[^-()\d/*+.!^a-zA-Z]/g, '');
+
       const val = eval(safeExpression);
       resultValue.textContent = isNaN(val) ? '?' : Math.round(val * 1000) / 1000;
     }
@@ -114,7 +141,13 @@ function submitExpression() {
   }
   try {
     // Evaluate expression
-    const safeExpression = expression.replace(/\^/g, '**').replace(/[^-()\d/*+.!^]/g, '');
+    const safeExpression = expression
+  .replace(/\^/g, '**')
+  .replace(/(\d+|\))!!!/g, 'tripleFactorial($1)')
+  .replace(/(\d+|\))!!/g, 'doubleFactorial($1)')
+  .replace(/(\d+|\))!/g, 'factorial($1)')
+  .replace(/[^-()\d/*+.!^a-zA-Z]/g, '');
+
     let val = eval(safeExpression);
     val = Math.round(val);
     if (val >= 1 && val <= 100) {
