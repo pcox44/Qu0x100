@@ -96,7 +96,7 @@ body {
 }
 
 #expressionBox {
-  max-width: 400px;  /* or however wide you want */
+  max-width: 200px;  /* or however wide you want */
   width: 100%;
   user-select: none;
   white-space: nowrap;
