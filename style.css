@@ -154,7 +154,7 @@ body {
 }
 
 #gridContainer {
-  width: 320px; /* ~ 10 cells * 30px + margins */
+  width: 340px; /* ~ 10 cells * 30px + margins */
   margin-bottom: 20px;
   /* This will force wrapping every ~10 cells */
   display: flex;
