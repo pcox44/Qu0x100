@@ -2,49 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Qu0x 100</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="top-bar">
-    <div>Qu0x 100 - Game <span id="gameNumber">#1</span></div>
     <div class="nav-controls">
-      <label for="weekSelector">Week:</label>
-      <select id="weekSelector"></select>
+      <label for="weeklyGameSelect">Weekly Game:</label>
+      <select id="weeklyGameSelect"></select>
+      <button id="prevGameBtn" title="Previous Game">◀</button>
+      <button id="nextGameBtn" title="Next Game">▶</button>
     </div>
+    <div id="counterBox" class="counter-box">Completed: 0 / 100</div>
   </div>
-
-  <div class="instructions">
-    Use the five dice values exactly once each to make expressions that evaluate to every number from 1 to 100. Supported operations: +, −, ×, ÷, ^, !, !!, !!!, and parentheses. Click buttons to build expressions. Get all 100 to win a <span class="qu0x">Qu0x 100!</span>
-  </div>
-
-  <div class="counter">Numbers Found: <span id="progressCount">0</span>/100</div>
 
   <div class="dice-container" id="diceContainer"></div>
 
   <div class="expression-section">
-    <div id="expressionBox"></div>
-    <span id="equalsSign">=</span>
-    <div id="evaluationBox">?</div>
+    <div id="expressionBox" tabindex="0" aria-label="Expression input"></div>
+    <div id="equalsSign">=</div>
+    <div id="evaluationBox" aria-live="polite" aria-atomic="true">?</div>
   </div>
 
-  <div id="buttonGrid"></div>
+  <div id="buttonGrid">
+    <!-- Operation buttons will be inserted here by script -->
+  </div>
 
   <div id="submitArea">
-    <button class="submit" id="submitBtn">Submit</button>
-    <button id="clearBtn">Clear</button>
-    <button id="backspaceBtn">Backspace</button>
+    <button id="submitBtn" class="submit">Submit</button>
   </div>
 
   <div class="scoreboard">
-    <p id="qu0xMessage" class="hidden">🎉 <strong>Qu0x 100 Achieved!</strong> 🎉</p>
-    <button id="shareBtn" class="hidden">Share Your Grid</button>
+    <p id="qu0x100Status">Qu0x 100: Not completed</p>
   </div>
-
-  <div class="grid-container" id="numberGrid"></div>
-
-  <div id="qu0xAnimation" class="hidden">Qu0x 100!</div>
 
   <script src="script.js"></script>
 </body>
