@@ -96,12 +96,18 @@ body {
 }
 
 #expressionBox {
-  flex-grow: 1;
+  max-width: 400px;  /* or however wide you want */
+  width: 100%;
   user-select: none;
   white-space: nowrap;
   overflow-x: auto;
   min-height: 28px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
+
 
 #resultValue {
   font-weight: bold;
