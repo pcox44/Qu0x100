@@ -3,39 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Qu0x 100</title>
+  <title>Qu0x 100 Weekly</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="top-bar">
+    <div class="game-number">Game #<span id="gameNumber">1</span></div>
     <div class="nav-controls">
-      <label for="weeklyGameSelect">Weekly Game:</label>
-      <select id="weeklyGameSelect"></select>
-      <button id="prevGameBtn" title="Previous Game">◀</button>
-      <button id="nextGameBtn" title="Next Game">▶</button>
+      <label for="weekSelect">Weekly Game:</label>
+      <select id="weekSelect"></select>
     </div>
-    <div id="counterBox" class="counter-box">Completed: 0 / 100</div>
   </div>
 
-  <div class="dice-container" id="diceContainer"></div>
+  <div class="counter-box">
+    Completed: <span id="completedCount">0</span>/100
+  </div>
+
+  <div class="dice-container" id="diceContainer">
+    <!-- Dice buttons dynamically generated -->
+  </div>
 
   <div class="expression-section">
-    <div id="expressionBox" tabindex="0" aria-label="Expression input"></div>
+    <div id="expressionBox" aria-live="polite"></div>
     <div id="equalsSign">=</div>
-    <div id="evaluationBox" aria-live="polite" aria-atomic="true">?</div>
+    <div id="evaluationBox" aria-live="polite">?</div>
   </div>
 
   <div id="buttonGrid">
-    <!-- Operation buttons will be inserted here by script -->
-  </div>
+    <!-- Buttons for digits, operators, parentheses, factorials -->
+    <button data-val="(">(</button>
+    <button data-val=")">)</button>
+    <button data-val="+">+</button>
+    <button data-val="-">-</button>
+    <button data-val="*">&times;</button>
+    <button data-val="/">&#247;</button>
 
-  <div id="submitArea">
+    <button data-val="^">^</button>
+    <button data-val="!">!</button>
+    <button data-val="!!">!!</button>
+    <button data-val="!!!">!!!</button>
+
+    <button id="backspaceBtn">&larr;</button>
+    <button id="clearBtn">Clear</button>
     <button id="submitBtn" class="submit">Submit</button>
   </div>
 
-  <div class="scoreboard">
-    <p id="qu0x100Status">Qu0x 100: Not completed</p>
+  <div class="scoreboard" id="scoreboard">
+    <p>Numbers Completed This Week: <span id="weeklyCompleted">0</span>/100</p>
   </div>
+
+  <div id="qu0xAnimation" class="hidden">Qu0x 100!</div>
 
   <script src="script.js"></script>
 </body>
