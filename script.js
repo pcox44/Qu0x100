@@ -285,7 +285,7 @@ document.querySelectorAll('.op-btn').forEach((btn) => {
     if (expression.length === 0 && (op !== '-' && op !== '(')) return;
 
     const lastChar = expression.slice(-1);
-    if ('+-*/^'.includes(lastChar)) && op !== '(') {
+    if ('+-*/^'.includes(lastChar)) {
       // Replace last operator with new
       expression = expression.slice(0, -1) + op;
     } else {
