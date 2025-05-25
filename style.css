@@ -99,23 +99,7 @@ body {
   border-color: black;
 }
 
-#expressionArea {
-  display: flex;
-  align-items: center;
-  justify-content: center; /* Center contents horizontally */
-  font-size: 24px;
-  margin-bottom: 10px;
-  background: #fff;
-  padding: 10px;
-  border: 2px solid black;
-  border-radius: 6px;
-  min-height: 40px;
-  gap: 8px;
-  max-width: 600px;
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-}
+
 
 #expressionBox {
   max-width: 200px;
