@@ -56,7 +56,6 @@ function updateDiceDisplay() {
 
     die.onclick = () => {
       if (!usedDice.includes(idx)) {
-        // Prevent dice concatenation: don't allow two digits in a row without operator
         const lastChar = expression.slice(-1);
         if (lastChar && !isNaN(lastChar)) {
           return;
@@ -72,7 +71,7 @@ function updateDiceDisplay() {
   });
 }
 
-// Factorial (single only)
+// Single factorial
 function factorial(n) {
   if (n < 0 || !Number.isInteger(n)) return NaN;
   if (n === 0 || n === 1) return 1;
@@ -95,14 +94,12 @@ function evaluateFactorials(expr) {
     }
     if (!Number.isInteger(num) || num < 0) return match;
 
-    // Evaluate multi-factorial (like 3!! or 4!!!)
     let result = num;
     const count = factorialMarks.length;
 
     if (count === 1) {
       return factorial(num);
     } else {
-      // Multi factorial: decrement by count
       let val = num;
       let total = 1;
       while (val > 0) {
@@ -116,13 +113,8 @@ function evaluateFactorials(expr) {
 
 function safeEval(expr) {
   try {
-    // Replace ^ with **
     let parsedExpr = expr.replace(/\^/g, '**');
-
-    // Replace factorials with their computed values
     parsedExpr = evaluateFactorials(parsedExpr);
-
-    // Evaluate safely
     const val = eval(parsedExpr);
     if (typeof val === 'number' && isFinite(val)) {
       return val;
@@ -136,22 +128,14 @@ function safeEval(expr) {
 function updateDisplay() {
   expressionBox.textContent = expression;
   const val = safeEval(expression);
-  if (isNaN(val)) {
-    resultValue.textContent = '?';
-  } else {
-    resultValue.textContent = val;
-  }
+  resultValue.textContent = isNaN(val) ? '?' : val;
 }
 
 function backspace() {
   if (expression.length === 0) return;
   const lastChar = expression.slice(-1);
-
   expression = expression.slice(0, -1);
-
-  // If last char was a digit, free up dice usage
   if (!isNaN(lastChar)) {
-    // find which dice it was
     for (let i = usedDice.length - 1; i >= 0; i--) {
       const idx = usedDice[i];
       if (diceValues[idx].toString() === lastChar) {
@@ -180,7 +164,6 @@ function showPopup(msg) {
 }
 
 function submit() {
-  // Must use all dice exactly once
   if (usedDice.length !== 5) {
     showPopup('Use all 5 dice!');
     return;
@@ -195,7 +178,6 @@ function submit() {
     return;
   }
   solvedNumbers[val] = expression;
-
   updateGrid();
   clearExpression();
   updateCompletedCount();
@@ -219,20 +201,22 @@ function updateGrid() {
   }
 }
 
-function setupWeekSelector() {
-  const start = new Date(2025, 4, 11); // May 11, 2025 (Month is 0-based)
+function setupWeekSelector(defaultWeekDate) {
+  const start = new Date(2025, 4, 11); // May 11, 2025
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   let current = new Date(start);
-
   while (current <= today) {
     const option = document.createElement('option');
-    option.value = formatDate(current);
-    option.textContent = `Week of ${formatDate(current)}`;
+    const formatted = formatDate(current);
+    option.value = formatted;
+    option.textContent = `Week of ${formatted}`;
     weekSelector.appendChild(option);
     current.setDate(current.getDate() + 7);
   }
+
+  weekSelector.value = formatDate(defaultWeekDate);
 }
 
 function loadWeek(weekDate) {
@@ -245,7 +229,6 @@ function loadWeek(weekDate) {
   diceValues = generateDice(weekDate);
   updateDiceDisplay();
 
-  // Load solvedNumbers from localStorage
   const saved = localStorage.getItem(`qu0x100_solved_${weekDate}`);
   if (saved) {
     solvedNumbers = JSON.parse(saved);
@@ -266,38 +249,24 @@ weekSelector.addEventListener('change', () => {
   loadWeek(weekSelector.value);
 });
 
-document.getElementById('backspaceBtn').addEventListener('click', () => {
-  backspace();
-});
-
-document.getElementById('clearBtn').addEventListener('click', () => {
-  clearExpression();
-});
-
-document.getElementById('submitBtn').addEventListener('click', () => {
-  submit();
-});
+document.getElementById('backspaceBtn').addEventListener('click', backspace);
+document.getElementById('clearBtn').addEventListener('click', clearExpression);
+document.getElementById('submitBtn').addEventListener('click', submit);
 
 document.querySelectorAll('.op-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     const op = btn.getAttribute('data-op');
     const lastChar = expression.slice(-1);
 
-    // Prevent operators if expression is empty (except '-' or '(')
     if (expression.length === 0 && (op !== '-' && op !== '(')) return;
 
-    // If last char is an operator (except '('), replace it with the new operator
-    // But if new operator is '(', we *don't* replace the previous operator
     if ('+-*/^'.includes(lastChar)) {
       if (op === '(') {
-        // Just add '(' without replacing last operator
         expression += op;
       } else {
-        // Replace last operator with new operator (e.g. change '+' to '*')
         expression = expression.slice(0, -1) + op;
       }
     } else {
-      // Otherwise just add the operator
       expression += op;
     }
 
@@ -305,14 +274,8 @@ document.querySelectorAll('.op-btn').forEach((btn) => {
   });
 });
 
+const defaultWeek = getCurrentWeekDate();
+setupWeekSelector(defaultWeek);
+loadWeek(formatDate(defaultWeek));
 
-setupWeekSelector();
-
-const defaultWeek = formatDate(getCurrentWeekDate());
-weekSelector.value = defaultWeek;
-loadWeek(defaultWeek);
-
-// Save on page unload
-window.addEventListener('beforeunload', () => {
-  saveWeek();
-});
+window.addEventListener('beforeunload', saveWeek);
