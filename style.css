@@ -52,7 +52,7 @@ body {
   line-height: 70px;  /* Match height for vertical centering */
   text-align: center;
   border-radius: 8px;
-  border: 2px solid black;
+  border: 5px solid black;
   cursor: pointer;
   user-select: none;
   transition: opacity 0.3s ease;
