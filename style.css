@@ -46,10 +46,10 @@ body {
 }
 
 .die {
-  width: 50px;
-  height: 50px;
-  font-size: 28px;
-  line-height: 50px;
+  width: 70px;        /* Increased size */
+  height: 70px;
+  font-size: 42px;    /* Make number larger */
+  line-height: 70px;  /* Match height for vertical centering */
   text-align: center;
   border-radius: 8px;
   border: 2px solid black;
@@ -171,7 +171,7 @@ body {
 }
 
 #gridContainer {
-  width: 340px;
+  width: 440px;
   margin-bottom: 20px;
   display: flex;
   flex-wrap: wrap;
