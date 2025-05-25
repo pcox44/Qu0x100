@@ -147,6 +147,7 @@ body {
 
 #buttonsContainer button {
   margin-right: 8px;
+  margin-bottom: 8px;
   font-size: 18px;
   padding: 8px 12px;
   cursor: pointer;
