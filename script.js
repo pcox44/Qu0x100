@@ -237,6 +237,13 @@ function loadWeek(weekDate) {
 function saveWeek() {
   if (currentWeek) {
     localStorage.setItem(`qu0x100_solved_${currentWeek}`, JSON.stringify(solvedNumbers));
+    
+    // Update star in dropdown
+    const option = Array.from(weekSelector.options).find(opt => opt.value === currentWeek);
+    if (option) {
+      const solved = Object.keys(solvedNumbers).length;
+      option.textContent = `Week of ${currentWeek}` + (solved === 100 ? ' ⭐' : '');
+    }
   }
 }
 
