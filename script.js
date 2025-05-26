@@ -259,6 +259,9 @@ document.querySelectorAll('.op-btn').forEach((btn) => {
 setupWeekSelector();
 const defaultWeek = formatDate(getCurrentWeekStartDate());
 weekSelector.value = defaultWeek;
-loadWeek(defaultWeek);
+
+// Manually dispatch change event to trigger the change listener
+weekSelector.dispatchEvent(new Event('change'));
+
 
 window.addEventListener('beforeunload', saveWeek);
