@@ -169,6 +169,7 @@ function submit() {
   updateGrid();
   clearExpression();
   updateCompletedCount();
+  saveWeek();
 }
 
 function updateCompletedCount() {
