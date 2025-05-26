@@ -191,19 +191,29 @@ function updateGrid() {
 }
 
 function setupWeekSelector() {
-  const start = new Date(2025, 4, 11);
+  const start = new Date(2025, 4, 11); // May 11, 2025
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   let current = new Date(start);
 
   while (current <= today) {
+    const dateStr = formatDate(current);
+    const saved = localStorage.getItem(`qu0x100_solved_${dateStr}`);
+    let solved = 0;
+
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      solved = Object.keys(parsed).length;
+    }
+
     const option = document.createElement('option');
-    option.value = formatDate(current);
-    option.textContent = `Week of ${formatDate(current)}`;
+    option.value = dateStr;
+    option.textContent = `Week of ${dateStr}` + (solved === 100 ? ' ⭐' : '');
     weekSelector.appendChild(option);
     current.setDate(current.getDate() + 7);
   }
 }
+
 
 function loadWeek(weekDate) {
   currentWeek = weekDate;
