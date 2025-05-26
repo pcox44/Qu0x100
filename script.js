@@ -258,8 +258,20 @@ document.querySelectorAll('.op-btn').forEach((btn) => {
 
 setupWeekSelector();
 const defaultWeek = formatDate(getCurrentWeekStartDate());
-weekSelector.value = defaultWeek;
-loadWeek(defaultWeek);
+
+const optionToSelect = Array.from(weekSelector.options).find(opt => opt.value === defaultWeek);
+
+if (optionToSelect) {
+  weekSelector.value = defaultWeek;
+  loadWeek(defaultWeek);
+} else {
+  // fallback: load most recent week if default not found
+  const lastOption = weekSelector.options[weekSelector.options.length - 1];
+  if (lastOption) {
+    weekSelector.value = lastOption.value;
+    loadWeek(lastOption.value);
+  }
+}
 
 
 
