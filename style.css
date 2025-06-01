@@ -43,7 +43,7 @@ body {
 #diceContainer {
   display: flex;
   justify-content: center;        /* Center dice in row on desktop */
-  gap: 10px;
+  gap: 5px;
   flex-wrap: nowrap;              /* Keep in one row */
   overflow-x: auto;               /* Allow scrolling on mobile */
   max-width: 100%;
