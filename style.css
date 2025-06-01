@@ -250,3 +250,10 @@ body {
 .hidden {
   display: none;
 }
+
+@media (max-width: 600px) {
+  .die {
+    margin: 0 2px;  /* reduce horizontal spacing on mobile */
+  }
+}
+
