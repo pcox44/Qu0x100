@@ -8,15 +8,16 @@ body {
 }
 
 #instructions {
-  background: #ffe0f0;
-  border: 2px solid #ff80b0;
+  background: #fff8c4; /* soft yellow like your Qu0x! box */
+  border: 2px solid #e6c200;
   padding: 14px;
   margin-bottom: 20px;
   font-weight: bold;
   border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(230, 194, 0, 0.2);
   max-width: 600px;
   margin-inline: auto;
-  box-shadow: 0 4px 8px rgba(255, 128, 176, 0.2);
+  text-align: center;
 }
 
 #topBar,
@@ -40,10 +41,15 @@ body {
 
 #diceContainer {
   display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 10px;
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+  justify-content: start;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .die {
@@ -119,32 +125,28 @@ body {
 }
 
 #buttonsContainer button {
+  background-color: #e0e0e0; /* light gray for operation buttons */
+  color: black;
+  border: 2px solid #999;
+  border-radius: 6px;
   font-size: 18px;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
+  padding: 10px 14px;
   cursor: pointer;
-  background: linear-gradient(to bottom right, #ffe082, #ffd54f);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
   transition: background 0.2s ease;
 }
 
 #buttonsContainer button:hover {
-  background: linear-gradient(to bottom right, #ffd54f, #ffca28);
+  background-color: #d5d5d5;
 }
 
 #submitBtn {
-  background-color: #4CAF50;
+  background-color: #4CAF50; /* keep it green */
   color: white;
   border: 2px solid black;
   border-radius: 8px;
   padding: 10px 16px;
   font-weight: bold;
   transition: background 0.2s ease;
-}
-
-#submitBtn:hover {
-  background-color: #43a047;
 }
 
 .grid-cell {
@@ -167,12 +169,14 @@ body {
 }
 
 #gridContainer {
-  width: 360px;
-  margin-bottom: 20px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(10, 32px);
+  gap: 4px;
   justify-content: center;
-  gap: 2px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
 }
 
 #popup {
