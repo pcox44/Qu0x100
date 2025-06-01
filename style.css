@@ -80,11 +80,11 @@ body {
   box-shadow: none;
 }
 
-.die-1 { background-color: #f44336; color: white; }
+.die-1 { background-color: red; color: white; }
 .die-2 { background-color: #ffffff; color: black; }
-.die-3 { background-color: #2196f3; color: white; }
-.die-4 { background-color: #ffeb3b; color: black; }
-.die-5 { background-color: #4caf50; color: white; }
+.die-3 { background-color: blue; color: white; }
+.die-4 { background-color: yellow; color: black; }
+.die-5 { background-color: green; color: white; }
 .die-6 { background-color: #000000; color: #ffeb3b; }
 
 #expressionArea {
