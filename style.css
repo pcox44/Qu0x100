@@ -32,10 +32,10 @@ body {
 
 #targetCountContainer {
   font-weight: bold;
-  margin-top: 12px; /* add space above */
+  margin-top: 12px;
   margin-bottom: 12px;
-  background: #fff8e1;
-  border: 2px solid #ffd54f;
+  background: #ffe4ec;    /* soft pastel pink */
+  border: 2px solid #d32f2f; /* rich red */
   padding: 10px;
   border-radius: 10px;
 }
