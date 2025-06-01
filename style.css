@@ -41,15 +41,15 @@ body {
 
 #diceContainer {
   display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  justify-content: center;        /* Center dice in row on desktop */
   gap: 10px;
-  padding-bottom: 8px;
-  margin-bottom: 15px;
-  justify-content: start;
+  flex-wrap: nowrap;              /* Keep in one row */
+  overflow-x: auto;               /* Allow scrolling on mobile */
   max-width: 100%;
+  padding: 8px;
   margin-left: auto;
   margin-right: auto;
+  width: fit-content;
 }
 
 .die {
