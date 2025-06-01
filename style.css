@@ -1,174 +1,169 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #f9f9f9;
-  text-align: center; /* Center inline text globally */
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  margin: 0;
+  background: linear-gradient(to bottom right, #fef7ff, #e1f8ff);
+  text-align: center;
+  padding: 20px;
+  color: #333;
 }
 
 #instructions {
-  background: #ffe0e0;
-  border: 1px solid #ff8080;
-  padding: 10px;
-  margin-bottom: 15px;
+  background: #ffe0f0;
+  border: 2px solid #ff80b0;
+  padding: 14px;
+  margin-bottom: 20px;
   font-weight: bold;
-  border-radius: 6px;
+  border-radius: 12px;
   max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center; /* Center text inside */
+  margin-inline: auto;
+  box-shadow: 0 4px 8px rgba(255, 128, 176, 0.2);
 }
 
-#topBar {
-  margin-bottom: 10px;
+#topBar,
+#targetCountContainer,
+#diceContainer,
+#buttonsContainer,
+#gridContainer,
+#expressionArea {
   max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
+  margin-inline: auto;
 }
 
 #targetCountContainer {
   font-weight: bold;
-  margin-bottom: 10px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
+  margin-bottom: 12px;
+  background: #fff8e1;
+  border: 2px solid #ffd54f;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 #diceContainer {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-  justify-content: center; /* Center dice horizontally */
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .die {
-  width: 70px;        /* Increased size */
+  width: 70px;
   height: 70px;
-  font-size: 42px;    /* Make number larger */
-  line-height: 70px;  /* Match height for vertical centering */
+  font-size: 42px;
+  line-height: 70px;
   text-align: center;
-  border-radius: 8px;
-  border: 4px solid black;
+  border-radius: 12px;
+  border: 3px solid black;
   cursor: pointer;
   user-select: none;
-  transition: opacity 0.3s ease;
+  transition: transform 0.2s ease, opacity 0.3s ease;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.die:hover:not(.die-used) {
+  transform: scale(1.05);
 }
 
 .die-used {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: default;
+  box-shadow: none;
 }
 
-.die-1 {
-  background-color: red;
-  color: white;
-  border-color: black;
-}
-
-.die-2 {
-  background-color: white;
-  color: black;
-  border-color: black;
-}
-
-.die-3 {
-  background-color: blue;
-  color: white;
-  border-color: black;
-}
-
-.die-4 {
-  background-color: yellow;
-  color: black;
-  border-color: black;
-}
-
-.die-5 {
-  background-color: green;
-  color: white;
-  border-color: black;
-}
-
-.die-6 {
-  background-color: black;
-  color: yellow;
-  border-color: black;
-}
+.die-1 { background-color: #f44336; color: white; }
+.die-2 { background-color: #ffffff; color: black; }
+.die-3 { background-color: #2196f3; color: white; }
+.die-4 { background-color: #ffeb3b; color: black; }
+.die-5 { background-color: #4caf50; color: white; }
+.die-6 { background-color: #000000; color: #ffeb3b; }
 
 #expressionArea {
   display: flex;
   align-items: center;
-  justify-content: center; /* Center contents horizontally */
+  justify-content: center;
   font-size: 24px;
-  margin-bottom: 10px;
-  background: #fff;
-  padding: 10px;
+  margin-bottom: 12px;
+  background: white;
+  padding: 12px;
   border: 2px solid black;
-  border-radius: 6px;
-  min-height: 40px;
-  gap: 8px;
-  max-width: 420px;
+  border-radius: 10px;
+  gap: 10px;
   width: 90%;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 #expressionBox {
   max-width: 200px;
   width: 100%;
-  user-select: none;
   white-space: nowrap;
   overflow-x: auto;
-  min-height: 28px;
-  padding: 4px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  text-align: center; /* Center text inside */
+  padding: 6px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  background: #f9f9f9;
+  font-size: 20px;
 }
 
 #resultValue {
   font-weight: bold;
   min-width: 40px;
   text-align: right;
+  color: #444;
 }
 
 #buttonsContainer {
-  margin-bottom: 15px;
-  max-width: 460px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 #buttonsContainer button {
-  margin-right: 8px;
-  margin-bottom: 8px;
   font-size: 18px;
-  padding: 8px 12px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  background: linear-gradient(to bottom right, #ffe082, #ffd54f);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  transition: background 0.2s ease;
+}
+
+#buttonsContainer button:hover {
+  background: linear-gradient(to bottom right, #ffd54f, #ffca28);
+}
+
+#submitBtn {
+  background-color: #4CAF50;
+  color: white;
+  border: 2px solid black;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+#submitBtn:hover {
+  background-color: #43a047;
 }
 
 .grid-cell {
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
   text-align: center;
   border: 1px solid #ccc;
-  display: inline-block;
   margin: 2px;
-  user-select: none;
-  border-radius: 4px;
+  border-radius: 6px;
   background: white;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  font-size: 18px;
 }
 
 .grid-cell.solved {
-  background: lightgreen;
+  background: #b9f6ca;
   font-weight: bold;
+  border: 2px solid #00c853;
 }
 
 #gridContainer {
@@ -176,32 +171,26 @@ body {
   margin-bottom: 20px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* Center grid horizontally */
-  margin-left: auto;
-  margin-right: auto;
+  justify-content: center;
+  gap: 2px;
 }
 
 #popup {
   position: fixed;
-  top: 10%;
+  top: 12%;
   left: 50%;
   transform: translateX(-50%);
-  background: #ff4444;
+  background: #e53935;
   color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 14px 24px;
+  border-radius: 10px;
   font-weight: bold;
+  font-size: 18px;
   z-index: 100;
   user-select: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .hidden {
   display: none;
-}
-
-#submitBtn {
-  background-color: #4CAF50; /* Green */
-  color: white;
-  border: 2px solid black;
-  border-radius: 4px;
 }
