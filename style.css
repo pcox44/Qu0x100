@@ -248,16 +248,18 @@ body {
 }
 
 #submitBtn {
-  background-color: #4CAF50 !important; /* solid green background */
-  color: white !important;              /* white text for contrast */
-  border: 2px solid black !important;  /* black border */
-  font-weight: bold !important;
-  cursor: pointer !important;
-  padding: 10px 16px !important;
+  grid-row: 2;
+  grid-column: 5 / 7; /* Span columns 5 and 6 */
+  background: #4CAF50 !important;  /* override background gradient */
+  color: white !important;
+  border: 2px solid black !important;
   border-radius: 8px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
+  padding: 10px 16px !important;
+  font-weight: bold !important;
+  cursor: pointer;
   transition: background 0.2s ease !important;
+  width: 100%;
+  box-sizing: border-box;
   box-shadow: 0 0 8px 2px #4CAF50 !important; /* green glow */
 }
 
