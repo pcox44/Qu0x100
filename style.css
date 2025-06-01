@@ -256,7 +256,7 @@ body {
 
 @media (max-width: 600px) {
   .die {
-    margin: 0 2px;  /* reduce horizontal spacing on mobile */
+    margin: 0 1px;  /* reduce horizontal spacing on mobile */
   }
 }
 
