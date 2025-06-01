@@ -248,9 +248,9 @@ body {
 }
 
 #submitBtn {
-  background-color: #4CAF50 !important;
-  color: black !important;
-  border: 2px solid black !important;
+  background-color: #4CAF50 !important; /* solid green background */
+  color: white !important;              /* white text for contrast */
+  border: 2px solid black !important;  /* black border */
   font-weight: bold !important;
   cursor: pointer !important;
   padding: 10px 16px !important;
@@ -258,7 +258,7 @@ body {
   width: 100% !important;
   box-sizing: border-box !important;
   transition: background 0.2s ease !important;
-  box-shadow: 0 0 8px 2px #4CAF50 !important; /* Add a green glow to confirm */
+  box-shadow: 0 0 8px 2px #4CAF50 !important; /* green glow */
 }
 
 @media (max-width: 600px) {
