@@ -260,3 +260,27 @@ body {
   }
 }
 
+#submitBtn {
+  background-color: #4CAF50 !important;
+  color: white !important;
+  border: 2px solid black !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  transition: background 0.2s ease !important;
+  box-shadow: 0 0 8px 2px #4CAF50 !important; /* Add a green glow to confirm */
+}
+
+@media (max-width: 600px) {
+  #diceContainer {
+    padding-left: 4px;   /* reduce left padding */
+    padding-right: 8px;  /* keep right padding */
+  }
+  .die {
+    margin-left: 2px;    /* reduce left margin between dice */
+    margin-right: 5px;   /* keep right margin */
+  }
+}
