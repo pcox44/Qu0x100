@@ -56,15 +56,18 @@ body {
 .die {
   width: 70px;
   height: 70px;
-  font-size: 42px;
-  line-height: 70px;
-  text-align: center;
-  border-radius: 12px;
-  border: 3px solid black;
+  font-size: 2.5em;          /* bigger number */
+  font-weight: bold;         /* bold text */
+  border: 4.2px solid black; /* thicker border */
+  border-radius: 8px;
+  margin: 0 5px;             /* horizontal spacing */
+  display: flex;             /* center content */
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.2s ease;
   user-select: none;
-  transition: transform 0.2s ease, opacity 0.3s ease;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.2); /* keep subtle shadow */
 }
 
 .die:hover:not(.die-used) {
