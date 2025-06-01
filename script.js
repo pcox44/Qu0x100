@@ -151,36 +151,6 @@ function showPopup(msg) {
   setTimeout(() => popup.classList.add('hidden'), 2000);
 }
 
-function fireworks() {
-  const duration = 8000;
-  const animationEnd = Date.now() + duration;
-  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
-
-  function randomInRange(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  const interval = setInterval(() => {
-    const timeLeft = animationEnd - Date.now();
-
-    if (timeLeft <= 0) {
-      clearInterval(interval);
-      return;
-    }
-
-    const particleCount = 50 * (timeLeft / duration);
-
-    // Firework burst at random x position across screen width, y near bottom
-    confetti(Object.assign({}, defaults, {
-      particleCount,
-      origin: {
-        x: Math.random(),
-        y: randomInRange(0.7, 0.9)
-      }
-    }));
-  }, 250);
-}
-
 function submit() {
   if (usedDice.length !== 5) {
     showPopup('Use all 5 dice!');
@@ -218,9 +188,6 @@ function updateGrid() {
     }
     gridContainer.appendChild(cell);
   }
-  if (Object.keys(solvedNumbers).length === 100) {
-  fireworks();
-  showPopup('🎆 Fireworks! You solved all 100! 🎆');
 }
 
 function setupWeekSelector() {
