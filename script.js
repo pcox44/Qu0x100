@@ -103,7 +103,12 @@ function evaluateFactorials(expr) {
 function safeEval(expr) {
   try {
     let parsedExpr = expr.replace(/\^/g, '**');
-    parsedExpr = evaluateFactorials(parsedExpr);
+    let prevExpr;
+    do {
+      prevExpr = parsedExpr;
+      parsedExpr = evaluateFactorials(parsedExpr);
+    } while (parsedExpr !== prevExpr);
+
     const val = eval(parsedExpr);
     if (typeof val === 'number' && isFinite(val)) {
       return val;
