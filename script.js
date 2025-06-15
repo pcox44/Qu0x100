@@ -75,27 +75,28 @@ function factorial(n) {
 }
 
 function evaluateFactorials(expr) {
-  return expr.replace(/(\d+|\([^()]+\))(!+)/g, (match, numberPart, factorialMarks) => {
+  const factorialRegex = /(\((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*\)|\d+)(!+)/g;
+
+  return expr.replace(factorialRegex, (match, baseExpr, bangs) => {
     let num;
-    if (numberPart.startsWith('(')) {
-      try {
-        const inner = numberPart.slice(1, -1);
-        num = eval(inner);
-      } catch {
-        return match;
-      }
-    } else {
-      num = Number(numberPart);
+
+    try {
+      // Safely evaluate the inner base expression
+      num = eval(evaluateFactorials(baseExpr)); // recurse into sub-expressions if needed
+    } catch {
+      return match;
     }
+
     if (!Number.isInteger(num) || num < 0) return match;
 
     let val = num;
     let total = 1;
-    const step = factorialMarks.length;
+    const step = bangs.length;
     while (val > 0) {
       total *= val;
       val -= step;
     }
+
     return total;
   });
 }
